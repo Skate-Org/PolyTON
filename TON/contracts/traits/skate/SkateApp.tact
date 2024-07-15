@@ -19,29 +19,33 @@ trait SkateAppBase {
         });
     }
 
-    // 3. Only executor can call this, message originates from Skate gateway.
-    receive(msg: Slice) {
-        self._onlySkateGateway();
-        let ctx: Context = context();
-        let msg_struct = self._unpackExecutionMsg(msg);
-        self._validateExecutionMsg(ctx, msg_struct);
-        self._executeTasks(ctx, msg_struct);
-    }
-
-
     inline fun _onlySkateGateway() {
         nativeThrowUnless(132, sender() == self.skate_gateway);
     }
 
-    abstract inline fun _unpackExecutionMsg(msg: Slice): Cell;
-
-    virtual inline fun _validateExecutionMsg(ctx: Context, msg: Cell) {
-        // NOTE: custom logic to validate
-    }
-
     // NOTE: App specific logic to be implemented by contract.
-    // This is the entry point to ALL OTHER UNDERLYING FUNCTIONS.
-    abstract inline fun _executeTasks(ctx: Context, msg: Cell);
-
-    abstract inline fun calculate_skate_wallet_init(): StateInit;
+    // A more UX friendly approach is to let specific app implements 
+    // own logic with self._onlySkategateway() lock.
+    // THOUGH, CURRENTLY SKATE CAN'T CHECK IF THE DESTINATION METHOD IS
+    // SAFE. THEREFORE IT's THE JOB OF RELAYER/AVS TO ENSURE ONLY FUNCTION
+    // WITH _onlySkateGateway() MODIFIER CAN BE EXECUTED.
+    //
+    // 3. Only executor can call this, message originates from Skate gateway.
+    // receive(msg: Slice) {
+    //     self._onlySkateGateway();
+    //     let ctx: Context = context();
+    //     let msg_struct = self._unpackExecutionMsg(msg);
+    //     self._validateExecutionMsg(ctx, msg_struct);
+    //     self._executeTasks(ctx, msg_struct);
+    // }
+    //
+    // abstract inline fun _unpackExecutionMsg(msg: Slice): Cell;
+    //
+    // virtual inline fun _validateExecutionMsg(ctx: Context, msg: Cell) {
+    //     // NOTE: custom logic to validate
+    // }
+    //
+    // abstract inline fun _executeTasks(ctx: Context, msg: Cell);
+    //
+    // abstract inline fun calculate_skate_wallet_init(): StateInit;
 }

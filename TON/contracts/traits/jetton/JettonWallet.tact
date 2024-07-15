@@ -77,6 +77,12 @@ trait JettonWallet {
             self._internal_transfer_notification(ctx, msg);
         }
         self._internal_transfer_excesses(ctx, msg, remain);
+        self._receive_jetton_callback(ctx, msg);
+        self._receive_jetton_callback(ctx, msg);
+    }
+
+    virtual inline fun _receive_jetton_callback(ctx: Context, msg: JettonInternalTransfer) {
+        // NOTE: TBImplemented by contract.
     }
 
     bounced(src: bounced<JettonInternalTransfer>){

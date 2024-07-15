@@ -6,7 +6,8 @@ import { sha512 } from '@noble/hashes/sha512';
 ed.etc.sha512Sync = (...msgs) => {
   const hash = sha512.create();
   msgs.forEach((msg) => hash.update(msg));
-  return hash.digest();
+  return hash.digest()
+  // return sha512(ed.etc.concatBytes(...msgs))
 };
 
 // Convert BigInt to Uint8Array

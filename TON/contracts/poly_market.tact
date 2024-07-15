@@ -1,22 +1,24 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "./traits/jetton/JettonWallet.tact";
-import "./traits/skate/SkateGateway.tact";
 import "./traits/skate/SkateApp.tact";
 
 struct Bet {
-    marketId: Int as uint32; // ERC1155 tokenId of equivalent PolyMarket market.
-    amount: Int as uint32; // Jetton or TON amount, USD equivalent to bet on PolyMarket
+    market_id: Int as uint256; // ERC1155 tokenId of equivalent PolyMarket market.
+    amount: Int as uint256; // Jetton or TON amount, USD equivalent to bet on PolyMarket
     direction: Bool; // True = BUY, False = Sell
     status: Int as uint8 = 0; // 0 = PLACED, 1 = WIN, 2 = LOSE, 3 = ABORT (withdraw)
 }
 struct BetList {
-    bets: map<Int as uint32, Bet>;
-    length: Int as uint32 = 0;
+    bets: map<Int as uint16, Bet>;
+    length: Int as uint16 = 0;
 }
 // Extension mutation function for adding new entries to the end of the array
 extends mutates fun append(self: BetList, item: Bet) {
-    require(self.length + 1 <= 4294967295, "WHATT! You have 4,294,967,295 bets placed!");
+    // WARN: https://docs.tact-lang.org/book/maps#limits-and-drawbacks
+    // MAX map size ~ uint16/2 = 32000, gas is more expensive with map size
+    // => user should create a new account after > 30k bets
+    require(self.length + 1 <= 32000, "WHATT! You have 32000 bets placed!");
     self.bets.set(self.length, item); // set the entry (key-value pair)
     self.length += 1;                // increase the length field
 }
@@ -35,61 +37,56 @@ fun emptyBetList(): BetList {
 
 message SettleBet {
     user: Address;
-    betIdx: Int as uint32;
-    relayerSig: Slice;
+    bet_idx: Int as uint32;
 }
 
-message PlaceBet {
-    marketId: Int as uint32;
-    amount: Int as uint32;
+struct BetConfig {
+    market_id: Int as uint256;
     direction: Bool;
     // Status default to 0.
 }
 
 message WithdrawBet {
-    betIdx: Int as uint32;
+    bet_idx: Int as uint32;
 }
 
-contract PolyMarket with Deployable, OwnableTransferable {
-    relayer: Int as uint256; // Relayer is an ED25519 public key
+contract PolyMarket with SkateAppBase, JettonWallet {
     owner: Address;
-    executors: map<Address, Bool>;
+    jetton_master: Address; // most likely USDT contract
+    balance: Int = 0;
+    skate_gateway: Address = newAddress(0, 0x83dfd552e63729b472fcbcc8c45ebcc6691702558b68ec7527e1ba403a0f31a8);
 
     // WARN: Discourage: https://docs.tact-lang.org/book/maps#limits-and-drawbacks
+    // Should change to individual user posess the "jetton + betting wallet".
     userToBetList: map<Address, BetList>;
 
-    init(owner: Address, relayer: Int) {
+    // WARN: from actual USDT implementations at .mocks/*.fc, this contract init must conform to jetton interface.
+    // Otherwise Master getter will fails -> problem with burn (and also mint).
+    init(owner: Address, jetton_master: Address) {
         self.owner = owner;
-        self.relayer = relayer;
+        self.jetton_master = jetton_master;
     }
 
-    ////////////// Skate Infras ///////////////
-    receive(msg: SetExecutor) {
-        self.requireOwner();
-        self.executors.set(msg.executor, true);
+    override inline fun calculate_jetton_wallet_init(owner: Address): StateInit {
+        return initOf PolyMarket(owner, self.jetton_master);
     }
 
-    receive(msg: RevokeExecutor) {
-        self.requireOwner();
-        self.executors.set(msg.executor, true);
-    }
-
-    get fun relayer(): Int {
-        return self.relayer;
-    }
-    ///////////////////////////////////////////
-
+    // NOTE: as explained above, the skate_gateway
 
     //////////// User interactions ////////////
-    receive(msg: PlaceBet) {
-        let user: Address = sender();
-        // TODO: transfer the underlying token, likely USDT to this contract, which also a Jetton wallet.
+    // NOTE: user can only place bet via transferring Jetton.
+    // Therefore, this contract implements an extension of JettonInternalTransfer (jetton receive handler)
+    // that embeds the Bet struct in forward_payload field.
+    // EQUIVALENTLY, SENT BET = SENT JETTON (USDT) + PAYLOAD. OTHERWISE, JETTON WILL BE BOUNCED BACK.
+    override inline fun _receive_jetton_callback(ctx: Context, msg: JettonInternalTransfer) {
+        let user: Address = ctx.sender;
+        let bet_config: BetConfig = BetConfig.fromSlice(msg.forward_payload);
 
         // Create and save the bet struct
         let newBet: Bet = Bet {
-            marketId: msg.marketId,
-            amount: msg.amount,
-            direction: msg.direction,
+            market_id: bet_config.market_id,
+            amount: msg.amount, // Jetton USDT amount
+            direction: bet_config.direction,
             // status = PLACED (0)
             status: 0
         };
@@ -111,16 +108,14 @@ contract PolyMarket with Deployable, OwnableTransferable {
         require(betList != null, "No bet placed!");
 
         // status 4 = WITHDRAW.
-        betList!!.upgradeStatus(msg.betIdx, 4);
+        betList!!.upgradeStatus(msg.bet_idx, 4);
         self.userToBetList.set(user, betList!!);
     }
     ///////////////////////////////////////////
 
     ////////// Executor interactions //////////
     receive(msg: SettleBet) {
-        let executor = sender();
-        let isExecutor = self.executors.get(executor);
-        nativeThrowUnless(132, isExecutor != null && isExecutor!!);
+        self._onlySkateGateway();
 
         let betList = self.userToBetList.get(msg.user);
         require(betList != null, "Invalid user! This user hasn't placed any bet!");

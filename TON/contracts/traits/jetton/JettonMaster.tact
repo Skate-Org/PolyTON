@@ -80,7 +80,6 @@ trait JettonMaster {
     }
 
     // ====== Get Methods ====== //
-
     get fun get_jetton_data(): JettonData {
         return
             JettonData{
@@ -97,4 +96,3 @@ trait JettonMaster {
         return contractAddress(initCode);
     }
 }
-
