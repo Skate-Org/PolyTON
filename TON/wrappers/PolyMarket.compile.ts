@@ -5,6 +5,6 @@ export const compile: CompilerConfig = {
   target: 'contracts/poly_market.tact',
   options: {
     debug: true,
-    external: true
+    external: true,
   },
 };

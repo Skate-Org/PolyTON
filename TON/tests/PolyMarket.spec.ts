@@ -7,7 +7,7 @@ describe('PolyMarket', () => {
   let blockchain: Blockchain;
   let deployer: SandboxContract<TreasuryContract>;
   let polyMarket: SandboxContract<PolyMarket>;
-  let relayerPublicKey = BigInt("0x072aa6ab487813c8763e8564cf74356e351280cff6380bf28a845259a6e90433");
+  let relayerPublicKey = BigInt('0x072aa6ab487813c8763e8564cf74356e351280cff6380bf28a845259a6e90433');
 
   beforeEach(async () => {
     blockchain = await Blockchain.create();
@@ -25,7 +25,7 @@ describe('PolyMarket', () => {
         // @ts-ignore
         $$type: 'Deploy',
         queryId: 0n,
-      }
+      },
     );
 
     expect(deployResult.transactions).toHaveTransaction({

@@ -5,6 +5,6 @@ export const compile: CompilerConfig = {
   target: 'contracts/skate_gateway.tact',
   options: {
     debug: true,
-    external: true
+    external: true,
   },
 };
