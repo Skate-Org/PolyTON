@@ -2,6 +2,7 @@ import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "./traits/jetton/JettonWallet.tact";
 import "./traits/skate/SkateApp.tact";
+import "./jetton.tact";
 
 struct Bet {
     market_id: Int as uint256; // ERC1155 tokenId of equivalent PolyMarket market.
@@ -9,6 +10,11 @@ struct Bet {
     direction: Bool; // True = BUY, False = Sell
     status: Int as uint8 = 0; // 0 = PLACED, 1 = WIN, 2 = LOSE, 3 = ABORT (withdraw)
 }
+const BET_PLACED: Int = 0;
+const BET_WON: Int = 1;
+const BET_LOST: Int = 2;
+const BET_ABORTED: Int = 3;
+
 struct BetList {
     bets: map<Int as uint16, Bet>;
     length: Int as uint16 = 0;
@@ -21,6 +27,13 @@ extends mutates fun append(self: BetList, item: Bet) {
     require(self.length + 1 <= 32000, "WHATT! You have 32000 bets placed!");
     self.bets.set(self.length, item); // set the entry (key-value pair)
     self.length += 1;                // increase the length field
+}
+extends mutates fun get(self: BetList, idx: Int): Bet {
+    // WARN: https://docs.tact-lang.org/book/maps#limits-and-drawbacks
+    // MAX map size ~ uint16/2 = 32000, gas is more expensive with map size
+    // => user should create a new account after > 30k bets
+    nativeThrowUnless(0x5, idx < self.length);
+    return self.bets.get(idx)!!; // set the entry (key-value pair)
 }
 extends mutates fun upgradeStatus(self: BetList, idx: Int, newStatus: Int) {
     require(idx < self.length, "Index out of bounds");
@@ -62,13 +75,14 @@ contract PolyMarket with SkateAppBase, JettonWallet {
 
     // WARN: from actual USDT implementations at .mocks/*.fc, this contract init must conform to jetton interface.
     // Otherwise Master getter will fails -> problem with burn (and also mint).
-    init(owner: Address, jetton_master: Address) {
-        self.owner = owner;
+    init(skate_gateway: Address, jetton_master: Address) {
+        self.owner = skate_gateway;
         self.jetton_master = jetton_master;
+        self.skate_gateway = skate_gateway;
     }
 
     override inline fun calculate_jetton_wallet_init(owner: Address): StateInit {
-        return initOf PolyMarket(owner, self.jetton_master);
+        return initOf JettonWalletImp(owner, self.jetton_master);
     }
 
     // NOTE: as explained above, the skate_gateway
@@ -87,8 +101,7 @@ contract PolyMarket with SkateAppBase, JettonWallet {
             market_id: bet_config.market_id,
             amount: msg.amount, // Jetton USDT amount
             direction: bet_config.direction,
-            // status = PLACED (0)
-            status: 0
+            status: BET_PLACED
         };
 
         let betList: BetList? = self.userToBetList.get(user);
@@ -102,18 +115,41 @@ contract PolyMarket with SkateAppBase, JettonWallet {
         self.notify("BetPlaced".asComment());
     }
 
+    // TODO: change this to user owned wallet function.
+    // This function should also send Jetton to user - the penalty withdrawal fee.
     receive(msg: WithdrawBet) {
-        let user: Address = sender();
+        let ctx: Context = context();
+        let user: Address = ctx.sender;
         let betList: BetList? = self.userToBetList.get(user);
         require(betList != null, "No bet placed!");
 
         // status 4 = WITHDRAW.
-        betList!!.upgradeStatus(msg.bet_idx, 4);
+        betList!!.upgradeStatus(msg.bet_idx, BET_ABORTED);
         self.userToBetList.set(user, betList!!);
+
+        let bet: Bet = betList!!.get(msg.bet_idx);
+
+        let transfer_msg = JettonTransfer {
+            query_id: 0,
+            amount: bet.amount,
+            destination: user,
+            response_destination: user,
+            custom_payload: null,
+            forward_ton_amount: 0,
+            forward_payload: emptyCell().asSlice()
+        };
+        self._transfer_jetton(ctx, transfer_msg);
     }
     ///////////////////////////////////////////
 
     ////////// Executor interactions //////////
+    // NOTE: To make the settle bet + transfer jetton to user atomic, the contract must:
+    // 1. Transfer the user deposited Jetton to executor wallet.
+    // 2. Force executor to fill with correct Jetton USDT amounts.
+    // Meaning either:
+    //  a) Executor must process a special Jetton Wallet that allow relayer to call transfer (BETTER)
+    //  OR
+    //  b) The Relayer + AVS will check that amounts is settle and executor must call this function to claim the amount on Polygon. (FASTER)
     receive(msg: SettleBet) {
         self._onlySkateGateway();
 
@@ -125,5 +161,25 @@ contract PolyMarket with SkateAppBase, JettonWallet {
     }
 
     ///////////////////////////////////////////
+    override inline fun _transfer_jetton(ctx: Context, msg: JettonTransfer) {
+        let init: StateInit = self.calculate_jetton_wallet_init(msg.destination);
+        let receiver: Address = contractAddress(init);
+        send(SendParameters{
+            to: receiver,
+            value: 0,
+            bounce: true,
+            mode: SendRemainingValue,
+            body: JettonInternalTransfer{
+                query_id: msg.query_id,
+                amount: msg.amount,
+                response_address: msg.response_destination,
+                from: myAddress(),
+                forward_ton_amount: msg.forward_ton_amount,
+                forward_payload: msg.forward_payload
+            }.toCell(),
+            code: init.code,
+            data: init.data
+        });
+    }
 }
 
