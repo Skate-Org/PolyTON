@@ -1,8 +1,8 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
-import "../traits/jetton/JettonWallet.tact";
-import "../traits/skate/SkateGateway.tact";
-import "../traits/skate/SkateApp.tact";
+import "./traits/jetton/JettonWallet.tact";
+import "./traits/skate/SkateGateway.tact";
+import "./traits/skate/SkateApp.tact";
 
 struct Bet {
     marketId: Int as uint32; // ERC1155 tokenId of equivalent PolyMarket market.
@@ -50,7 +50,7 @@ message WithdrawBet {
     betIdx: Int as uint32;
 }
 
-contract SkateVault with Deployable, OwnableTransferable {
+contract PolyMarket with Deployable, OwnableTransferable {
     relayer: Int as uint256; // Relayer is an ED25519 public key
     owner: Address;
     executors: map<Address, Bool>;

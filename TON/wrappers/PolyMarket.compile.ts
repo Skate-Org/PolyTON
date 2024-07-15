@@ -2,10 +2,9 @@ import { CompilerConfig } from '@ton/blueprint';
 
 export const compile: CompilerConfig = {
   lang: 'tact',
-  target: 'src/PolyMarket.tact',
+  target: 'contracts/poly_market.tact',
   options: {
     debug: true,
-    // masterchain: true,
     external: true
   },
 };

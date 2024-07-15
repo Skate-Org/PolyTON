@@ -1,6 +1,6 @@
 import "./SkateICCI.tact";
 
-trait SkateApp {
+trait SkateAppBase {
     skate_gateway: Address;
 
     // 1. User initiated actions (e.g. deposit USDT)

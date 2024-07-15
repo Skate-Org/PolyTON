@@ -16,7 +16,7 @@
 // NOTE: contract must be created before send
 struct ExecutionInfo {
     value: Int; // nanoTONs value
-    execution_info: Slice; // execution payload, i.e. struct type of input msg
+    payload: Slice; // execution payload, i.e. struct type of input msg
     expiration: Int; // expiration of request
 }
 
@@ -41,18 +41,4 @@ message SkateInitiateTaskNotification {
 
 message SkateInitiateTaskConfirmation {
     query_id: Int as uint64;
-}
-
-// NOTE: Called by executor, this will request custom methods in destination SkateApp
-message SkateRunTask {
-    query_id: Int;
-    task_payload: Slice; // Arbitrary struct TB implemented in specific app, e.g. user request to bet -> task_payload = bet info
-}
-
-// NOTE: A notification to update master once execution is done. Just a placeholder for now
-// crc32(op::SkateExecutionNotification)
-message SkateExecutionNotification {
-    query_id: Int;
-    query_payload: ExecutionInfo;
-    relayer_signature: Slice;
 }
