@@ -1,7 +1,8 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
-import "./traits/access/Accessible.tact";
-import "./traits/skate/SkatePeripheryMaster.tact";
+import "../traits/jetton/JettonWallet.tact";
+import "../traits/skate/SkateGateway.tact";
+import "../traits/skate/SkateApp.tact";
 
 struct Bet {
     marketId: Int as uint32; // ERC1155 tokenId of equivalent PolyMarket market.

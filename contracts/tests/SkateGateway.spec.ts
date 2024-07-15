@@ -1,17 +1,17 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { toNano } from '@ton/core';
-import { SkateVault } from '../wrappers/SkateVault';
+import { SkateGateway } from '../wrappers/SkateGateway';
 import '@ton/test-utils';
 
 describe('SkateVault', () => {
   let blockchain: Blockchain;
   let deployer: SandboxContract<TreasuryContract>;
-  let skateVault: SandboxContract<SkateVault>;
+  let skateVault: SandboxContract<SkateGateway>;
 
   beforeEach(async () => {
     blockchain = await Blockchain.create();
 
-    skateVault = blockchain.openContract(await SkateVault.fromInit(0n));
+    skateVault = blockchain.openContract(await SkateGateway.fromInit(0n));
 
     deployer = await blockchain.treasury('deployer');
 

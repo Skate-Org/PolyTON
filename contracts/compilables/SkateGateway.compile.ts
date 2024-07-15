@@ -2,7 +2,7 @@ import { CompilerConfig } from '@ton/blueprint';
 
 export const compile: CompilerConfig = {
   lang: 'tact',
-  target: 'src/poly_ton.tact',
+  target: 'src/SkateGateway.tact',
   options: {
     debug: true,
     // masterchain: true,
