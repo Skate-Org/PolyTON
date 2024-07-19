@@ -5,7 +5,7 @@
     "start": "blueprint run",
     "build": "blueprint build --all",
     "test": "jest --verbose",
-    "format": "npx prettier -w ."
+    "format": "prettier -w ."
   },
   "devDependencies": {
     "@babel/preset-env": "^7.24.8",

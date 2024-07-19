@@ -1,3 +1,6 @@
+/// NOTE: Just a reference implementation, 
+/// actual USDT's jetton master is implemented in ../../mocks/*.fc
+
 import "./JettonWallet.tact";
 message JettonMint {
     origin: Address;

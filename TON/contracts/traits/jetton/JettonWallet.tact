@@ -43,7 +43,7 @@ struct WalletData {
     jetton_wallet_code: Cell; // with code of this wallet
 }
 // ============================================================ //
-trait JettonWallet {
+trait JettonWalletBase {
     balance: Int;
     owner: Address;
     jetton_master: Address;
@@ -78,7 +78,6 @@ trait JettonWallet {
         }
         self._internal_transfer_excesses(ctx, msg, remain);
         self._receive_jetton_callback(ctx, msg);
-        self._receive_jetton_callback(ctx, msg);
     }
 
     virtual inline fun _receive_jetton_callback(ctx: Context, msg: JettonInternalTransfer) {
@@ -108,8 +107,9 @@ trait JettonWallet {
         if (msg.forward_ton_amount > 0) {
             fwd_count = 2;
         }
+        // NOTE: as per https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md#1-transfer
         require(ctx.value > ((fwd_count * ctx.readForwardFee() + 2 * self.gasConsumption) + self.minTonsForStorage),
-            "Not enough funds to transfer"
+            "JettonWallet._transfer_estimate_remain_value()::Not enough funds to transfer"
         );
     }
 

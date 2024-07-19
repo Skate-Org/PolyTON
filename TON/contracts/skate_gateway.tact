@@ -32,16 +32,15 @@ contract SkateGateway with Deployable, SkateGatewayBase {
 
     receive(msg: ChangeRelayer) {
         self.requireOwner();
-        self._setRelayer(msg.newRelayer, msg.currentSignature, msg.newSignature);
+        self.set_relayer(msg.newRelayer, msg.currentSignature, msg.newSignature);
     }
 
-    fun _setRelayer(newRelayer: Int, currentSignature: Slice, newSignature: Slice) {
+    fun set_relayer(newRelayer: Int, currentSignature: Slice, newSignature: Slice) {
         let messageHash: Int = sha256(self.CHANGE_RELAYER_MSG);
-        self._validateRelayerSignature(messageHash, currentSignature);
+        self.validate_relayer_signature(messageHash, currentSignature);
         let isValid: Bool = checkSignature(messageHash, newSignature, newRelayer);
-        require(isValid, "SkateMaster::_setRelayer()::Not approved by new relayer!");
+        require(isValid, "SkateMaster::set_relayer()::Not approved by new relayer!");
         self.relayer = newRelayer;
         emit(SetRelayerEvent{relayer: newRelayer}.toCell());
     }
 }
-
