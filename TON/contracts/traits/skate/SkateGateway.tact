@@ -17,8 +17,8 @@ message SkateExecuteTask {
 trait SkateGatewayBase with OwnableTransferable {
     owner: Address;
     relayer: Int; // Relayer is an ED25519 public key
-    executors: map<Address, Bool>;
-    virtual const SKATE_FEE: Int = ton("0.00"); // DApp should pay gas for execution.
+    executors: map<Address, Bool>; // NOTE: small mapping, won't exceeds 1k executors.
+    virtual const SKATE_FEE: Int = ton("0.00"); // Gas required to process intent.
 
     ////////////////////// GOVERNANCE /////////////////////
     get fun relayer(): Int {
@@ -58,6 +58,12 @@ trait SkateGatewayBase with OwnableTransferable {
     /////////////////////////////////////////////////////////
 
     //////////////////// Execution Layer ////////////////////
+    nonce: Int; // Nonce to mitigate precomputation attack, also ensures intents is submitted in order
+    get fun currentNonce(): Int {
+        return self.nonce;
+    }
+
+    // NOTE: must be called from a skate app
     receive(msg: SkateInitiateTaskNotification) {
         let ctx: Context = context();
         require(ctx.value >= self.SKATE_FEE, "SkateInitiateTaskNotification::Not enough processing fee!");
@@ -70,12 +76,34 @@ trait SkateGatewayBase with OwnableTransferable {
             app: ctx.sender, // TODO: MUST CHECK if any similar pattern to EVM meta-transaction -> MUST get correct app.
             execution_info: msg.execution_info,
         }.toCell());
+
+        // TODO: DISCUSSION POINT
+        // This callback enable supports for different type of use cases:
+        //  a. default gateway => empty callback, for app with user = normal wallet (e.g. walletV4) uses.
+        //  b. contract only gateway => send a notification with extra context to app, 
+        //      for contracts with user = contracts (e.g. to acts as arbitrary middleware between user defined contracts).
+        self._initiate_task_callback(ctx, msg);
     }
+
+    virtual inline fun _initiate_task_callback(ctx: Context, msg: SkateInitiateTaskNotification) {}
 
     receive(msg: SkateExecuteTask) {
         self.only_executor();
         let execution_info: ExecutionInfo = msg.execution_info;
         require(now() <= execution_info.expiration, "SkateExecuteTask::Task expired!");
+
+        // Construct the message hash = keccak256(payload || nonce) here.
+        let payload_with_nonce: Slice = beginCell()
+            .storeSlice(execution_info.payload.toCell().asSlice())
+            .storeInt(self.nonce, 256)
+            .endCell()
+            .asSlice();
+
+        let msg_hash: Int = sha256(payload_with_nonce);
+
+        // validate signature + increase nonce
+        self.validate_relayer_signature(msg_hash, msg.relayer_signature);
+        self.nonce += 1;
 
         send(SendParameters{
             to: msg.target_app,

@@ -4,10 +4,11 @@ import "@ton/test-utils";
 import { PolyMarket } from "../build/PolyMarket/tact_PolyMarket";
 import { SkateGateway } from "../build/SkateGateway/tact_SkateGateway";
 
-describe("PolyMarket", () => {
+describe("Integration: Gateway + PolyMarket", () => {
   let blockchain: Blockchain;
   let deployer: SandboxContract<TreasuryContract>;
   let polyMarket: SandboxContract<PolyMarket>;
+  // TODO: check if this can be mocked, e.g. mint arbitrary amounts to polyMarket contract
   let jetton_USDT = address("EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs");
   let skateGateway: SandboxContract<SkateGateway>;
   const relayerPublicKey = BigInt("0x072aa6ab487813c8763e8564cf74356e351280cff6380bf28a845259a6e90433");
@@ -43,16 +44,13 @@ describe("PolyMarket", () => {
     // blockchain and skateGateway are ready to use
   });
 
-  it("should init correctly", async () => {
-    const jettonData = await polyMarket.getGetWalletData();
-    expect(jettonData.owner.toString()).toEqual(skateGateway.address.toString());
-    expect(jettonData.jetton.toString()).toEqual(jetton_USDT.toString());
-    expect(jettonData.balance).toEqual(0n);
+  // TODO: PlaceBet tests, i.e. transfer to PolyMarket contract
+  // TODO: SettleBet tests, i.e. request Gateway => executor settle.
 
-    const gateway = await polyMarket.getGateway();
-    expect(gateway.toString()).toEqual(skateGateway.address.toString());
-
-    const lastTaskId = await polyMarket.getLastTaskId();
-    expect(lastTaskId).toEqual(0n);
-  });
+  // NOTE: Gateway specific
+  // TODO: SkateInitiateTaskNotification tests
+  // TODO: SkateExecuteTask tests
+  it("should correctly verify relayer signature");
+  it("should false with mismatch struct data");
+  it("should false with mismatch nonce");
 });

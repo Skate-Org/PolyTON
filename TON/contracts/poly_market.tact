@@ -66,7 +66,7 @@ contract PolyMarket with Deployable, SkateAppBase, JettonWalletBase {
     // NOTE: from actual USDT implementations at ./mocks/*.fc, this contract init must conform to jetton interface.
     // Otherwise Master getter will fails -> problem with burn (and also mint).
     init(skate_gateway: Address, jetton_master: Address) {
-        self.owner = skate_gateway;
+        self.owner = skate_gateway; // WARN: owner MUST BE SKATE GATEWAY, else settlement flows wont't work.
         self.jetton_master = jetton_master;
         self.skate_gateway = skate_gateway;
     }

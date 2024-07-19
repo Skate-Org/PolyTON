@@ -16,6 +16,7 @@ contract SkateGateway with Deployable, SkateGatewayBase {
     owner: Address;
     relayer: Int; // Relayer is an ED25519 public key
     executors: map<Address, Bool>;
+    nonce: Int = 0;
 
     const CHANGE_RELAYER_MSG: String = "Skate::RELAYER_CHANGE";
 
