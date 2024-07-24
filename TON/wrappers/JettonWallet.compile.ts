@@ -1,9 +1,8 @@
 import { CompilerConfig } from "@ton/blueprint";
 
 export const compile: CompilerConfig = {
-  lang: "tact",
-  target: "contracts/poly_market.tact",
-  options: {
-    debug: true,
-  },
+  lang: "func",
+  targets: [
+    "contracts/mocks/USDT/jetton-wallet.fc"
+  ],
 };

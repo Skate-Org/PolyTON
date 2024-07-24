@@ -1,5 +1,6 @@
 import "@stdlib/deploy";
 import "@stdlib/ownable";
+// import "./traits/skate/ISkate.tact"; // implicit
 import "./traits/skate/SkateGateway.tact";
 
 message ChangeRelayer {

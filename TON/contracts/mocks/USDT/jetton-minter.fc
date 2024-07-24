@@ -3,7 +3,7 @@
 ;; NOTE: Source at https://tonscan.org/address/EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs#source
 #pragma version >=0.4.3;
 
-#include "../imports/stdlib.fc";
+#include "stdlib.fc";
 #include "op-codes.fc";
 #include "workchain.fc";
 #include "jetton-utils.fc";

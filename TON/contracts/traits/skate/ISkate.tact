@@ -2,7 +2,7 @@
 //
 // NOTE: DISCUSSION POINT (RESOLVED)
 // INTENDED FLOW:
-// 1. SkateApp implementations takes request initiation from user.
+// 1. SkateApp implementations takes request initiation from skate_app.
 // 2. SkateApp construct payload and request Skate Gateway.
 // 3. Skate Gateway emit Event collected by off-chain actor then:
 //    a. Executor processIntent(), i.e. reserve it => emit event
@@ -16,38 +16,49 @@
 // 6. SkateApp performs assets transfer based on verified state (STATELESS)
 // 7. Assets released on destination chains
 
-struct Payload {
+struct Destination {
     chain_id: Int as uint256; // <- the target chain
     chain_type: Int as uint256; // <- Skate chainType convention || 0=EVM, 1=Solana, 2=TON, 3=others.
-    app: Int as uint256; // <- universal address (even though TON workchain supports 512 bit address, 
-    data: Slice; // <- specific execution data, intepreted by Skate kernel. Developers can write their own intepretation plugins for executor.
+    address: Int as uint256; // <- universal address (even though TON workchain supports 512 bit address, 
+}
+
+struct Payload {
+    destination: Cell; // NOTE: as Destination, to by pass 1023 bits limit
+    data: Cell; // <- specific execution data, intepreted by Skate kernel. Developers can write their own intepretation plugins for executor.
 }
 
 struct ExecutionInfo {
-    value: Int; // nanoTONs value
+    value: Int as coins; // nanoTONs value
+    expiration: Int as uint32; // Unix time
     payload: Payload; // execution payload, i.e. struct type of input msg
-    expiration: Int; // expiration of request
 }
 
 // SkateApp
 struct SkateInitiateTask {
     query_id: Int as uint64;
     user: Address;
-    processing_fee: Int as uint64; // in nanoTONs, set by Skate.
+    processing_fee: Int as coins; // in nanoTONs, set by Skate.
     execution_info: ExecutionInfo;
 }
 
-message SkateInitiateTaskEvent {
+struct SkateInitiateTaskEvent {
     query_id: Int as uint64;
     user: Address;
-    app: Address;
+    skate_app: Address;
     execution_info: ExecutionInfo;
 }
 
-// For Skate Gateway
-message SkateInitiateTaskNotification {
+// For Skate App
+message(0xe3db123b) SkateInitiateTaskNotification {
     query_id: Int as uint64;
     user: Address;
     execution_info: ExecutionInfo;
 }
 
+// For Skate executors
+message(0xe8b8b601) SkateExecuteTask {
+    query_id: Int as uint64;
+    target_app: Address;
+    execution_info: ExecutionInfo;
+    relayer_signature: Slice;
+}

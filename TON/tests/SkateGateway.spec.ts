@@ -1,8 +1,10 @@
 import { Blockchain, SandboxContract, TreasuryContract } from "@ton/sandbox";
 import { toNano, beginCell } from "@ton/core";
 import "@ton/test-utils";
-import { SkateGateway } from "../build/SkateGateway/tact_SkateGateway";
+import { ExecutionInfo, loadSkateInitiateTaskEvent, SkateExecuteTask, SkateGateway, SkateInitiateTaskNotification, storeDestination, storeSkateInitiateTaskNotification } from "../build/SkateGateway/tact_SkateGateway";
 import { ed25519Sign } from "./helpers";
+import { Op as SkateOp } from "../wrappers/ISkate";
+import { storeBet } from "../build/PolyMarket/tact_PolyMarket";
 
 describe("SkateGateway", () => {
   let blockchain: Blockchain;
@@ -152,5 +154,110 @@ describe("SkateGateway", () => {
     expect(newRelayer).toEqual(relayer2PublicKey);
   });
 
-  // NOTE: SkateInitiateTaskNotification and SkateExecuteTask are tested in integration.
+  it("should receive task initiation request", async () => {
+    const mockData = beginCell()
+      .store(storeBet({
+        $$type: 'Bet', candidate_id: 1n, direction: true, usd_amount: toNano('1')
+      }))
+      .endCell();
+    const destination = beginCell()
+      .store(storeDestination({
+        $$type: 'Destination', address: 0n, chain_id: 137n, chain_type: 0n
+      }))
+      .endCell();
+    const mockInitiateTask: SkateInitiateTaskNotification = {
+      $$type: 'SkateInitiateTaskNotification',
+      query_id: 0n,
+      user: deployer.address,
+      execution_info: {
+        $$type: 'ExecutionInfo',
+        payload: {
+          $$type: 'Payload',
+          destination: destination,
+          data: mockData
+        },
+        expiration: BigInt(Math.round(new Date().getTime() / 1000)),
+        value: toNano("1")
+      }
+    }
+    const mockApp = await blockchain.treasury('MockAddress')
+
+    const initiateTaskTx = await skateGateway.send(
+      mockApp.getSender(),
+      {
+        value: toNano("0.2")
+      },
+      mockInitiateTask
+    )
+    expect(initiateTaskTx.transactions).toHaveTransaction({
+      from: mockApp.address,
+      to: skateGateway.address,
+      success: true,
+      op: SkateOp.initiate_task_notification
+    })
+
+    expect(initiateTaskTx.externals).toHaveLength(1);
+    const eventSlice = initiateTaskTx.externals[0].body.asSlice();
+    const task = loadSkateInitiateTaskEvent(eventSlice);
+    expect(task.query_id).toEqual(mockInitiateTask.query_id);
+    expect(task.user.equals(mockInitiateTask.user)).toEqual(true);
+    expect(task.execution_info.value).toEqual(mockInitiateTask.execution_info.value);
+    expect(task.execution_info.expiration).toEqual(mockInitiateTask.execution_info.expiration);
+    expect(task.execution_info.payload.destination.hash().toString('hex'))
+      .toEqual(mockInitiateTask.execution_info.payload.destination.hash().toString('hex'));
+    expect(task.execution_info.payload.data.hash().toString('hex'))
+      .toEqual(mockInitiateTask.execution_info.payload.data.hash().toString('hex'));
+  });
+
+  it("should execute task with signature", async () => {
+    const mockApp = await blockchain.treasury('MockAddress')
+    const mockData = beginCell()
+      .store(storeBet({
+        $$type: 'Bet', candidate_id: 1n, direction: true, usd_amount: toNano('1')
+      }))
+      .endCell();
+    const destination = beginCell()
+      .store(storeDestination({
+        $$type: 'Destination', address: 0n, chain_id: 137n, chain_type: 0n
+      }))
+      .endCell();
+    const execution_info: ExecutionInfo = {
+      $$type: 'ExecutionInfo',
+      payload: {
+        $$type: 'Payload',
+        destination: destination,
+        data: mockData
+      },
+      expiration: BigInt(Math.round(new Date().getTime() / 1000)),
+      value: toNano("1")
+    };
+
+    const relayerSig = beginCell().endCell();
+
+    const mockExecuteTask: SkateExecuteTask = {
+      $$type: 'SkateExecuteTask',
+      query_id: 0n,
+      target_app: mockApp.address,
+      execution_info,
+      relayer_signature: relayerSig
+    }
+
+    const executeTaskTx = await skateGateway.send(
+      mockApp.getSender(),
+      {
+        value: toNano("0.2")
+      },
+      mockExecuteTask
+    )
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: mockApp.address,
+      to: skateGateway.address,
+      success: true,
+      op: SkateOp.initiate_task_notification
+    })
+  });
+
+  it("should reject execution without signature", async () => {
+
+  });
 });

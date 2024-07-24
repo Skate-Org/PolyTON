@@ -1,7 +1,5 @@
-/// NOTE: Just a reference implementation, 
-/// actual USDT's jetton master is implemented in ../../mocks/*.fc
+import "./IJetton.tact";
 
-import "./JettonWallet.tact";
 message JettonMint {
     origin: Address;
     receiver: Address;
@@ -17,7 +15,7 @@ struct JettonData {
     jetton_content: Cell;
     jetton_wallet_code: Cell;
 }
-// ============================================================ //
+
 trait JettonMaster {
     total_supply: Int;
     mintable: Bool;
@@ -52,37 +50,39 @@ trait JettonMaster {
         let initCode: StateInit = self.calculate_jetton_wallet_init(msg.receiver);
         self.total_supply = (self.total_supply + msg.amount);
         send(SendParameters{
-            to: contractAddress(initCode),
-            value: 0,
-            bounce: true,
-            mode: SendRemainingValue,
-            body: JettonInternalTransfer{
-                query_id: 0,
-                amount: msg.amount,
-                response_address: msg.origin,
-                from: myAddress(),
-                forward_ton_amount: msg.forward_ton_amount,
-                forward_payload: msg.forward_payload
-            }.toCell(),
-            code: initCode.code,
-            data: initCode.data
-        });
+                to: contractAddress(initCode),
+                value: 0,
+                bounce: true,
+                mode: SendRemainingValue,
+                body: JettonInternalTransfer{
+                    query_id: 0,
+                    amount: msg.amount,
+                    response_address: msg.origin,
+                    from: myAddress(),
+                    forward_ton_amount: msg.forward_ton_amount,
+                    forward_payload: msg.forward_payload
+                }.toCell(),
+                code: initCode.code,
+                data: initCode.data
+            }
+        );
     }
 
     inline fun _burn_notification(ctx: Context, msg: JettonBurnNotification) {
         self.total_supply = (self.total_supply - msg.amount);
         if (msg.response_destination != null) {
             send(SendParameters{
-                to: msg.response_destination,
-                value: 0,
-                bounce: false,
-                mode: (SendRemainingValue + SendIgnoreErrors)
-            }
+                    to: msg.response_destination,
+                    value: 0,
+                    bounce: false,
+                    mode: (SendRemainingValue + SendIgnoreErrors)
+                }
             );
         }
     }
 
     // ====== Get Methods ====== //
+
     get fun get_jetton_data(): JettonData {
         return
             JettonData{

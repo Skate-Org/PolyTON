@@ -1,5 +1,5 @@
 import "@stdlib/deploy";
-import "./traits/jetton/JettonWallet.tact";
+import "../traits/jetton/JettonWallet.tact";
 
 // user jetton Wallet to holds their USDT.
 // Create one if they don't have it yet.
@@ -7,6 +7,10 @@ contract JettonWallet with JettonWalletBase, Deployable {
     balance: Int as coins = 0;
     owner: Address;
     jetton_master: Address;
+
+    get fun balance(): Int {
+        return self.balance;
+    }
 
     init(owner: Address, jetton_master: Address) {
         self.owner = owner;

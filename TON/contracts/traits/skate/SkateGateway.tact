@@ -1,4 +1,4 @@
-import "./SkateICCI.tact";
+import "./ISkate.tact";
 
 message SetExecutor {
     executor: Address;
@@ -8,12 +8,6 @@ message RevokeExecutor {
     executor: Address;
 }
 
-message SkateExecuteTask {
-    query_id: Int;
-    target_app: Address;
-    execution_info: ExecutionInfo;
-    relayer_signature: Slice;
-}
 trait SkateGatewayBase with OwnableTransferable {
     owner: Address;
     relayer: Int; // Relayer is an ED25519 public key
@@ -68,12 +62,10 @@ trait SkateGatewayBase with OwnableTransferable {
         let ctx: Context = context();
         require(ctx.value >= self.SKATE_FEE, "SkateInitiateTaskNotification::Not enough processing fee!");
 
-        // NOTE: it's avs + relayer responibility to verify the execution,
-        // therefore we don't need to whitelist app here.
         emit(SkateInitiateTaskEvent{
             query_id: msg.query_id,
             user: msg.user,
-            app: ctx.sender, // TODO: MUST CHECK if any similar pattern to EVM meta-transaction -> MUST get correct app.
+            skate_app: ctx.sender, // TODO: MUST CHECK if any similar pattern to EVM meta-transaction -> MUST get correct app.
             execution_info: msg.execution_info,
         }.toCell());
 
@@ -109,7 +101,6 @@ trait SkateGatewayBase with OwnableTransferable {
             to: msg.target_app,
             value: execution_info.value,
             mode: SendRemainingValue, // msg.value - gas fee
-            // NOTE: arbitrary call to destination app, ABI must be inspected off-chain
             body: execution_info.payload.toCell(),
         })
     }
