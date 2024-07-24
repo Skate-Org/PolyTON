@@ -1,4 +1,4 @@
-// NOTE: 
+// NOTE:
 // Source: https://github.com/ton-blockchain/stablecoin-contract/blob/main/wrappers/JettonMinter.ts
 // with removed forced transfer/burn functions
 import {
@@ -9,71 +9,72 @@ import {
   contractAddress,
   ContractProvider,
   Sender,
-  SendMode, Slice,
-  toNano
-} from '@ton/core';
-import { Op } from './JettonConstants';
-import { endParse } from './utils';
+  SendMode,
+  Slice,
+  toNano,
+} from "@ton/core";
+import { Op } from "./JettonConstants";
+import { endParse } from "./utils";
 
 export type JettonMinterContent = {
-  uri: string
+  uri: string;
 };
 export type JettonMinterConfig = {
-  admin: Address,
-  wallet_code: Cell,
-  jetton_content: Cell | JettonMinterContent
+  admin: Address;
+  wallet_code: Cell;
+  jetton_content: Cell | JettonMinterContent;
 };
 export type JettonMinterConfigFull = {
-  supply: bigint,
-  admin: Address,
+  supply: bigint;
+  admin: Address;
   //Makes no sense to update transfer admin. ...Or is it?
-  transfer_admin: Address | null,
-  wallet_code: Cell,
-  jetton_content: Cell | JettonMinterContent
-}
+  transfer_admin: Address | null;
+  wallet_code: Cell;
+  jetton_content: Cell | JettonMinterContent;
+};
 
-export type LockType = 'unlock' | 'out' | 'in' | 'full';
+export type LockType = "unlock" | "out" | "in" | "full";
 
-export const LOCK_TYPES = ['unlock', 'out', 'in', 'full'];
+export const LOCK_TYPES = ["unlock", "out", "in", "full"];
 
 export const lockTypeToInt = (lockType: LockType): number => {
   switch (lockType) {
-    case 'unlock':
+    case "unlock":
       return 0;
-    case 'out':
+    case "out":
       return 1;
-    case 'in':
+    case "in":
       return 2;
-    case 'full':
+    case "full":
       return 3;
     default:
       throw new Error("Invalid argument!");
   }
-}
+};
 
 export const intToLockType = (lockType: number): LockType => {
   switch (lockType) {
     case 0:
-      return 'unlock';
+      return "unlock";
     case 1:
-      return 'out';
+      return "out";
     case 2:
-      return 'in';
+      return "in";
     case 3:
-      return 'full';
+      return "full";
     default:
       throw new Error("Invalid argument!");
   }
-}
+};
 
 export function jettonMinterConfigCellToConfig(config: Cell): JettonMinterConfigFull {
-  const sc = config.beginParse()
+  const sc = config.beginParse();
   const parsed: JettonMinterConfigFull = {
     supply: sc.loadCoins(),
     admin: sc.loadAddress(),
     transfer_admin: sc.loadMaybeAddress(),
     wallet_code: sc.loadRef(),
-    jetton_content: sc.loadRef()
+    jetton_content: sc.loadRef(),
   };
   endParse(sc);
   return parsed;
@@ -84,18 +85,20 @@ export function parseJettonMinterData(data: Cell): JettonMinterConfigFull {
 }
 
 export function jettonMinterConfigFullToCell(config: JettonMinterConfigFull): Cell {
-  const content = config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
+  const content =
+    config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
   return beginCell()
     .storeCoins(config.supply)
     .storeAddress(config.admin)
     .storeAddress(config.transfer_admin)
     .storeRef(config.wallet_code)
     .storeRef(content)
-    .endCell()
+    .endCell();
 }
 
 export function jettonMinterConfigToCell(config: JettonMinterConfig): Cell {
-  const content = config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
+  const content =
+    config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
   return beginCell()
     .storeCoins(0)
     .storeAddress(config.admin)
@@ -112,8 +115,10 @@ export function jettonContentToCell(content: JettonMinterContent) {
 }
 
 export class USDTMinter implements Contract {
-  constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {
-  }
+  constructor(
+    readonly address: Address,
+    readonly init?: { code: Cell; data: Cell },
+  ) {}
 
   static createFromAddress(address: Address) {
     return new USDTMinter(address);
@@ -133,8 +138,17 @@ export class USDTMinter implements Contract {
     });
   }
 
-  static mintMessage(to: Address, jetton_amount: bigint, from?: Address | null, response?: Address | null, customPayload?: Cell | null, forward_ton_amount: bigint = 0n, total_ton_amount: bigint = 0n) {
-    const mintMsg = beginCell().storeUint(Op.internal_transfer, 32)
+  static mintMessage(
+    to: Address,
+    jetton_amount: bigint,
+    from?: Address | null,
+    response?: Address | null,
+    customPayload?: Cell | null,
+    forward_ton_amount: bigint = 0n,
+    total_ton_amount: bigint = 0n,
+  ) {
+    const mintMsg = beginCell()
+      .storeUint(Op.internal_transfer, 32)
       .storeUint(0, 64)
       .storeCoins(jetton_amount)
       .storeAddress(from)
@@ -142,7 +156,9 @@ export class USDTMinter implements Contract {
       .storeCoins(forward_ton_amount)
       .storeMaybeRef(customPayload)
       .endCell();
-    return beginCell().storeUint(Op.mint, 32).storeUint(0, 64) // op, queryId
+    return beginCell()
+      .storeUint(Op.mint, 32)
+      .storeUint(0, 64) // op, queryId
       .storeAddress(to)
       .storeCoins(total_ton_amount)
       .storeRef(mintMsg)
@@ -151,7 +167,7 @@ export class USDTMinter implements Contract {
 
   static parseMintInternalMessage(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.internal_transfer) throw new Error('Invalid op');
+    if (op !== Op.internal_transfer) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const jettonAmount = slice.loadCoins();
     const fromAddress = slice.loadAddress();
@@ -165,13 +181,13 @@ export class USDTMinter implements Contract {
       fromAddress,
       responseAddress,
       forwardTonAmount,
-      customPayload
-    }
+      customPayload,
+    };
   }
 
   static parseMintMessage(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.mint) throw new Error('Invalid op');
+    if (op !== Op.mint) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const toAddress = slice.loadAddress();
     const tonAmount = slice.loadCoins();
@@ -181,34 +197,54 @@ export class USDTMinter implements Contract {
       queryId,
       toAddress,
       tonAmount,
-      internalMessage: this.parseMintInternalMessage(mintMsg.beginParse())
-    }
+      internalMessage: this.parseMintInternalMessage(mintMsg.beginParse()),
+    };
   }
 
-  async sendMint(provider: ContractProvider,
+  async sendMint(
+    provider: ContractProvider,
     via: Sender,
     to: Address,
     jetton_amount: bigint,
     from?: Address | null,
     response_addr?: Address | null,
     customPayload?: Cell | null,
-    forward_ton_amount: bigint = toNano('0.05'), total_ton_amount: bigint = toNano('0.1')) {
+    forward_ton_amount: bigint = toNano("0.05"),
+    total_ton_amount: bigint = toNano("0.1"),
+  ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.mintMessage(to, jetton_amount, from, response_addr, customPayload, forward_ton_amount, total_ton_amount),
+      body: USDTMinter.mintMessage(
+        to,
+        jetton_amount,
+        from,
+        response_addr,
+        customPayload,
+        forward_ton_amount,
+        total_ton_amount,
+      ),
       value: total_ton_amount,
     });
   }
 
   /* provide_wallet_address#2c76b973 query_id:uint64 owner_address:MsgAddress include_address:Bool = InternalMsgBody;
-  */
+   */
   static discoveryMessage(owner: Address, include_address: boolean) {
-    return beginCell().storeUint(Op.provide_wallet_address, 32).storeUint(0, 64) // op, queryId
-      .storeAddress(owner).storeBit(include_address)
+    return beginCell()
+      .storeUint(Op.provide_wallet_address, 32)
+      .storeUint(0, 64) // op, queryId
+      .storeAddress(owner)
+      .storeBit(include_address)
       .endCell();
   }
 
-  async sendDiscovery(provider: ContractProvider, via: Sender, owner: Address, include_address: boolean, value: bigint = toNano('0.1')) {
+  async sendDiscovery(
+    provider: ContractProvider,
+    via: Sender,
+    owner: Address,
+    include_address: boolean,
+    value: bigint = toNano("0.1"),
+  ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: USDTMinter.discoveryMessage(owner, include_address),
@@ -217,21 +253,23 @@ export class USDTMinter implements Contract {
   }
 
   static topUpMessage() {
-    return beginCell().storeUint(Op.top_up, 32).storeUint(0, 64) // op, queryId
+    return beginCell()
+      .storeUint(Op.top_up, 32)
+      .storeUint(0, 64) // op, queryId
       .endCell();
   }
 
   static parseTopUp(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.top_up) throw new Error('Invalid op');
+    if (op !== Op.top_up) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     endParse(slice);
     return {
       queryId,
-    }
+    };
   }
 
-  async sendTopUp(provider: ContractProvider, via: Sender, value: bigint = toNano('0.1')) {
+  async sendTopUp(provider: ContractProvider, via: Sender, value: bigint = toNano("0.1")) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: USDTMinter.topUpMessage(),
@@ -240,21 +278,23 @@ export class USDTMinter implements Contract {
   }
 
   static changeAdminMessage(newOwner: Address) {
-    return beginCell().storeUint(Op.change_admin, 32).storeUint(0, 64) // op, queryId
+    return beginCell()
+      .storeUint(Op.change_admin, 32)
+      .storeUint(0, 64) // op, queryId
       .storeAddress(newOwner)
       .endCell();
   }
 
   static parseChangeAdmin(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.change_admin) throw new Error('Invalid op');
+    if (op !== Op.change_admin) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const newAdminAddress = slice.loadAddress();
     endParse(slice);
     return {
       queryId,
-      newAdminAddress
-    }
+      newAdminAddress,
+    };
   }
 
   async sendChangeAdmin(provider: ContractProvider, via: Sender, newOwner: Address) {
@@ -271,39 +311,41 @@ export class USDTMinter implements Contract {
 
   static parseClaimAdmin(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.claim_admin) throw new Error('Invalid op');
+    if (op !== Op.claim_admin) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     endParse(slice);
     return {
-      queryId
-    }
+      queryId,
+    };
   }
 
   async sendClaimAdmin(provider: ContractProvider, via: Sender, query_id: bigint = 0n) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: USDTMinter.claimAdminMessage(query_id),
-      value: toNano('0.1')
-    })
+      value: toNano("0.1"),
+    });
   }
 
   static changeContentMessage(content: Cell | JettonMinterContent) {
     const contentString = content instanceof Cell ? content.beginParse().loadStringTail() : content.uri;
-    return beginCell().storeUint(Op.change_metadata_url, 32).storeUint(0, 64) // op, queryId
+    return beginCell()
+      .storeUint(Op.change_metadata_url, 32)
+      .storeUint(0, 64) // op, queryId
       .storeStringTail(contentString)
       .endCell();
   }
 
   static parseChangeContent(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.change_metadata_url) throw new Error('Invalid op');
+    if (op !== Op.change_metadata_url) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const newMetadataUrl = slice.loadStringTail();
     endParse(slice);
     return {
       queryId,
-      newMetadataUrl
-    }
+      newMetadataUrl,
+    };
   }
 
   async sendChangeContent(provider: ContractProvider, via: Sender, content: Cell | JettonMinterContent) {
@@ -315,7 +357,9 @@ export class USDTMinter implements Contract {
   }
 
   static lockWalletMessage(lock_address: Address, lock: number, amount: bigint, query_id: bigint | number = 0) {
-    return beginCell().storeUint(Op.call_to, 32).storeUint(query_id, 64)
+    return beginCell()
+      .storeUint(Op.call_to, 32)
+      .storeUint(query_id, 64)
       .storeAddress(lock_address)
       .storeCoins(amount)
       .storeRef(beginCell().storeUint(Op.set_status, 32).storeUint(query_id, 64).storeUint(lock, 4).endCell())
@@ -324,19 +368,19 @@ export class USDTMinter implements Contract {
 
   static parseSetStatus(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.set_status) throw new Error('Invalid op');
+    if (op !== Op.set_status) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const newStatus = slice.loadUint(4);
     endParse(slice);
     return {
       queryId,
-      newStatus
-    }
+      newStatus,
+    };
   }
 
   static parseCallTo(slice: Slice, refPrser: (slice: Slice) => any) {
     const op = slice.loadUint(32);
-    if (op !== Op.call_to) throw new Error('Invalid op');
+    if (op !== Op.call_to) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const toAddress = slice.loadAddress();
     const tonAmount = slice.loadCoins();
@@ -346,23 +390,30 @@ export class USDTMinter implements Contract {
       queryId,
       toAddress,
       tonAmount,
-      action: refPrser(ref.beginParse())
-    }
+      action: refPrser(ref.beginParse()),
+    };
   }
 
-  async sendLockWallet(provider: ContractProvider, via: Sender, lock_address: Address, lock: LockType, amount: bigint = toNano('0.1'), query_id: bigint | number = 0) {
+  async sendLockWallet(
+    provider: ContractProvider,
+    via: Sender,
+    lock_address: Address,
+    lock: LockType,
+    amount: bigint = toNano("0.1"),
+    query_id: bigint | number = 0,
+  ) {
     const lockCmd: number = lockTypeToInt(lock);
 
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: USDTMinter.lockWalletMessage(lock_address, lockCmd, amount, query_id),
-      value: amount + toNano('0.1')
+      value: amount + toNano("0.1"),
     });
   }
 
   static parseTransfer(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.transfer) throw new Error('Invalid op');
+    if (op !== Op.transfer) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const jettonAmount = slice.loadCoins();
     const toAddress = slice.loadAddress();
@@ -378,13 +429,13 @@ export class USDTMinter implements Contract {
       responseAddress,
       customPayload,
       forwardTonAmount,
-      forwardPayload
-    }
+      forwardPayload,
+    };
   }
 
   static parseBurn(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.burn) throw new Error('Invalid op');
+    if (op !== Op.burn) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const jettonAmount = slice.loadCoins();
     const responseAddress = slice.loadAddress();
@@ -395,10 +446,12 @@ export class USDTMinter implements Contract {
       jettonAmount,
       responseAddress,
       customPayload,
-    }
+    };
   }
   static upgradeMessage(new_code: Cell, new_data: Cell, query_id: bigint | number = 0) {
-    return beginCell().storeUint(Op.upgrade, 32).storeUint(query_id, 64)
+    return beginCell()
+      .storeUint(Op.upgrade, 32)
+      .storeUint(query_id, 64)
       .storeRef(new_data)
       .storeRef(new_code)
       .endCell();
@@ -406,7 +459,7 @@ export class USDTMinter implements Contract {
 
   static parseUpgrade(slice: Slice) {
     const op = slice.loadUint(32);
-    if (op !== Op.upgrade) throw new Error('Invalid op');
+    if (op !== Op.upgrade) throw new Error("Invalid op");
     const queryId = slice.loadUint(64);
     const newData = slice.loadRef();
     const newCode = slice.loadRef();
@@ -414,28 +467,37 @@ export class USDTMinter implements Contract {
     return {
       queryId,
       newData,
-      newCode
-    }
+      newCode,
+    };
   }
 
-  async sendUpgrade(provider: ContractProvider, via: Sender, new_code: Cell, new_data: Cell, value: bigint = toNano('0.1'), query_id: bigint | number = 0) {
+  async sendUpgrade(
+    provider: ContractProvider,
+    via: Sender,
+    new_code: Cell,
+    new_data: Cell,
+    value: bigint = toNano("0.1"),
+    query_id: bigint | number = 0,
+  ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: USDTMinter.upgradeMessage(new_code, new_data, query_id),
-      value
+      value,
     });
   }
 
   async getWalletAddress(provider: ContractProvider, owner: Address): Promise<Address> {
-    const res = await provider.get('get_wallet_address', [{
-      type: 'slice',
-      cell: beginCell().storeAddress(owner).endCell()
-    }])
-    return res.stack.readAddress()
+    const res = await provider.get("get_wallet_address", [
+      {
+        type: "slice",
+        cell: beginCell().storeAddress(owner).endCell(),
+      },
+    ]);
+    return res.stack.readAddress();
   }
 
   async getJettonData(provider: ContractProvider) {
-    let res = await provider.get('get_jetton_data', []);
+    let res = await provider.get("get_jetton_data", []);
     let totalSupply = res.stack.readBigNumber();
     let mintable = res.stack.readBoolean();
     let adminAddress = res.stack.readAddress();
@@ -466,7 +528,7 @@ export class USDTMinter implements Contract {
   }
 
   async getNextAdminAddress(provider: ContractProvider) {
-    const res = await provider.get('get_next_admin_address', []);
+    const res = await provider.get("get_next_admin_address", []);
     return res.stack.readAddressOpt();
   }
 }

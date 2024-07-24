@@ -1,46 +1,41 @@
-import { Blockchain, SandboxContract, TreasuryContract } from "@ton/sandbox";
-import { toNano, beginCell } from "@ton/core";
+import { Blockchain, SandboxContract, SendMessageResult, TreasuryContract } from "@ton/sandbox";
+import { toNano, beginCell, Cell } from "@ton/core";
 import "@ton/test-utils";
-import { ExecutionInfo, loadSkateInitiateTaskEvent, SkateExecuteTask, SkateGateway, SkateInitiateTaskNotification, storeDestination, storeSkateInitiateTaskNotification } from "../build/SkateGateway/tact_SkateGateway";
-import { ed25519Sign } from "./helpers";
-import { Op as SkateOp } from "../wrappers/ISkate";
+import {
+  ExecutionInfo,
+  loadSkateInitiateTaskEvent,
+  Payload,
+  SkateExecuteTask,
+  SkateGateway,
+  SkateInitiateTaskNotification,
+  storeDestination,
+} from "../build/SkateGateway/tact_SkateGateway";
+import { bigintToHash, ed25519Sign, sha256 } from "./helpers";
+import { ExitCode, Op as SkateOp } from "../wrappers/ISkate";
 import { storeBet } from "../build/PolyMarket/tact_PolyMarket";
 
 describe("SkateGateway", () => {
   let blockchain: Blockchain;
   let deployer: SandboxContract<TreasuryContract>;
   let skateGateway: SandboxContract<SkateGateway>;
+  let mockApp: SandboxContract<TreasuryContract>;
   const relayerPublicKey = BigInt("0x072aa6ab487813c8763e8564cf74356e351280cff6380bf28a845259a6e90433");
   const relayerPrivateKey = BigInt("0x276d3cc1884911f558e1add19222fe3576114825fa1fd67302b657e02ed8f96c");
 
-  const relayer2PublicKey = BigInt("0x3469fe629307891974865a7e7444e2ca346d330a6afe40a7cc4b96e03da25b3e");
-  const relayer2PrivateKey = BigInt("0xf9ddeb8472bd91440c250a06f7f05c8941b1d98bd2a5ac211eebd1d844bd3fe0");
-
-  async function registerExecutor(key: string) {
-    const executor = await blockchain.treasury(key);
-    const result = await skateGateway.send(
-      deployer.getSender(),
-      {
-        value: toNano("0.01"),
-      },
-      {
-        $$type: "SetExecutor",
-        executor: executor.address,
-      },
-    );
-    return {
-      executor,
-      result,
+  let registerExecutor: (key: string) => Promise<{
+    executor: SandboxContract<TreasuryContract>;
+    result: SendMessageResult & {
+      result: void;
     };
-  }
+  }>
 
   beforeEach(async () => {
     blockchain = await Blockchain.create();
 
+    mockApp = await blockchain.treasury("MockApp");
     deployer = await blockchain.treasury("deployer");
 
     skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey));
-
     const deployResult = await skateGateway.send(
       deployer.getSender(),
       {
@@ -51,13 +46,25 @@ describe("SkateGateway", () => {
         queryId: 0n,
       },
     );
-
     expect(deployResult.transactions).toHaveTransaction({
       from: deployer.address,
       to: skateGateway.address,
       deploy: true,
       success: true,
     });
+
+    registerExecutor = async (key: string) => {
+      const executor = await blockchain.treasury(key);
+      const result = await skateGateway.send(
+        deployer.getSender(),
+        { value: toNano("0.01") },
+        { $$type: "SetExecutor", executor: executor.address, },
+      );
+      return {
+        executor,
+        result,
+      };
+    }
   });
 
   it("should deploy", async () => {
@@ -129,13 +136,16 @@ describe("SkateGateway", () => {
 
   it("should change relayer", async () => {
     const msg = await skateGateway.getChangeRelayerMsg();
-    const currentSignature = ed25519Sign(msg, relayerPrivateKey);
-    const newSignature = ed25519Sign(msg, relayer2PrivateKey);
+    const hashedMsg = sha256(msg);
+    const relayer2PublicKey = BigInt("0x3469fe629307891974865a7e7444e2ca346d330a6afe40a7cc4b96e03da25b3e");
+    const relayer2PrivateKey = BigInt("0xf9ddeb8472bd91440c250a06f7f05c8941b1d98bd2a5ac211eebd1d844bd3fe0");
+    const currentSignature = ed25519Sign(hashedMsg, relayerPrivateKey);
+    const newSignature = ed25519Sign(hashedMsg, relayer2PrivateKey);
 
     const changeRelayerTx = await skateGateway.send(
       deployer.getSender(),
       {
-        value: toNano("0.01"),
+        value: toNano("100"),
       },
       {
         $$type: "ChangeRelayer",
@@ -154,47 +164,61 @@ describe("SkateGateway", () => {
     expect(newRelayer).toEqual(relayer2PublicKey);
   });
 
+  ////////////////////////////////////////////////////////////////////////////
+  ///////////////////////// TASK PROCESSING //////////////////////////////////
+
+  ////// INITIATE TASK //////
   it("should receive task initiation request", async () => {
     const mockData = beginCell()
-      .store(storeBet({
-        $$type: 'Bet', candidate_id: 1n, direction: true, usd_amount: toNano('1')
-      }))
+      .store(
+        storeBet({
+          $$type: "Bet",
+          candidate_id: 1n,
+          direction: true,
+          usd_amount: toNano("1"),
+        }),
+      )
       .endCell();
     const destination = beginCell()
-      .store(storeDestination({
-        $$type: 'Destination', address: 0n, chain_id: 137n, chain_type: 0n
-      }))
+      .store(
+        storeDestination({
+          $$type: "Destination",
+          address: 0n,
+          chain_id: 137n,
+          chain_type: 0n,
+        }),
+      )
       .endCell();
     const mockInitiateTask: SkateInitiateTaskNotification = {
-      $$type: 'SkateInitiateTaskNotification',
+      $$type: "SkateInitiateTaskNotification",
       query_id: 0n,
       user: deployer.address,
       execution_info: {
-        $$type: 'ExecutionInfo',
+        $$type: "ExecutionInfo",
         payload: {
-          $$type: 'Payload',
+          $$type: "Payload",
           destination: destination,
-          data: mockData
+          data: mockData,
         },
         expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-        value: toNano("1")
-      }
-    }
-    const mockApp = await blockchain.treasury('MockAddress')
+        value: toNano("1"),
+      },
+    };
+    const mockApp = await blockchain.treasury("MockAddress");
 
     const initiateTaskTx = await skateGateway.send(
       mockApp.getSender(),
       {
-        value: toNano("0.2")
+        value: toNano("0.2"),
       },
-      mockInitiateTask
-    )
+      mockInitiateTask,
+    );
     expect(initiateTaskTx.transactions).toHaveTransaction({
       from: mockApp.address,
       to: skateGateway.address,
       success: true,
-      op: SkateOp.initiate_task_notification
-    })
+      op: SkateOp.initiate_task_notification,
+    });
 
     expect(initiateTaskTx.externals).toHaveLength(1);
     const eventSlice = initiateTaskTx.externals[0].body.asSlice();
@@ -203,61 +227,147 @@ describe("SkateGateway", () => {
     expect(task.user.equals(mockInitiateTask.user)).toEqual(true);
     expect(task.execution_info.value).toEqual(mockInitiateTask.execution_info.value);
     expect(task.execution_info.expiration).toEqual(mockInitiateTask.execution_info.expiration);
-    expect(task.execution_info.payload.destination.hash().toString('hex'))
-      .toEqual(mockInitiateTask.execution_info.payload.destination.hash().toString('hex'));
-    expect(task.execution_info.payload.data.hash().toString('hex'))
-      .toEqual(mockInitiateTask.execution_info.payload.data.hash().toString('hex'));
+    expect(task.execution_info.payload.destination.hash().toString("hex")).toEqual(
+      mockInitiateTask.execution_info.payload.destination.hash().toString("hex"),
+    );
+    expect(task.execution_info.payload.data.hash().toString("hex")).toEqual(
+      mockInitiateTask.execution_info.payload.data.hash().toString("hex"),
+    );
   });
 
-  it("should execute task with signature", async () => {
-    const mockApp = await blockchain.treasury('MockAddress')
-    const mockData = beginCell()
-      .store(storeBet({
-        $$type: 'Bet', candidate_id: 1n, direction: true, usd_amount: toNano('1')
-      }))
-      .endCell();
-    const destination = beginCell()
-      .store(storeDestination({
-        $$type: 'Destination', address: 0n, chain_id: 137n, chain_type: 0n
-      }))
-      .endCell();
-    const execution_info: ExecutionInfo = {
-      $$type: 'ExecutionInfo',
-      payload: {
-        $$type: 'Payload',
-        destination: destination,
-        data: mockData
-      },
-      expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: toNano("1")
-    };
 
-    const relayerSig = beginCell().endCell();
+  ////// EXECUTE TASK //////
+  async function callExecuteTask({
+    relayerSig, data, forward_amount, destination, executor,
+  }: {
+    relayerSig?: Buffer,
+    data?: Cell;
+    forward_amount: bigint; // as coins < 10 ton
+    destination?: Cell;
+    executor?: SandboxContract<TreasuryContract>;
+  }) {
+    if (forward_amount >= toNano("1")) {
+      throw new Error("callExecuteTask()::Forward amount too large, change this function");
+    }
+    const mockExecutor = executor ?? (await blockchain.treasury("MockExecutor"));
+    const mockData = beginCell().store(
+      storeBet({
+        $$type: "Bet",
+        candidate_id: 1n,
+        direction: true,
+        usd_amount: toNano("1"),
+      }))
+      .endCell();
+    // const mockDestination = beginCell().endCell();
+    const mockDestination = beginCell().store(
+      storeDestination({
+        $$type: "Destination",
+        address: 0n,
+        chain_id: 137n,
+        chain_type: 0n,
+      }))
+      .endCell();
+
+    const payload: Payload = {
+      $$type: "Payload",
+      destination: destination ?? mockDestination,
+      data: data ?? mockData,
+    }
+    const execution_info: ExecutionInfo = {
+      $$type: "ExecutionInfo",
+      payload,
+      expiration: BigInt(Math.round(new Date().getTime() / 1000)),
+      value: forward_amount, // NOTE: amount forward to 
+    };
+    const msg_hash = await skateGateway.getPayloadHash(payload)
+    const signature = relayerSig ?? ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey)
+    // const hashedMsg = sha256("hello");
+    // const signature = ed25519Sign(hashedMsg, relayerPrivateKey);
 
     const mockExecuteTask: SkateExecuteTask = {
-      $$type: 'SkateExecuteTask',
+      $$type: "SkateExecuteTask",
       query_id: 0n,
       target_app: mockApp.address,
       execution_info,
-      relayer_signature: relayerSig
-    }
-
+      relayer_signature: beginCell().storeBuffer(signature, 64).endCell(),
+    };
     const executeTaskTx = await skateGateway.send(
-      mockApp.getSender(),
+      mockExecutor.getSender(),
       {
-        value: toNano("0.2")
+        value: toNano("10"),
       },
-      mockExecuteTask
-    )
+      mockExecuteTask,
+    );
+
+    return {
+      executor: executor ?? mockExecutor,
+      payload,
+      tx: executeTaskTx,
+    };
+  }
+
+  it("should execute task", async () => {
+    const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({ executor: executor0, forward_amount });
     expect(executeTaskTx.transactions).toHaveTransaction({
-      from: mockApp.address,
+      from: executor0.address,
       to: skateGateway.address,
+      op: SkateOp.execute_task,
       success: true,
-      op: SkateOp.initiate_task_notification
-    })
+      exitCode: 0,
+    });
+
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
   });
 
-  it("should reject execution without signature", async () => {
+  it("should reject execution if not executor", async () => {
+    const relayerSig = ed25519Sign(sha256("Corrupted MSG"), relayerPrivateKey);
+    const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({ relayerSig, executor: executor0, forward_amount });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor0.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateOp.execute_task,
+      exitCode: ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+    });
 
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
+  });
+
+  it("should reject execution without valid signature", async () => {
+    const relayerSig = ed25519Sign(sha256("Corrupted MSG"), relayerPrivateKey);
+    const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({ relayerSig, executor: executor0, forward_amount });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor0.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateOp.execute_task,
+      exitCode: ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+    });
+
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
   });
 });

@@ -25,7 +25,7 @@ struct BetConfig {
 }
 
 // EXECUTOR ACTION
-message(0xf85a5fcd) SettleBet {
+message SettleBet {
     settle_id: Int as uint256; // For on-chain trace, will be included in stateproof for AVS slashing
     user: Address;
     // WARN: mind the type, coins != uint256
@@ -33,11 +33,11 @@ message(0xf85a5fcd) SettleBet {
 }
 
 // USER ACTION
-message(0x8059bac7) RequestSettleBet {
+message RequestSettleBet {
     candidate_id: Int as uint8;
     direction: Bool;
     // WARN: mind the type, coins != uint256
-    ct_amount: Int as uint256; // Condition Token amount, number of bet tokens for this market(candidate/direction) on PolyMarket
+    ct_amount: Int as coins; // Condition Token amount, number of bet tokens for this market(candidate/direction) on PolyMarket
 }
 
 // TODO: Contracts INTEROP
@@ -47,9 +47,17 @@ message PlaceBetNotification {}
 // TODO: Protocol collect permissible USDT amount
 message ProtocolCollect {}
 
-contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
+//////////////
+// NOTE: Set the contract USDT wallet
+// Address pre-calculation is impossible since:
+//  + contract address depends on initial params
+//  + jetton wallet derivation consists of contract address (the jetton owner)
+// -> must set then lock
+message SetJettonWallet {
+    jetton_wallet: Address;
+}
+contract PolyMarket with Deployable, SkateAppBase, Ownable {
     owner: Address;
-    jetton_wallet: Address; // most likely USDT, can be any jetton
     skate_gateway: Address;
 
     balance: Int = 0; // Jetton balance (USDT)
@@ -82,18 +90,27 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
 
     // NOTE: from actual USDT implementations at ./mocks/*.fc, this contract init must conform to jetton interface.
     // Otherwise Master getter will fails -> problem with burn (and also mint).
-    init(owner: Address, skate_gateway: Address, jetton_wallet: Address) {
-        self.owner = owner; // WARN: owner MUST BE SKATE GATEWAY, else settlement flows wont't work.
+    init(owner: Address, skate_gateway: Address) {
+        self.owner = owner;
         self.skate_gateway = skate_gateway;
-        self.jetton_wallet = jetton_wallet;
+    }
+
+    // Calculate jetton address and update post deployment
+    jetton_wallet: Address = newAddress(0, 0x1000000000000000000000000000000000000000000000000000000000000000); // dummy address
+    is_jetton_set: Bool = false;
+    receive(msg: SetJettonWallet) {
+        self.requireOwner();
+        require(!self.is_jetton_set, "PolyMarket::SetJettonWallet::Wallet is set");
+        self.jetton_wallet = msg.jetton_wallet;
+        self.is_jetton_set = true;
     }
     /////////// Governance actions ////////////
     receive(msg: ProtocolCollect) {}
 
     //////////// For SkateGateway /////////////
-    inline fun construct_initiate_params(user: Address, execution_data: Cell): SkateInitiateTask {
+    inline fun construct_initiate_params(query_id: Int, user: Address, execution_data: Cell): SkateInitiateTask {
         let initiate_params = SkateInitiateTask {
-            query_id: self.initiate_id,
+            query_id: query_id,
             user: user, // the actual jetton wallet owner.
             processing_fee: self.SKATE_FEE,
             execution_info: ExecutionInfo {
@@ -120,8 +137,8 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
     receive (msg: JettonTransferNotification) {
         let ctx: Context = context();
         let bet_config: BetConfig = BetConfig.fromSlice(msg.forward_payload);
-        require(msg.amount > ton("0.0001"), "Bet size too small");
-        require(bet_config.candidate_id <= 4, "Invalid candidate");
+        require(msg.amount > ton("0.0001"), "PolyMarket::JettonTransferNotification::Bet size too small!");
+        require(bet_config.candidate_id <= 4, "PolyMarket::JettonTransferNotification::Invalid candidate id!");
 
         // 1. Create and save the bet struct
         let new_bet: Bet = Bet {
@@ -132,7 +149,7 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
 
         // 2. Notify SkateGateway to initiate a task
         self.initiate_id += 1;
-        let initiate_params = self.construct_initiate_params(msg.sender, new_bet.toCell());
+        let initiate_params = self.construct_initiate_params(self.initiate_id, msg.sender, new_bet.toCell());
         self.notify_gateway(ctx, initiate_params);
 
         // TODO: (Contracts INTEROP)
@@ -149,7 +166,7 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
 
         // 1. Initiate an withdrawal request
         self.settle_id += 1;
-        let initiate_params = self.construct_initiate_params(ctx.sender, msg.toCell());
+        let initiate_params = self.construct_initiate_params(self.settle_id, ctx.sender, msg.toCell());
         self.notify_gateway(ctx, initiate_params);
     }
     ///////////////////////////////////////////
@@ -162,19 +179,26 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
     //  2. Transfer fee to executor.
     receive(msg: SettleBet) {
         self.only_gateway();
+        // NOTE: This will be check at kernel level.
+        // require(msg.from.chain_type == self.EVM_TYPE, "PolyMarket::SettleBet::Invalid originating chain type!");
+        // require(msg.from.chain_id == self.POLYGON_CHAIN, "PolyMarket::SettleBet::Invalid originating chain id!");
+        // require(msg.from.address == self.POLYGON_CHAIN, "PolyMarket::SettleBet::Invalid originating address!");
 
         // a. Transfer settled jetton amount to user
         // NOTE: Skate vault sponsored this.
+        dump(msg.usd_amount);
+        dump(msg.user);
         let transfer_msg = JettonTransfer {
             query_id: 0,
             amount: msg.usd_amount,
             destination: msg.user,
-            response_destination: msg.user,
+            response_destination: myAddress(),
             custom_payload: null,
+            forward_ton_amount: 0,
+            forward_payload: emptySlice()
             // TODO: (Contracts INTEROP)
             // Set custom forward payload to user (contract), user needs to pay fee to executor to set gas for processing this payload.
-            forward_ton_amount: 0,
-            forward_payload: SettleBetNotification{}.toCell().asSlice()
+            // forward_payload: SettleBetNotification{}.toCell().asSlice()
         };
         self.transfer_jetton(transfer_msg);
     }
@@ -187,7 +211,7 @@ contract PolyMarket with Deployable, SkateAppBase, OwnableTransferable {
             to: self.jetton_wallet,
             // TODO: (Contracts INTEROP)
             // Set custom forward payload to user (contract)
-            value: msg.forward_ton_amount,
+            value: ton("0.1"),
             mode: SendPayGasSeparately, // make sure user get their amount
             body: msg.toCell()
         });
