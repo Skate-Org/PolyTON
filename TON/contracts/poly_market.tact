@@ -88,8 +88,6 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     const EVM_TYPE: Int = 0;
     const POLYMARKET_CTF: Int = 0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E;
 
-    // NOTE: from actual USDT implementations at ./mocks/*.fc, this contract init must conform to jetton interface.
-    // Otherwise Master getter will fails -> problem with burn (and also mint).
     init(owner: Address, skate_gateway: Address) {
         self.owner = owner;
         self.skate_gateway = skate_gateway;
@@ -185,7 +183,6 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         // require(msg.from.address == self.POLYGON_CHAIN, "PolyMarket::SettleBet::Invalid originating address!");
 
         // a. Transfer settled jetton amount to user
-        // NOTE: Skate vault sponsored this.
         dump(msg.usd_amount);
         dump(msg.user);
         let transfer_msg = JettonTransfer {
