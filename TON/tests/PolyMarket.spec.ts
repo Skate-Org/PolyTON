@@ -14,8 +14,13 @@ import {
   storeSettleBet,
 } from "../build/PolyMarket/tact_PolyMarket";
 import {
-  loadDestination, loadSkateInitiateTaskEvent, storeDestination,
-  Payload, ExecutionInfo, SkateExecuteTask, SkateGateway,
+  loadDestination,
+  loadSkateInitiateTaskEvent,
+  storeDestination,
+  Payload,
+  ExecutionInfo,
+  SkateExecuteTask,
+  SkateGateway,
   Destination,
 } from "../build/SkateGateway/tact_SkateGateway";
 import { Op as SkateOp } from "../wrappers/ISkate";
@@ -46,7 +51,16 @@ describe("PolyMarket", () => {
   async function mintUSDT(to: Address, amount = toNano("1000")) {
     // 1 million USDT
     //// 1. Mint USDT to user
-    const mintTx = await mockUSDT.sendMint(deployer.getSender(), to, amount, null, null, null, toNano("0.1"), toNano("1"));
+    const mintTx = await mockUSDT.sendMint(
+      deployer.getSender(),
+      to,
+      amount,
+      null,
+      null,
+      null,
+      toNano("0.1"),
+      toNano("1"),
+    );
     const userUSDTWallet = await getUSDTWallet(to);
     expect(mintTx.transactions).toHaveTransaction({
       from: mockUSDT.address,
@@ -60,7 +74,6 @@ describe("PolyMarket", () => {
     return userUSDTWallet;
   }
 
-
   beforeEach(async () => {
     blockchain = await Blockchain.create();
     deployer = await blockchain.treasury("Deployer");
@@ -69,7 +82,7 @@ describe("PolyMarket", () => {
     // Create USDT
     const usdtMinterCode = await compile("USDTMinter");
     const walletCodeRaw = await compile("JettonWallet");
-    const jetton_content: JettonMinterContent = { uri: "https://tether.to/usdt-ton.json", };
+    const jetton_content: JettonMinterContent = { uri: "https://tether.to/usdt-ton.json" };
     const _libs = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
     _libs.set(BigInt(`0x${walletCodeRaw.hash().toString("hex")}`), walletCodeRaw);
     const libs = beginCell().storeDictDirect(_libs).endCell();
@@ -86,23 +99,28 @@ describe("PolyMarket", () => {
         usdtMinterCode,
       ),
     );
-    getUSDTWallet = async (address: Address) => blockchain.openContract(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
+    getUSDTWallet = async (address: Address) =>
+      blockchain.openContract(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
     const deployResult = await mockUSDT.sendDeploy(deployer.getSender(), toNano("10"));
     expect(deployResult.transactions).toHaveTransaction({
-      from: deployer.address, to: mockUSDT.address,
-      deploy: true, success: true,
+      from: deployer.address,
+      to: mockUSDT.address,
+      deploy: true,
+      success: true,
     });
 
     // Deploy gateway
     skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey));
     const gwDeployResult = await skateGateway.send(
       deployer.getSender(),
-      { value: toNano("10000"), },
-      { $$type: "Deploy", queryId: 0n, },
+      { value: toNano("10000") },
+      { $$type: "Deploy", queryId: 0n },
     );
     expect(gwDeployResult.transactions).toHaveTransaction({
-      from: deployer.address, to: skateGateway.address,
-      deploy: true, success: true,
+      from: deployer.address,
+      to: skateGateway.address,
+      deploy: true,
+      success: true,
     });
 
     // Register executor
@@ -110,32 +128,37 @@ describe("PolyMarket", () => {
     await skateGateway.send(
       deployer.getSender(),
       { value: toNano("0.01") },
-      { $$type: "SetExecutor", executor: executor.address, },
+      { $$type: "SetExecutor", executor: executor.address },
     );
 
     // Create polymarket
     polyMarket = blockchain.openContract(await PolyMarket.fromInit(deployer.address, skateGateway.address));
     const pmDeployResult = await polyMarket.send(
       deployer.getSender(),
-      { value: toNano("1000"), },
-      { $$type: "Deploy", queryId: 0n, },
+      { value: toNano("1000") },
+      { $$type: "Deploy", queryId: 0n },
     );
     expect(pmDeployResult.transactions).toHaveTransaction({
-      from: deployer.address, to: polyMarket.address,
-      deploy: true, success: true,
+      from: deployer.address,
+      to: polyMarket.address,
+      deploy: true,
+      success: true,
     });
     // fund polymarket
     const polyMarketUSDTWallet = await mintUSDT(polyMarket.address, initialMarketUSDTBalance);
     const setJettonTx = await polyMarket.send(
       deployer.getSender(),
-      { value: toNano("0.1"), },
-      { $$type: "SetJettonWallet", jetton_wallet: polyMarketUSDTWallet.address, },
-    )
+      { value: toNano("0.1") },
+      { $$type: "SetJettonWallet", jetton_wallet: polyMarketUSDTWallet.address },
+    );
     expect(setJettonTx.transactions).toHaveTransaction({
-      from: deployer.address, to: polyMarket.address,
-      op: PolyMarketOp.set_jetton_wallet, success: true,
+      from: deployer.address,
+      to: polyMarket.address,
+      op: PolyMarketOp.set_jetton_wallet,
+      success: true,
     });
-
+    const balance = await polyMarketUSDTWallet.getJettonBalance();
+    expect(balance).toEqual(initialMarketUSDTBalance);
   });
 
   it("should deploy", async () => {
@@ -275,33 +298,35 @@ describe("PolyMarket", () => {
       address: POLYMARKET_CTF,
       chain_id: 137n,
       chain_type: 0n,
-    }
+    };
     const mockDestination = beginCell().store(storeDestination(polyMarketCTF_ID)).endCell();
     // NOTE: in production, this must match the request settle bet id
     const settleId = BigInt(0xffffffff);
     const fillAmount = toNano("1");
-    const mockData = beginCell().store(
-      storeSettleBet({
-        $$type: "SettleBet",
-        settle_id: settleId,
-        user: user.address,
-        usd_amount: fillAmount, // 1000 USDT
-      }))
+    const mockData = beginCell()
+      .store(
+        storeSettleBet({
+          $$type: "SettleBet",
+          settle_id: settleId,
+          user: user.address,
+          usd_amount: fillAmount, // 1000 USDT
+        }),
+      )
       .endCell();
 
     const payload: Payload = {
       $$type: "Payload",
       destination: mockDestination,
       data: mockData,
-    }
+    };
     const execution_info: ExecutionInfo = {
       $$type: "ExecutionInfo",
       payload,
       expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: toNano("0.1"),
+      value: toNano("5"),
     };
-    const msg_hash = await skateGateway.getPayloadHash(payload)
-    const signature = ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey)
+    const msg_hash = await skateGateway.getPayloadHash(payload);
+    const signature = ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
 
     const mockExecuteTask: SkateExecuteTask = {
       $$type: "SkateExecuteTask",
@@ -337,7 +362,6 @@ describe("PolyMarket", () => {
     /// 2.3 USDT transfer from PolyMarket contract -> user
     const polyMarketUSDTWallet = await getUSDTWallet(polyMarket.address);
     const userUSDTWallet = await getUSDTWallet(user.address);
-    console.log("User", user.address);
     expect(executeTaskTx.transactions).toHaveTransaction({
       from: polyMarket.address,
       to: polyMarketUSDTWallet.address,
@@ -352,5 +376,35 @@ describe("PolyMarket", () => {
     });
     const userBalance = await userUSDTWallet.getJettonBalance();
     expect(userBalance).toEqual(fillAmount);
+  });
+
+  it("test transfer USDT from poly market", async () => {
+    const polyMarketUSDTWallet = await getUSDTWallet(polyMarket.address);
+    const userUSDTWallet = await getUSDTWallet(user.address);
+
+    const testTx = await polyMarket.send(
+      executor.getSender(),
+      {
+        value: toNano("10"),
+      },
+      {
+        $$type: 'SettleBetNotification',
+        user: user.address
+      },
+    );
+    expect(testTx.transactions).toHaveTransaction({
+      from: polyMarket.address,
+      to: polyMarketUSDTWallet.address,
+      op: JettonOp.transfer,
+      success: true,
+    });
+    expect(testTx.transactions).toHaveTransaction({
+      from: polyMarketUSDTWallet.address,
+      to: userUSDTWallet.address,
+      op: JettonOp.internal_transfer,
+      success: true,
+    });
+    const userBalance = await userUSDTWallet.getJettonBalance();
+    expect(userBalance).toEqual(toNano("10"));
   });
 });

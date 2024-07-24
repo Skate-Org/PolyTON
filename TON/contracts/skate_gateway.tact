@@ -128,8 +128,8 @@ contract SkateGateway with Deployable, OwnableTransferable  {
 
         send(SendParameters{
             to: msg.target_app,
-            value: execution_info.value,
-            mode: SendPayGasSeparately, // msg.value - gas fee
+            value: execution_info.value + ton("0.2"), // some large buffer to make sure enough for gas
+            mode: SendPayGasSeparately,
             body: execution_info.payload.data,
         })
     }

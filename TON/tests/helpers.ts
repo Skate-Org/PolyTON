@@ -24,7 +24,7 @@ export function sha256(message: string) {
 }
 
 export function bigintToHash(bytes32: bigint) {
-  const hash = bytes32.toString(16).padStart(64, '0');
+  const hash = bytes32.toString(16).padStart(64, "0");
   return hash;
 }
 

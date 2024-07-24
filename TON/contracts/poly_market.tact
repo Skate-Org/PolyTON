@@ -26,7 +26,7 @@ struct BetConfig {
 
 // EXECUTOR ACTION
 message SettleBet {
-    settle_id: Int as uint256; // For on-chain trace, will be included in stateproof for AVS slashing
+    settle_id: Int as uint64; // For on-chain trace, will be included in stateproof for AVS slashing
     user: Address;
     // WARN: mind the type, coins != uint256
     usd_amount: Int as coins; // amount Jetton settled for user (0 if lose, X decided by kernel if won)
@@ -41,7 +41,9 @@ message RequestSettleBet {
 }
 
 // TODO: Contracts INTEROP
-message SettleBetNotification {}
+message SettleBetNotification {
+    user: Address
+}
 message PlaceBetNotification {}
 
 // TODO: Protocol collect permissible USDT amount
@@ -132,7 +134,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     // => EQUIVALENTLY, PLACE BET = SENT JETTON (USDT) + BET INFO.
     //
     //// 1. PLACE BET
-    receive (msg: JettonTransferNotification) {
+    receive(msg: JettonTransferNotification) {
         let ctx: Context = context();
         let bet_config: BetConfig = BetConfig.fromSlice(msg.forward_payload);
         require(msg.amount > ton("0.0001"), "PolyMarket::JettonTransferNotification::Bet size too small!");
@@ -177,40 +179,72 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     //  2. Transfer fee to executor.
     receive(msg: SettleBet) {
         self.only_gateway();
-        // NOTE: This will be check at kernel level.
-        // require(msg.from.chain_type == self.EVM_TYPE, "PolyMarket::SettleBet::Invalid originating chain type!");
-        // require(msg.from.chain_id == self.POLYGON_CHAIN, "PolyMarket::SettleBet::Invalid originating chain id!");
-        // require(msg.from.address == self.POLYGON_CHAIN, "PolyMarket::SettleBet::Invalid originating address!");
+        let ctx: Context = context();
 
-        // a. Transfer settled jetton amount to user
-        dump(msg.usd_amount);
-        dump(msg.user);
-        let transfer_msg = JettonTransfer {
-            query_id: 0,
-            amount: msg.usd_amount,
-            destination: msg.user,
-            response_destination: myAddress(),
-            custom_payload: null,
-            forward_ton_amount: 0,
-            forward_payload: emptySlice()
+        // WARN: WHY DOESN't THIS WORK? Maybe Tact-lang serialization error
+        // Closest can find: https://docs.tact-lang.org/book/func#convert-serialization
+        // no support for either type -> exit code 9 during execution
+        // 
+        // let transfer_msg = JettonTransfer {
+        //     query_id: msg.settle_id,
+        //     amount: msg.usd_amount,
+        //     destination: msg.user,
+        //     response_destination: msg.user,
+        //     custom_payload: null,
+        //     forward_ton_amount: 0,
+        //     forward_payload: emptySlice()
+        // };
+        let transfer_msg = beginCell()
+            .storeUint(0x0f8a7ea5, 32)
+            .storeUint(0, 64) // op, queryId
+            .storeCoins(msg.usd_amount)
+            .storeAddress(msg.user)
+            .storeAddress(msg.user)
+            .storeUint(0, 1)
             // TODO: (Contracts INTEROP)
             // Set custom forward payload to user (contract), user needs to pay fee to executor to set gas for processing this payload.
             // forward_payload: SettleBetNotification{}.toCell().asSlice()
-        };
-        self.transfer_jetton(transfer_msg);
+            .storeCoins(0)
+            .storeUint(0, 1)
+            .endCell();
+        send(SendParameters{
+            to: self.jetton_wallet,
+            value: ctx.value - ton("0.2"),
+            mode: SendPayGasSeparately, // make sure user get their amount
+            body: transfer_msg
+        });
     }
 
     // TODO: (Contracts INTEROP)
-    receive(msg: SettleBetNotification) {}
-
-    inline fun transfer_jetton(msg: JettonTransfer) {
+    receive(msg: SettleBetNotification) {
+        // let transfer_msg = JettonTransfer {
+        //     query_id: 0,
+        //     amount: ton("0.1"),
+        //     destination: msg.user,
+        //     response_destination: myAddress(),
+        //     custom_payload: null,
+        //     forward_ton_amount: 0,
+        //     forward_payload: emptySlice()
+        //     // TODO: (Contracts INTEROP)
+        //     // Set custom forward payload to user (contract), user needs to pay fee to executor to set gas for processing this payload.
+        //     // forward_payload: SettleBetNotification{}.toCell().asSlice()
+        // };
+        let transfer_msg = beginCell()
+            .storeUint(0x0f8a7ea5, 32)
+            .storeUint(0, 64) // op, queryId
+            .storeCoins(ton("10"))
+            .storeAddress(msg.user)
+            .storeAddress(myAddress())
+            .storeUint(0, 1)
+            .storeCoins(0)
+            .storeUint(0, 1)
+            .endCell();
         send(SendParameters{
             to: self.jetton_wallet,
-            // TODO: (Contracts INTEROP)
-            // Set custom forward payload to user (contract)
-            value: ton("0.1"),
+            value: ton("0.2"),
             mode: SendPayGasSeparately, // make sure user get their amount
-            body: msg.toCell()
+            body: transfer_msg
         });
     }
 }
+

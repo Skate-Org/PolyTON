@@ -27,7 +27,7 @@ describe("SkateGateway", () => {
     result: SendMessageResult & {
       result: void;
     };
-  }>
+  }>;
 
   beforeEach(async () => {
     blockchain = await Blockchain.create();
@@ -58,13 +58,13 @@ describe("SkateGateway", () => {
       const result = await skateGateway.send(
         deployer.getSender(),
         { value: toNano("0.01") },
-        { $$type: "SetExecutor", executor: executor.address, },
+        { $$type: "SetExecutor", executor: executor.address },
       );
       return {
         executor,
         result,
       };
-    }
+    };
   });
 
   it("should deploy", async () => {
@@ -235,12 +235,15 @@ describe("SkateGateway", () => {
     );
   });
 
-
   ////// EXECUTE TASK //////
   async function callExecuteTask({
-    relayerSig, data, forward_amount, destination, executor,
+    relayerSig,
+    data,
+    forward_amount,
+    destination,
+    executor,
   }: {
-    relayerSig?: Buffer,
+    relayerSig?: Buffer;
     data?: Cell;
     forward_amount: bigint; // as coins < 10 ton
     destination?: Cell;
@@ -250,37 +253,41 @@ describe("SkateGateway", () => {
       throw new Error("callExecuteTask()::Forward amount too large, change this function");
     }
     const mockExecutor = executor ?? (await blockchain.treasury("MockExecutor"));
-    const mockData = beginCell().store(
-      storeBet({
-        $$type: "Bet",
-        candidate_id: 1n,
-        direction: true,
-        usd_amount: toNano("1"),
-      }))
+    const mockData = beginCell()
+      .store(
+        storeBet({
+          $$type: "Bet",
+          candidate_id: 1n,
+          direction: true,
+          usd_amount: toNano("1"),
+        }),
+      )
       .endCell();
     // const mockDestination = beginCell().endCell();
-    const mockDestination = beginCell().store(
-      storeDestination({
-        $$type: "Destination",
-        address: 0n,
-        chain_id: 137n,
-        chain_type: 0n,
-      }))
+    const mockDestination = beginCell()
+      .store(
+        storeDestination({
+          $$type: "Destination",
+          address: 0n,
+          chain_id: 137n,
+          chain_type: 0n,
+        }),
+      )
       .endCell();
 
     const payload: Payload = {
       $$type: "Payload",
       destination: destination ?? mockDestination,
       data: data ?? mockData,
-    }
+    };
     const execution_info: ExecutionInfo = {
       $$type: "ExecutionInfo",
       payload,
       expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: forward_amount, // NOTE: amount forward to 
+      value: forward_amount, // NOTE: amount forward to
     };
-    const msg_hash = await skateGateway.getPayloadHash(payload)
-    const signature = relayerSig ?? ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey)
+    const msg_hash = await skateGateway.getPayloadHash(payload);
+    const signature = relayerSig ?? ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
     // const hashedMsg = sha256("hello");
     // const signature = ed25519Sign(hashedMsg, relayerPrivateKey);
 
