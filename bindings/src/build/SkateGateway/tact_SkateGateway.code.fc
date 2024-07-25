@@ -1,0 +1,339 @@
+#pragma version =0.4.4;
+#pragma allow-post-modification;
+#pragma compute-asm-ltr;
+
+#include "tact_SkateGateway.headers.fc";
+#include "tact_SkateGateway.stdlib.fc";
+#include "tact_SkateGateway.constants.fc";
+#include "tact_SkateGateway.storage.fc";
+
+;;
+;; Contract SkateGateway functions
+;;
+
+(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = (null(), null(), null(), 0);
+    $self'owner = $owner;
+    $self'relayer = $relayer;
+    $self'executors = null();
+    return ($self'owner, $self'relayer, $self'executors, $self'nonce);
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun_currentNonce((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), $self'nonce);
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun_relayer((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), $self'relayer);
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun_is_executor((slice, int, cell, int) $self, slice $addr) impure inline {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    int $executor = __tact_dict_get_slice_int($self'executors, 267, $addr, 1);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ( ((~ null?($executor))) ? (__tact_not_null($executor)) : (false) ));
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun_isExecutor((slice, int, cell, int) $self, slice $addr) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_is_executor($addr));
+}
+
+((slice, int, cell, int), cell) $SkateGateway$_fun_executors((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), $self'executors);
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_set_executor((slice, int, cell, int) $self, slice $executor) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    $self'executors~__tact_dict_set_slice_int(267, $executor, true, 1);
+    $global_emit($SetExecutor$_store_cell($SetExecutor$_constructor_executor($executor)));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_revoke_executor((slice, int, cell, int) $self, slice $executor) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    $self'executors~__tact_dict_delete(267, $executor);
+    $global_emit($RevokeExecutor$_store_cell($RevokeExecutor$_constructor_executor($executor)));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), slice) $SkateGateway$_fun_changeRelayerMsg((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), __gen_slice_string_a6ac891f533b698eb26a9dba72518101f06362db2e1ee8445e9f80a883ca1246());
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_validate_relayer_signature((slice, int, cell, int) $self, int $hash, slice $signature) impure inline {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    int $isValid = check_signature($hash, $signature, $self'relayer);
+    throw_unless(10580, $isValid);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_set_relayer((slice, int, cell, int) $self, int $newRelayer, slice $currentSignature, slice $newSignature) impure inline {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    int $messageHash = 74440254441535147292347479412960770973200554889934767010763425494352285175264;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_validate_relayer_signature($messageHash, $currentSignature);
+    int $isValid = check_signature($messageHash, $newSignature, $newRelayer);
+    throw_unless(48599, $isValid);
+    $self'relayer = $newRelayer;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, (cell, cell) $execution_payload) impure inline {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    var (($execution_payload'destination, $execution_payload'data)) = $execution_payload;
+    slice $msg_slice = $Cell$_fun_asSlice(end_cell(store_int(store_uint(store_uint(begin_cell(), cell_hash($execution_payload'data), 256), cell_hash($execution_payload'destination), 256), $self'nonce, 64)));
+    int $hashed_msg = string_hash($msg_slice);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), $hashed_msg);
+}
+
+((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, (cell, cell) $payload) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    var (($payload'destination, $payload'data)) = $payload;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($Payload$_tensor_cast(($payload'destination, $payload'data))));
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_only_executor((slice, int, cell, int) $self) impure inline {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    throw_unless(132, ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_is_executor(__tact_context_get_sender()));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), ()) $SkateGateway$_fun_requireOwner((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    throw_unless(132, ( __tact_slice_eq_bits($self'owner, __tact_context_get_sender()) ));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+((slice, int, cell, int), slice) $SkateGateway$_fun_owner((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), $self'owner);
+}
+
+;;
+;; Receivers of a Contract SkateGateway
+;;
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_SetExecutor((slice, int, cell, int) $self, (slice) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'executor) = $msg;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_requireOwner();
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_set_executor($msg'executor);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_RevokeExecutor((slice, int, cell, int) $self, (slice) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'executor) = $msg;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_requireOwner();
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_revoke_executor($msg'executor);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_ChangeRelayer((slice, int, cell, int) $self, (int, slice, slice) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'newRelayer, $msg'currentSignature, $msg'newSignature) = $msg;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_requireOwner();
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_set_relayer($msg'newRelayer, $msg'currentSignature, $msg'newSignature);
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_SkateInitiateTaskNotification((slice, int, cell, int) $self, (int, slice, (int, int, (cell, cell))) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'query_id, $msg'user, ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data))) = $msg;
+    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
+    throw_unless(6808, ($ctx'value >= 0));
+    $global_emit($SkateInitiateTaskEvent$_store_cell($SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info($msg'query_id, $msg'user, $ctx'sender, ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data)))));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_SkateExecuteTask((slice, int, cell, int) $self, (int, slice, (int, int, (cell, cell)), slice) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'query_id, $msg'target_app, ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data)), $msg'relayer_signature) = $msg;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_only_executor();
+    var ($execution_info'value, $execution_info'expiration, ($execution_info'payload'destination, $execution_info'payload'data)) = ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data));
+    throw_unless(45396, (now() <= $execution_info'expiration));
+    int $msg_hash = ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($Payload$_tensor_cast(($execution_info'payload'destination, $execution_info'payload'data)));
+    $self'nonce = $self'nonce + 1;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_validate_relayer_signature($msg_hash, $msg'relayer_signature);
+    $global_send($SendParameters$_constructor_to_value_mode_body($msg'target_app, $execution_info'value, 1, $execution_info'payload'data));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_Deploy((slice, int, cell, int) $self, (int) $deploy) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($deploy'queryId) = $deploy;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId)));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_ChangeOwner((slice, int, cell, int) $self, (int, slice) $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var ($msg'queryId, $msg'newOwner) = $msg;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_requireOwner();
+    $self'owner = $msg'newOwner;
+    ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_reply($ChangeOwnerOk$_store_cell($ChangeOwnerOk$_constructor_queryId_newOwner($msg'queryId, $msg'newOwner)));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
+;;
+;; Get methods of a Contract SkateGateway
+;;
+
+_ %currentNonce() method_id(89617) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_currentNonce();
+    return res;
+}
+
+_ %relayer() method_id(108953) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_relayer();
+    return res;
+}
+
+_ %isExecutor(slice $$addr) method_id(70922) {
+    slice $addr = __tact_verify_address($$addr);
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_isExecutor($addr);
+    return res;
+}
+
+_ %executors() method_id(89018) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_executors();
+    return res;
+}
+
+_ %changeRelayerMsg() method_id(128639) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_changeRelayerMsg();
+    return res;
+}
+
+_ %payload_hash(tuple $$payload) method_id(111473) {
+    (cell, cell) $payload = $Payload$_from_tuple($$payload);
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_payload_hash($payload);
+    return res;
+}
+
+_ %owner() method_id(83229) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_owner();
+    return res;
+}
+
+_ supported_interfaces() method_id {
+    return (
+        "org.ton.introspection.v0"H >> 128,
+        "org.ton.abi.ipfs.v0"H >> 128,
+        "org.ton.deploy.lazy.v0"H >> 128,
+        "org.ton.debug.v0"H >> 128,
+        "org.ton.chain.workchain.v0"H >> 128,
+        "org.ton.ownable.transferable.v2"H >> 128,
+        "org.ton.ownable"H >> 128
+    );
+}
+
+_ get_abi_ipfs() method_id {
+    return "ipfs://QmSKm84ufzEj2sKkp4ph7R8zoQY81YsLXNesGjfLjCq7Hh";
+}
+
+_ lazy_deployment_completed() method_id {
+    return get_data().begin_parse().load_int(1);
+}
+
+;;
+;; Routing of a Contract SkateGateway
+;;
+
+((slice, int, cell, int), int) $SkateGateway$_contract_router_internal((slice, int, cell, int) self, int msg_bounced, slice in_msg) impure inline_ref {
+    ;; Handle bounced messages
+    if (msg_bounced) {
+        return (self, true);
+    }
+    
+    ;; Parse incoming message
+    int op = 0;
+    if (slice_bits(in_msg) >= 32) {
+        op = in_msg.preload_uint(32);
+    }
+    
+    
+    ;; Receive SetExecutor message
+    if (op == 3368193837) {
+        var msg = in_msg~$SetExecutor$_load();
+        self~$SkateGateway$_internal_binary_SetExecutor(msg);
+        return (self, true);
+    }
+    
+    ;; Receive RevokeExecutor message
+    if (op == 1193027593) {
+        var msg = in_msg~$RevokeExecutor$_load();
+        self~$SkateGateway$_internal_binary_RevokeExecutor(msg);
+        return (self, true);
+    }
+    
+    ;; Receive ChangeRelayer message
+    if (op == 3991949411) {
+        var msg = in_msg~$ChangeRelayer$_load();
+        self~$SkateGateway$_internal_binary_ChangeRelayer(msg);
+        return (self, true);
+    }
+    
+    ;; Receive SkateInitiateTaskNotification message
+    if (op == 960016369) {
+        var msg = in_msg~$SkateInitiateTaskNotification$_load();
+        self~$SkateGateway$_internal_binary_SkateInitiateTaskNotification(msg);
+        return (self, true);
+    }
+    
+    ;; Receive SkateExecuteTask message
+    if (op == 3832306660) {
+        var msg = in_msg~$SkateExecuteTask$_load();
+        self~$SkateGateway$_internal_binary_SkateExecuteTask(msg);
+        return (self, true);
+    }
+    
+    ;; Receive Deploy message
+    if (op == 2490013878) {
+        var msg = in_msg~$Deploy$_load();
+        self~$SkateGateway$_internal_binary_Deploy(msg);
+        return (self, true);
+    }
+    
+    ;; Receive ChangeOwner message
+    if (op == 2174598809) {
+        var msg = in_msg~$ChangeOwner$_load();
+        self~$SkateGateway$_internal_binary_ChangeOwner(msg);
+        return (self, true);
+    }
+    
+    return (self, false);
+}
+
+() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+    
+    ;; Context
+    var cs = in_msg_cell.begin_parse();
+    var msg_flags = cs~load_uint(4);
+    var msg_bounced = -(msg_flags & 1);
+    slice msg_sender_addr = __tact_verify_address(cs~load_msg_addr());
+    __tact_context = (msg_bounced, msg_sender_addr, msg_value, cs);
+    __tact_context_sender = msg_sender_addr;
+    
+    ;; Load contract data
+    var self = $SkateGateway$_contract_load();
+    
+    ;; Handle operation
+    int handled = self~$SkateGateway$_contract_router_internal(msg_bounced, in_msg);
+    
+    ;; Throw if not handled
+    throw_unless(130, handled);
+    
+    ;; Persist state
+    $SkateGateway$_contract_store(self);
+}

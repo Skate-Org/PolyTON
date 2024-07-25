@@ -1,0 +1,305 @@
+;;
+;; Type: StateInit
+;; TLB: _ code:^cell data:^cell = StateInit
+;;
+
+((cell, cell)) $StateInit$_not_null(tuple v) inline {
+    throw_if(128, null?(v));
+    var (cell vvv'code, cell vvv'data) = __tact_tuple_destroy_2(v);
+    return (vvv'code, vvv'data);
+}
+
+;;
+;; Type: SendParameters
+;; TLB: _ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell = SendParameters
+;;
+
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_bounce_to_value_mode_body_code_data(int bounce, slice to, int value, int mode, cell body, cell code, cell data) inline {
+    return (bounce, to, value, mode, body, code, data);
+}
+
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode_body(slice to, int value, int mode, cell body) inline {
+    return (true, to, value, mode, body, null(), null());
+}
+
+;;
+;; Type: Deploy
+;; Header: 0x946a98b6
+;; TLB: deploy#946a98b6 queryId:uint64 = Deploy
+;;
+
+(slice, ((int))) $Deploy$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 2490013878);
+    var v'queryId = sc_0~load_uint(64);
+    return (sc_0, (v'queryId));
+}
+
+;;
+;; Type: DeployOk
+;; Header: 0xaff90f57
+;; TLB: deploy_ok#aff90f57 queryId:uint64 = DeployOk
+;;
+
+builder $DeployOk$_store(builder build_0, (int) v) inline {
+    var (v'queryId) = v;
+    build_0 = store_uint(build_0, 2952335191, 32);
+    build_0 = build_0.store_uint(v'queryId, 64);
+    return build_0;
+}
+
+cell $DeployOk$_store_cell((int) v) inline {
+    return $DeployOk$_store(begin_cell(), v).end_cell();
+}
+
+((int)) $DeployOk$_constructor_queryId(int queryId) inline {
+    return (queryId);
+}
+
+;;
+;; Type: ChangeOwner
+;; Header: 0x819dbe99
+;; TLB: change_owner#819dbe99 queryId:uint64 newOwner:address = ChangeOwner
+;;
+
+(slice, ((int, slice))) $ChangeOwner$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 2174598809);
+    var v'queryId = sc_0~load_uint(64);
+    var v'newOwner = sc_0~__tact_load_address();
+    return (sc_0, (v'queryId, v'newOwner));
+}
+
+;;
+;; Type: ChangeOwnerOk
+;; Header: 0x327b2b4a
+;; TLB: change_owner_ok#327b2b4a queryId:uint64 newOwner:address = ChangeOwnerOk
+;;
+
+builder $ChangeOwnerOk$_store(builder build_0, (int, slice) v) inline {
+    var (v'queryId, v'newOwner) = v;
+    build_0 = store_uint(build_0, 846932810, 32);
+    build_0 = build_0.store_uint(v'queryId, 64);
+    build_0 = __tact_store_address(build_0, v'newOwner);
+    return build_0;
+}
+
+cell $ChangeOwnerOk$_store_cell((int, slice) v) inline {
+    return $ChangeOwnerOk$_store(begin_cell(), v).end_cell();
+}
+
+((int, slice)) $ChangeOwnerOk$_constructor_queryId_newOwner(int queryId, slice newOwner) inline {
+    return (queryId, newOwner);
+}
+
+;;
+;; Type: Payload
+;; TLB: _ destination:^cell data:^cell = Payload
+;;
+
+builder $Payload$_store(builder build_0, (cell, cell) v) inline {
+    var (v'destination, v'data) = v;
+    build_0 = build_0.store_ref(v'destination);
+    build_0 = build_0.store_ref(v'data);
+    return build_0;
+}
+
+(slice, ((cell, cell))) $Payload$_load(slice sc_0) inline {
+    var v'destination = sc_0~load_ref();
+    var v'data = sc_0~load_ref();
+    return (sc_0, (v'destination, v'data));
+}
+
+((cell, cell)) $Payload$_tensor_cast((cell, cell) v) asm "NOP";
+
+(cell, cell) $Payload$_from_tuple(tuple v) inline {
+    var (cell v'destination, cell v'data) = __tact_tuple_destroy_2(v);
+    return (v'destination, v'data);
+}
+
+;;
+;; Type: ExecutionInfo
+;; TLB: _ value:coins expiration:uint32 payload:Payload{destination:^cell,data:^cell} = ExecutionInfo
+;;
+
+builder $ExecutionInfo$_store(builder build_0, (int, int, (cell, cell)) v) inline {
+    var (v'value, v'expiration, (v'payload'destination, v'payload'data)) = v;
+    build_0 = build_0.store_coins(v'value);
+    build_0 = build_0.store_uint(v'expiration, 32);
+    build_0 = $Payload$_store(build_0, (v'payload'destination, v'payload'data));
+    return build_0;
+}
+
+(slice, ((int, int, (cell, cell)))) $ExecutionInfo$_load(slice sc_0) inline {
+    var v'value = sc_0~load_coins();
+    var v'expiration = sc_0~load_uint(32);
+    var v'payload = sc_0~$Payload$_load();
+    return (sc_0, (v'value, v'expiration, v'payload));
+}
+
+;;
+;; Type: SkateInitiateTaskEvent
+;; TLB: _ query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent
+;;
+
+builder $SkateInitiateTaskEvent$_store(builder build_0, (int, slice, slice, (int, int, (cell, cell))) v) inline {
+    var (v'query_id, v'user, v'skate_app, (v'execution_info'value, v'execution_info'expiration, (v'execution_info'payload'destination, v'execution_info'payload'data))) = v;
+    build_0 = build_0.store_uint(v'query_id, 64);
+    build_0 = __tact_store_address(build_0, v'user);
+    build_0 = __tact_store_address(build_0, v'skate_app);
+    build_0 = $ExecutionInfo$_store(build_0, (v'execution_info'value, v'execution_info'expiration, (v'execution_info'payload'destination, v'execution_info'payload'data)));
+    return build_0;
+}
+
+cell $SkateInitiateTaskEvent$_store_cell((int, slice, slice, (int, int, (cell, cell))) v) inline {
+    return $SkateInitiateTaskEvent$_store(begin_cell(), v).end_cell();
+}
+
+((int, slice, slice, (int, int, (cell, cell)))) $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info(int query_id, slice user, slice skate_app, (int, int, (cell, cell)) execution_info) inline {
+    return (query_id, user, skate_app, execution_info);
+}
+
+;;
+;; Type: SkateInitiateTaskNotification
+;; Header: 0x3938aff1
+;; TLB: skate_initiate_task_notification#3938aff1 query_id:uint64 user:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskNotification
+;;
+
+(slice, ((int, slice, (int, int, (cell, cell))))) $SkateInitiateTaskNotification$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 960016369);
+    var v'query_id = sc_0~load_uint(64);
+    var v'user = sc_0~__tact_load_address();
+    var v'execution_info = sc_0~$ExecutionInfo$_load();
+    return (sc_0, (v'query_id, v'user, v'execution_info));
+}
+
+;;
+;; Type: SkateExecuteTask
+;; Header: 0xe46c5be4
+;; TLB: skate_execute_task#e46c5be4 query_id:uint64 target_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} relayer_signature:^slice = SkateExecuteTask
+;;
+
+(slice, ((int, slice, (int, int, (cell, cell)), slice))) $SkateExecuteTask$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 3832306660);
+    var v'query_id = sc_0~load_uint(64);
+    var v'target_app = sc_0~__tact_load_address();
+    var v'execution_info = sc_0~$ExecutionInfo$_load();
+    var v'relayer_signature = sc_0~load_ref().begin_parse();
+    return (sc_0, (v'query_id, v'target_app, v'execution_info, v'relayer_signature));
+}
+
+;;
+;; Type: ChangeRelayer
+;; Header: 0xedf05063
+;; TLB: change_relayer#edf05063 newRelayer:int257 currentSignature:^slice newSignature:^slice = ChangeRelayer
+;;
+
+(slice, ((int, slice, slice))) $ChangeRelayer$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 3991949411);
+    var v'newRelayer = sc_0~load_int(257);
+    var v'currentSignature = sc_0~load_ref().begin_parse();
+    var v'newSignature = sc_0~load_ref().begin_parse();
+    return (sc_0, (v'newRelayer, v'currentSignature, v'newSignature));
+}
+
+;;
+;; Type: SetExecutor
+;; Header: 0xc8c28f2d
+;; TLB: set_executor#c8c28f2d executor:address = SetExecutor
+;;
+
+builder $SetExecutor$_store(builder build_0, (slice) v) inline {
+    var (v'executor) = v;
+    build_0 = store_uint(build_0, 3368193837, 32);
+    build_0 = __tact_store_address(build_0, v'executor);
+    return build_0;
+}
+
+cell $SetExecutor$_store_cell((slice) v) inline {
+    return $SetExecutor$_store(begin_cell(), v).end_cell();
+}
+
+(slice, ((slice))) $SetExecutor$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 3368193837);
+    var v'executor = sc_0~__tact_load_address();
+    return (sc_0, (v'executor));
+}
+
+((slice)) $SetExecutor$_constructor_executor(slice executor) inline {
+    return (executor);
+}
+
+;;
+;; Type: RevokeExecutor
+;; Header: 0x471c2809
+;; TLB: revoke_executor#471c2809 executor:address = RevokeExecutor
+;;
+
+builder $RevokeExecutor$_store(builder build_0, (slice) v) inline {
+    var (v'executor) = v;
+    build_0 = store_uint(build_0, 1193027593, 32);
+    build_0 = __tact_store_address(build_0, v'executor);
+    return build_0;
+}
+
+cell $RevokeExecutor$_store_cell((slice) v) inline {
+    return $RevokeExecutor$_store(begin_cell(), v).end_cell();
+}
+
+(slice, ((slice))) $RevokeExecutor$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1193027593);
+    var v'executor = sc_0~__tact_load_address();
+    return (sc_0, (v'executor));
+}
+
+((slice)) $RevokeExecutor$_constructor_executor(slice executor) inline {
+    return (executor);
+}
+
+;;
+;; Type: SkateGateway
+;;
+
+builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline {
+    var (v'owner, v'relayer, v'executors, v'nonce) = v;
+    build_0 = __tact_store_address(build_0, v'owner);
+    build_0 = build_0.store_int(v'relayer, 257);
+    build_0 = build_0.store_dict(v'executors);
+    build_0 = build_0.store_uint(v'nonce, 64);
+    return build_0;
+}
+
+(slice, ((slice, int, cell, int))) $SkateGateway$_load(slice sc_0) inline {
+    var v'owner = sc_0~__tact_load_address();
+    var v'relayer = sc_0~load_int(257);
+    var v'executors = sc_0~load_dict();
+    var v'nonce = sc_0~load_uint(64);
+    return (sc_0, (v'owner, v'relayer, v'executors, v'nonce));
+}
+
+(slice, ((slice, int))) $SkateGateway$init$_load(slice sc_0) inline {
+    var v'owner = sc_0~__tact_load_address();
+    var v'relayer = sc_0~load_int(257);
+    return (sc_0, (v'owner, v'relayer));
+}
+
+(slice, int, cell, int) $SkateGateway$_contract_load() impure inline_ref {
+    slice $sc = get_data().begin_parse();
+    __tact_context_sys = $sc~load_ref();
+    int $loaded = $sc~load_int(1);
+    if ($loaded) {
+        return $sc~$SkateGateway$_load();
+    } else {
+        ;; Allow only workchain deployments
+        throw_unless(137, my_address().preload_uint(11) == 1024);
+        (slice owner, int relayer) = $sc~$SkateGateway$init$_load();
+        $sc.end_parse();
+        return $SkateGateway$_contract_init(owner, relayer);
+    }
+}
+
+() $SkateGateway$_contract_store((slice, int, cell, int) v) impure inline {
+    builder b = begin_cell();
+    b = b.store_ref(__tact_context_sys);
+    b = b.store_int(true, 1);
+    b = $SkateGateway$_store(b, v);
+    set_data(b.end_cell());
+}

@@ -1,0 +1,208 @@
+;;
+;; Header files for SkateGateway
+;; NOTE: declarations are sorted for optimal order
+;;
+
+;; __tact_verify_address
+slice __tact_verify_address(slice address) inline;
+
+;; __tact_load_address
+(slice, slice) __tact_load_address(slice cs) inline;
+
+;; __tact_store_address
+builder __tact_store_address(builder b, slice address) inline;
+
+;; __tact_my_balance
+int __tact_my_balance() inline;
+
+;; __tact_not_null
+forall X -> X __tact_not_null(X x) inline;
+
+;; __tact_context_get
+(int, slice, int, slice) __tact_context_get() inline;
+
+;; __tact_context_get_sender
+slice __tact_context_get_sender() inline;
+
+;; __tact_store_bool
+builder __tact_store_bool(builder b, int v) inline;
+
+;; __tact_dict_set_slice_int
+(cell, ()) __tact_dict_set_slice_int(cell d, int kl, slice k, int v, int vl) inline;
+
+;; __tact_dict_get_slice_int
+int __tact_dict_get_slice_int(cell d, int kl, slice k, int vl) inline;
+
+;; __tact_slice_eq_bits
+int __tact_slice_eq_bits(slice a, slice b) inline;
+
+;; $Deploy$_load
+(slice, ((int))) $Deploy$_load(slice sc_0) inline;
+
+;; $DeployOk$_store
+builder $DeployOk$_store(builder build_0, (int) v) inline;
+
+;; $DeployOk$_store_cell
+cell $DeployOk$_store_cell((int) v) inline;
+
+;; $ChangeOwner$_load
+(slice, ((int, slice))) $ChangeOwner$_load(slice sc_0) inline;
+
+;; $ChangeOwnerOk$_store
+builder $ChangeOwnerOk$_store(builder build_0, (int, slice) v) inline;
+
+;; $ChangeOwnerOk$_store_cell
+cell $ChangeOwnerOk$_store_cell((int, slice) v) inline;
+
+;; $Payload$_store
+builder $Payload$_store(builder build_0, (cell, cell) v) inline;
+
+;; $Payload$_load
+(slice, ((cell, cell))) $Payload$_load(slice sc_0) inline;
+
+;; $ExecutionInfo$_store
+builder $ExecutionInfo$_store(builder build_0, (int, int, (cell, cell)) v) inline;
+
+;; $ExecutionInfo$_load
+(slice, ((int, int, (cell, cell)))) $ExecutionInfo$_load(slice sc_0) inline;
+
+;; $SkateInitiateTaskEvent$_store
+builder $SkateInitiateTaskEvent$_store(builder build_0, (int, slice, slice, (int, int, (cell, cell))) v) inline;
+
+;; $SkateInitiateTaskEvent$_store_cell
+cell $SkateInitiateTaskEvent$_store_cell((int, slice, slice, (int, int, (cell, cell))) v) inline;
+
+;; $SkateInitiateTaskNotification$_load
+(slice, ((int, slice, (int, int, (cell, cell))))) $SkateInitiateTaskNotification$_load(slice sc_0) inline;
+
+;; $SkateExecuteTask$_load
+(slice, ((int, slice, (int, int, (cell, cell)), slice))) $SkateExecuteTask$_load(slice sc_0) inline;
+
+;; $ChangeRelayer$_load
+(slice, ((int, slice, slice))) $ChangeRelayer$_load(slice sc_0) inline;
+
+;; $SetExecutor$_store
+builder $SetExecutor$_store(builder build_0, (slice) v) inline;
+
+;; $SetExecutor$_store_cell
+cell $SetExecutor$_store_cell((slice) v) inline;
+
+;; $SetExecutor$_load
+(slice, ((slice))) $SetExecutor$_load(slice sc_0) inline;
+
+;; $RevokeExecutor$_store
+builder $RevokeExecutor$_store(builder build_0, (slice) v) inline;
+
+;; $RevokeExecutor$_store_cell
+cell $RevokeExecutor$_store_cell((slice) v) inline;
+
+;; $RevokeExecutor$_load
+(slice, ((slice))) $RevokeExecutor$_load(slice sc_0) inline;
+
+;; $SkateGateway$_store
+builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline;
+
+;; $SkateGateway$_load
+(slice, ((slice, int, cell, int))) $SkateGateway$_load(slice sc_0) inline;
+
+;; $StateInit$_not_null
+((cell, cell)) $StateInit$_not_null(tuple v) inline;
+
+;; $Payload$_from_tuple
+(cell, cell) $Payload$_from_tuple(tuple v) inline;
+
+;; $SkateGateway$init$_load
+(slice, ((slice, int))) $SkateGateway$init$_load(slice sc_0) inline;
+
+;; $SkateGateway$_contract_init
+(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer) impure inline_ref;
+
+;; $SkateGateway$_contract_load
+(slice, int, cell, int) $SkateGateway$_contract_load() impure inline_ref;
+
+;; $SkateGateway$_contract_store
+() $SkateGateway$_contract_store((slice, int, cell, int) v) impure inline;
+
+;; $global_send
+() $global_send((int, slice, int, int, cell, cell, cell) $params) impure inline_ref;
+
+;; $global_emit
+() $global_emit(cell $body) impure inline;
+
+;; $Cell$_fun_asSlice
+slice $Cell$_fun_asSlice(cell $self) impure inline;
+
+;; $SkateGateway$_fun_currentNonce
+((slice, int, cell, int), int) $SkateGateway$_fun_currentNonce((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateGateway$_fun_relayer
+((slice, int, cell, int), int) $SkateGateway$_fun_relayer((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateGateway$_fun_is_executor
+((slice, int, cell, int), int) $SkateGateway$_fun_is_executor((slice, int, cell, int) $self, slice $addr) impure inline;
+
+;; $SkateGateway$_fun_isExecutor
+((slice, int, cell, int), int) $SkateGateway$_fun_isExecutor((slice, int, cell, int) $self, slice $addr) impure inline_ref;
+
+;; $SkateGateway$_fun_executors
+((slice, int, cell, int), cell) $SkateGateway$_fun_executors((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SetExecutor$_constructor_executor
+((slice)) $SetExecutor$_constructor_executor(slice executor) inline;
+
+;; $SkateGateway$_fun_set_executor
+((slice, int, cell, int), ()) $SkateGateway$_fun_set_executor((slice, int, cell, int) $self, slice $executor) impure inline_ref;
+
+;; $RevokeExecutor$_constructor_executor
+((slice)) $RevokeExecutor$_constructor_executor(slice executor) inline;
+
+;; $SkateGateway$_fun_revoke_executor
+((slice, int, cell, int), ()) $SkateGateway$_fun_revoke_executor((slice, int, cell, int) $self, slice $executor) impure inline_ref;
+
+;; $SkateGateway$_fun_changeRelayerMsg
+((slice, int, cell, int), slice) $SkateGateway$_fun_changeRelayerMsg((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateGateway$_fun_validate_relayer_signature
+((slice, int, cell, int), ()) $SkateGateway$_fun_validate_relayer_signature((slice, int, cell, int) $self, int $hash, slice $signature) impure inline;
+
+;; $SkateGateway$_fun_set_relayer
+((slice, int, cell, int), ()) $SkateGateway$_fun_set_relayer((slice, int, cell, int) $self, int $newRelayer, slice $currentSignature, slice $newSignature) impure inline;
+
+;; $SkateGateway$_fun__encode_payload
+((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, (cell, cell) $execution_payload) impure inline;
+
+;; $SkateGateway$_fun_payload_hash
+((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, (cell, cell) $payload) impure inline_ref;
+
+;; $SkateGateway$_fun_only_executor
+((slice, int, cell, int), ()) $SkateGateway$_fun_only_executor((slice, int, cell, int) $self) impure inline;
+
+;; $SendParameters$_constructor_bounce_to_value_mode_body_code_data
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_bounce_to_value_mode_body_code_data(int bounce, slice to, int value, int mode, cell body, cell code, cell data) inline;
+
+;; $SkateGateway$_fun_forward
+((slice, int, cell, int), ()) $SkateGateway$_fun_forward((slice, int, cell, int) $self, slice $to, cell $body, int $bounce, tuple $init) impure inline_ref;
+
+;; $SkateGateway$_fun_reply
+((slice, int, cell, int), ()) $SkateGateway$_fun_reply((slice, int, cell, int) $self, cell $body) impure inline;
+
+;; $SkateGateway$_fun_notify
+((slice, int, cell, int), ()) $SkateGateway$_fun_notify((slice, int, cell, int) $self, cell $body) impure inline;
+
+;; $SkateGateway$_fun_requireOwner
+((slice, int, cell, int), ()) $SkateGateway$_fun_requireOwner((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateGateway$_fun_owner
+((slice, int, cell, int), slice) $SkateGateway$_fun_owner((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info
+((int, slice, slice, (int, int, (cell, cell)))) $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info(int query_id, slice user, slice skate_app, (int, int, (cell, cell)) execution_info) inline;
+
+;; $SendParameters$_constructor_to_value_mode_body
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode_body(slice to, int value, int mode, cell body) inline;
+
+;; $DeployOk$_constructor_queryId
+((int)) $DeployOk$_constructor_queryId(int queryId) inline;
+
+;; $ChangeOwnerOk$_constructor_queryId_newOwner
+((int, slice)) $ChangeOwnerOk$_constructor_queryId_newOwner(int queryId, slice newOwner) inline;

@@ -1,0 +1,960 @@
+PROGRAM{
+  DECLPROC __tact_verify_address
+  DECLPROC __tact_load_address
+  DECLPROC __tact_store_address
+  DECLPROC __tact_my_balance
+  DECLPROC __tact_not_null
+  DECLPROC __tact_context_get
+  DECLPROC __tact_context_get_sender
+  DECLPROC __tact_store_bool
+  DECLPROC __tact_dict_set_slice_int
+  DECLPROC __tact_dict_get_slice_int
+  DECLPROC __tact_slice_eq_bits
+  DECLPROC $Deploy$_load
+  DECLPROC $DeployOk$_store
+  DECLPROC $DeployOk$_store_cell
+  DECLPROC $ChangeOwner$_load
+  DECLPROC $ChangeOwnerOk$_store
+  DECLPROC $ChangeOwnerOk$_store_cell
+  DECLPROC $Payload$_store
+  DECLPROC $Payload$_load
+  DECLPROC $ExecutionInfo$_store
+  DECLPROC $ExecutionInfo$_load
+  DECLPROC $SkateInitiateTaskEvent$_store
+  DECLPROC $SkateInitiateTaskEvent$_store_cell
+  DECLPROC $SkateInitiateTaskNotification$_load
+  DECLPROC $SkateExecuteTask$_load
+  DECLPROC $ChangeRelayer$_load
+  DECLPROC $SetExecutor$_store
+  DECLPROC $SetExecutor$_store_cell
+  DECLPROC $SetExecutor$_load
+  DECLPROC $RevokeExecutor$_store
+  DECLPROC $RevokeExecutor$_store_cell
+  DECLPROC $RevokeExecutor$_load
+  DECLPROC $SkateGateway$_store
+  DECLPROC $SkateGateway$_load
+  DECLPROC $StateInit$_not_null
+  DECLPROC $Payload$_from_tuple
+  DECLPROC $SkateGateway$init$_load
+  DECLPROC $SkateGateway$_contract_init
+  DECLPROC $SkateGateway$_contract_load
+  DECLPROC $SkateGateway$_contract_store
+  DECLPROC $global_send
+  DECLPROC $global_emit
+  DECLPROC $Cell$_fun_asSlice
+  DECLPROC $SkateGateway$_fun_currentNonce
+  DECLPROC $SkateGateway$_fun_relayer
+  DECLPROC $SkateGateway$_fun_is_executor
+  DECLPROC $SkateGateway$_fun_isExecutor
+  DECLPROC $SkateGateway$_fun_executors
+  DECLPROC $SetExecutor$_constructor_executor
+  DECLPROC $SkateGateway$_fun_set_executor
+  DECLPROC $RevokeExecutor$_constructor_executor
+  DECLPROC $SkateGateway$_fun_revoke_executor
+  DECLPROC $SkateGateway$_fun_changeRelayerMsg
+  DECLPROC $SkateGateway$_fun_validate_relayer_signature
+  DECLPROC $SkateGateway$_fun_set_relayer
+  DECLPROC $SkateGateway$_fun__encode_payload
+  DECLPROC $SkateGateway$_fun_payload_hash
+  DECLPROC $SkateGateway$_fun_only_executor
+  DECLPROC $SendParameters$_constructor_bounce_to_value_mode_body_code_data
+  DECLPROC $SkateGateway$_fun_forward
+  DECLPROC $SkateGateway$_fun_reply
+  DECLPROC $SkateGateway$_fun_notify
+  DECLPROC $SkateGateway$_fun_requireOwner
+  DECLPROC $SkateGateway$_fun_owner
+  DECLPROC $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info
+  DECLPROC $SendParameters$_constructor_to_value_mode_body
+  DECLPROC $DeployOk$_constructor_queryId
+  DECLPROC $ChangeOwnerOk$_constructor_queryId_newOwner
+  DECLPROC $SkateGateway$_internal_binary_SetExecutor
+  DECLPROC $SkateGateway$_internal_binary_RevokeExecutor
+  DECLPROC $SkateGateway$_internal_binary_ChangeRelayer
+  DECLPROC $SkateGateway$_internal_binary_SkateInitiateTaskNotification
+  DECLPROC $SkateGateway$_internal_binary_SkateExecuteTask
+  DECLPROC $SkateGateway$_internal_binary_Deploy
+  DECLPROC $SkateGateway$_internal_binary_ChangeOwner
+  89617 DECLMETHOD %currentNonce
+  108953 DECLMETHOD %relayer
+  70922 DECLMETHOD %isExecutor
+  89018 DECLMETHOD %executors
+  128639 DECLMETHOD %changeRelayerMsg
+  111473 DECLMETHOD %payload_hash
+  83229 DECLMETHOD %owner
+  113617 DECLMETHOD supported_interfaces
+  121275 DECLMETHOD get_abi_ipfs
+  115390 DECLMETHOD lazy_deployment_completed
+  DECLPROC $SkateGateway$_contract_router_internal
+  DECLPROC recv_internal
+  DECLGLOBVAR __tact_context
+  DECLGLOBVAR __tact_context_sender
+  DECLGLOBVAR __tact_context_sys
+  DECLGLOBVAR __tact_randomized
+  __tact_verify_address PROCINLINE:<{
+    DUP
+    SBITS
+    267 PUSHINT
+    EQUAL
+    136 THROWIFNOT
+    DUP
+    11 PLDU
+    DUP
+    1279 PUSHINT
+    EQUAL
+    137 THROWIF
+    10 PUSHPOW2
+    EQUAL
+    136 THROWIFNOT
+  }>
+  __tact_load_address PROCINLINE:<{
+    LDMSGADDR
+    SWAP
+    __tact_verify_address INLINECALLDICT
+  }>
+  __tact_store_address PROCINLINE:<{
+    __tact_verify_address INLINECALLDICT
+    STSLICER
+  }>
+  __tact_my_balance PROCINLINE:<{
+    BALANCE
+    FIRST
+  }>
+  __tact_not_null PROCINLINE:<{
+    DUP
+    ISNULL
+    128 THROWIF
+  }>
+  __tact_context_get PROCINLINE:<{
+    __tact_context GETGLOB
+    4 UNTUPLE
+  }>
+  __tact_context_get_sender PROCINLINE:<{
+    __tact_context_sender GETGLOB
+  }>
+  __tact_store_bool PROCINLINE:<{
+    SWAP
+    1 STI
+  }>
+  __tact_dict_set_slice_int PROCINLINE:<{
+    OVER
+    ISNULL
+    IF:<{
+      2DROP
+      -ROT
+      DICTDEL
+      DROP
+    }>ELSE<{
+      NEWC
+      SWAP
+      STIX
+      s1 s3 s3 XCHG3
+      DICTSETB
+    }>
+  }>
+  __tact_dict_get_slice_int PROCINLINE:<{
+    s1 s3 s3 XCHG3
+    DICTGET
+    NULLSWAPIFNOT
+    IF:<{
+      SWAP
+      LDIX
+      DROP
+    }>ELSE<{
+      2DROP
+      PUSHNULL
+    }>
+  }>
+  __tact_slice_eq_bits PROCINLINE:<{
+    SDEQ
+  }>
+  $Deploy$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    2490013878 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    64 LDU
+    SWAP
+  }>
+  $DeployOk$_store PROCINLINE:<{
+    2952335191 PUSHINT
+    ROT
+    32 STU
+    64 STU
+  }>
+  $DeployOk$_store_cell PROCINLINE:<{
+    NEWC
+    SWAP
+    $DeployOk$_store INLINECALLDICT
+    ENDC
+  }>
+  $ChangeOwner$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    2174598809 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    64 LDU
+    __tact_load_address INLINECALLDICT
+    s1 s2 XCHG
+  }>
+  $ChangeOwnerOk$_store PROCINLINE:<{
+    846932810 PUSHINT
+    s0 s3 XCHG2
+    32 STU
+    64 STU
+    SWAP
+    __tact_store_address INLINECALLDICT
+  }>
+  $ChangeOwnerOk$_store_cell PROCINLINE:<{
+    NEWC
+    -ROT
+    $ChangeOwnerOk$_store INLINECALLDICT
+    ENDC
+  }>
+  $Payload$_store PROCINLINE:<{
+    s0 s2 XCHG
+    STREF
+    STREF
+  }>
+  $Payload$_load PROCINLINE:<{
+    LDREF
+    LDREF
+    -ROT
+  }>
+  $ExecutionInfo$_store PROCINLINE:<{
+    s4 s3 XCHG2
+    STGRAMS
+    32 STU
+    -ROT
+    $Payload$_store INLINECALLDICT
+  }>
+  $ExecutionInfo$_load PROCINLINE:<{
+    LDGRAMS
+    32 LDU
+    $Payload$_load INLINECALLDICT
+    s2 s4 XCHG
+    s2 s3 XCHG
+  }>
+  $SkateInitiateTaskEvent$_store PROCINLINE:<{
+    s6 s7 XCHG2
+    64 STU
+    s0 s4 XCHG2
+    __tact_store_address INLINECALLDICT
+    ROT
+    __tact_store_address INLINECALLDICT
+    s3 s4 XCHG2
+    $ExecutionInfo$_store INLINECALLDICT
+  }>
+  $SkateInitiateTaskEvent$_store_cell PROCINLINE:<{
+    NEWC
+    7 -ROLL
+    $SkateInitiateTaskEvent$_store INLINECALLDICT
+    ENDC
+  }>
+  $SkateInitiateTaskNotification$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    960016369 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    64 LDU
+    __tact_load_address INLINECALLDICT
+    SWAP
+    $ExecutionInfo$_load INLINECALLDICT
+    s4 s6 XCHG
+    s4 s5 XCHG
+  }>
+  $SkateExecuteTask$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    3832306660 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    64 LDU
+    __tact_load_address INLINECALLDICT
+    SWAP
+    $ExecutionInfo$_load INLINECALLDICT
+    s0 s4 XCHG
+    LDREF
+    SWAP
+    CTOS
+    s1 s7 XCHG
+    s1 s6 XCHG
+    s1 s5 XCHG
+  }>
+  $ChangeRelayer$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    3991949411 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    257 PUSHINT
+    LDIX
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    SWAP
+    CTOS
+    s3 s3 s0 XCHG3
+  }>
+  $SetExecutor$_store PROCINLINE:<{
+    3368193837 PUSHINT
+    ROT
+    32 STU
+    SWAP
+    __tact_store_address INLINECALLDICT
+  }>
+  $SetExecutor$_store_cell PROCINLINE:<{
+    NEWC
+    SWAP
+    $SetExecutor$_store INLINECALLDICT
+    ENDC
+  }>
+  $SetExecutor$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    3368193837 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    __tact_load_address INLINECALLDICT
+  }>
+  $RevokeExecutor$_store PROCINLINE:<{
+    1193027593 PUSHINT
+    ROT
+    32 STU
+    SWAP
+    __tact_store_address INLINECALLDICT
+  }>
+  $RevokeExecutor$_store_cell PROCINLINE:<{
+    NEWC
+    SWAP
+    $RevokeExecutor$_store INLINECALLDICT
+    ENDC
+  }>
+  $RevokeExecutor$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    1193027593 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    __tact_load_address INLINECALLDICT
+  }>
+  $SkateGateway$_store PROCINLINE:<{
+    s4 s3 XCHG2
+    __tact_store_address INLINECALLDICT
+    257 PUSHINT
+    STIX
+    s1 s2 XCHG
+    STDICT
+    64 STU
+  }>
+  $SkateGateway$_load PROCINLINE:<{
+    __tact_load_address INLINECALLDICT
+    SWAP
+    257 PUSHINT
+    LDIX
+    LDDICT
+    64 LDU
+    4 -ROLL
+  }>
+  $StateInit$_not_null PROCINLINE:<{
+    DUP
+    ISNULL
+    128 THROWIF
+    2 UNTUPLE
+  }>
+  $Payload$_from_tuple PROCINLINE:<{
+    2 UNTUPLE
+  }>
+  $SkateGateway$init$_load PROCINLINE:<{
+    __tact_load_address INLINECALLDICT
+    SWAP
+    257 PUSHINT
+    LDIX
+    -ROT
+  }>
+  $SkateGateway$_contract_init PROCREF:<{
+    0 PUSHINT
+    PUSHNULL
+    SWAP
+  }>
+  $SkateGateway$_contract_load PROCREF:<{
+    c4 PUSH
+    CTOS
+    LDREF
+    SWAP
+    __tact_context_sys SETGLOB
+    1 LDI
+    SWAP
+    IFJMP:<{
+      $SkateGateway$_load INLINECALLDICT
+      1 4 BLKDROP2
+    }>
+    MYADDR
+    11 PLDU
+    10 PUSHPOW2
+    EQUAL
+    137 THROWIFNOT
+    $SkateGateway$init$_load INLINECALLDICT
+    s0 s2 XCHG
+    ENDS
+    SWAP
+    $SkateGateway$_contract_init INLINECALLDICT
+  }>
+  $SkateGateway$_contract_store PROCINLINE:<{
+    NEWC
+    __tact_context_sys GETGLOB
+    SWAP
+    STREF
+    TRUE
+    SWAP
+    1 STI
+    4 -ROLL
+    $SkateGateway$_store INLINECALLDICT
+    ENDC
+    c4 POP
+  }>
+  $global_send PROCREF:<{
+    NEWC
+    1 PUSHINT
+    SWAP
+    2 STI
+    s0 s7 XCHG2
+    __tact_store_bool INLINECALLDICT
+    0 PUSHINT
+    SWAP
+    3 STI
+    s0 s5 XCHG2
+    __tact_store_address INLINECALLDICT
+    s0 s3 XCHG2
+    STGRAMS
+    0 PUSHINT
+    SWAP
+    105 STI
+    s3 PUSH
+    ISNULL
+    NOT
+    IF:<{
+      TRUE
+    }>ELSE<{
+      s4 PUSH
+      ISNULL
+      NOT
+    }>
+    IF:<{
+      TRUE
+      __tact_store_bool INLINECALLDICT
+      NEWC
+      FALSE
+      __tact_store_bool INLINECALLDICT
+      FALSE
+      __tact_store_bool INLINECALLDICT
+      s4 PUSH
+      ISNULL
+      NOT
+      IF:<{
+        TRUE
+        __tact_store_bool INLINECALLDICT
+        s0 s4 XCHG
+        __tact_not_null INLINECALLDICT
+        s0 s4 XCHG2
+        STREF
+      }>ELSE<{
+        s4 POP
+        s0 s3 XCHG
+        FALSE
+        __tact_store_bool INLINECALLDICT
+      }>
+      s4 PUSH
+      ISNULL
+      NOT
+      IF:<{
+        TRUE
+        __tact_store_bool INLINECALLDICT
+        s0 s4 XCHG
+        __tact_not_null INLINECALLDICT
+        s0 s4 XCHG2
+        STREF
+      }>ELSE<{
+        s4 POP
+        s0 s3 XCHG
+        FALSE
+        __tact_store_bool INLINECALLDICT
+      }>
+      FALSE
+      __tact_store_bool INLINECALLDICT
+      s0 s2 XCHG
+      TRUE
+      __tact_store_bool INLINECALLDICT
+      s0 s2 XCHG
+      ENDC
+      ROT
+      STREF
+    }>ELSE<{
+      s3 POP
+      s3 POP
+      SWAP
+      FALSE
+      __tact_store_bool INLINECALLDICT
+    }>
+    OVER
+    ISNULL
+    NOT
+    IF:<{
+      TRUE
+      __tact_store_bool INLINECALLDICT
+      SWAP
+      __tact_not_null INLINECALLDICT
+      SWAP
+      STREF
+    }>ELSE<{
+      NIP
+      FALSE
+      __tact_store_bool INLINECALLDICT
+    }>
+    ENDC
+    SWAP
+    SENDRAWMSG
+  }>
+  $global_emit PROCINLINE:<{
+    NEWC
+    15211807202738752817960438464513 PUSHINT
+    SWAP
+    104 STU
+    STREF
+    ENDC
+    0 PUSHINT
+    SENDRAWMSG
+  }>
+  $Cell$_fun_asSlice PROCINLINE:<{
+    CTOS
+  }>
+  $SkateGateway$_fun_currentNonce PROCREF:<{
+    DUP
+  }>
+  $SkateGateway$_fun_relayer PROCREF:<{
+    s2 PUSH
+  }>
+  $SkateGateway$_fun_is_executor PROCINLINE:<{
+    267 PUSHINT
+    s3 PUSH
+    s0 s2 XCHG
+    1 PUSHINT
+    __tact_dict_get_slice_int INLINECALLDICT
+    DUP
+    ISNULL
+    NOT
+    IF:<{
+      __tact_not_null INLINECALLDICT
+    }>ELSE<{
+      DROP
+      FALSE
+    }>
+  }>
+  $SkateGateway$_fun_isExecutor PROCREF:<{
+    s4 s3 s2 PUSH3
+    s4 PUSH
+    s4 s8 XCHG
+    s3 s7 XCHG
+    s6 s5 s8 XCHG3
+    $SkateGateway$_fun_is_executor INLINECALLDICT
+    4 1 BLKDROP2
+    s3 s4 XCHG
+    s1 s3 s0 XCHG3
+  }>
+  $SkateGateway$_fun_executors PROCREF:<{
+    OVER
+  }>
+  $SetExecutor$_constructor_executor PROCINLINE:<{
+  }>
+  $SkateGateway$_fun_set_executor PROCREF:<{
+    s0 s2 XCHG
+    267 PUSHINT
+    s3 PUSH
+    TRUE
+    1 PUSHINT
+    __tact_dict_set_slice_int INLINECALLDICT
+    s0 s2 XCHG
+    $SetExecutor$_constructor_executor INLINECALLDICT
+    $SetExecutor$_store_cell INLINECALLDICT
+    $global_emit INLINECALLDICT
+  }>
+  $RevokeExecutor$_constructor_executor PROCINLINE:<{
+  }>
+  $SkateGateway$_fun_revoke_executor PROCREF:<{
+    s0 s2 PUXC
+    267 PUSHINT
+    DICTDEL
+    DROP
+    s0 s2 XCHG
+    $RevokeExecutor$_constructor_executor INLINECALLDICT
+    $RevokeExecutor$_store_cell INLINECALLDICT
+    $global_emit INLINECALLDICT
+  }>
+  $SkateGateway$_fun_changeRelayerMsg PROCREF:<{
+    B{b5ee9c7241010101001700002a536b6174653a3a52454c415945525f4348414e47450d1cfe5e} B>boc <s PUSHSLICE
+  }>
+  $SkateGateway$_fun_validate_relayer_signature PROCINLINE:<{
+    s4 PUSH
+    CHKSIGNU
+    10580 PUSHINT
+    SWAP
+    THROWANYIFNOT
+  }>
+  $SkateGateway$_fun_set_relayer PROCINLINE:<{
+    s3 s6 XCHG
+    s5 s4 s6 XCHG3
+    74440254441535147292347479412960770973200554889934767010763425494352285175264 PUSHINT
+    s0 s5 PUXC
+    $SkateGateway$_fun_validate_relayer_signature INLINECALLDICT
+    s2 POP
+    s3 s5 s4 XC2PU
+    CHKSIGNU
+    48599 PUSHINT
+    SWAP
+    THROWANYIFNOT
+    s3 s3 XCHG2
+  }>
+  $SkateGateway$_fun__encode_payload PROCINLINE:<{
+    NEWC
+    SWAP
+    HASHCU
+    SWAP
+    256 STU
+    SWAP
+    HASHCU
+    SWAP
+    256 STU
+    s1 s(-1) PUXC
+    64 STI
+    ENDC
+    $Cell$_fun_asSlice INLINECALLDICT
+    SHA256U
+  }>
+  $SkateGateway$_fun_payload_hash PROCREF:<{
+    s5 s4 s3 PUSH3
+    s5 PUSH
+    s9 s4 XCHG2
+    s1 s5 XCHG
+    s4 s8 XCHG
+    s3 s7 XCHG
+    s2 s6 XCHG
+    $SkateGateway$_fun__encode_payload INLINECALLDICT
+    4 1 BLKDROP2
+    s4 s3 s0 XCHG3
+  }>
+  $SkateGateway$_fun_only_executor PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    $SkateGateway$_fun_is_executor INLINECALLDICT
+    132 THROWIFNOT
+  }>
+  $SendParameters$_constructor_bounce_to_value_mode_body_code_data PROCINLINE:<{
+  }>
+  $SkateGateway$_fun_forward PROCREF:<{
+    PUSHNULL
+    PUSHNULL
+    s2 PUSH
+    ISNULL
+    NOT
+    IF:<{
+      2DROP
+      $StateInit$_not_null INLINECALLDICT
+      SWAP
+    }>ELSE<{
+      s2 POP
+    }>
+    s2 s4 XCHG
+    0 PUSHINT
+    s0 s3 XCHG
+    s0 s4 XCHG
+    66 PUSHINT
+    s2 s3 XCHG2
+    $SendParameters$_constructor_bounce_to_value_mode_body_code_data INLINECALLDICT
+    $global_send INLINECALLDICT
+  }>
+  $SkateGateway$_fun_reply PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    SWAP
+    TRUE
+    PUSHNULL
+    $SkateGateway$_fun_forward INLINECALLDICT
+  }>
+  $SkateGateway$_fun_notify PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    SWAP
+    FALSE
+    PUSHNULL
+    $SkateGateway$_fun_forward INLINECALLDICT
+  }>
+  $SkateGateway$_fun_requireOwner PROCREF:<{
+    __tact_context_get_sender INLINECALLDICT
+    s4 s(-1) PUXC
+    __tact_slice_eq_bits INLINECALLDICT
+    132 THROWIFNOT
+  }>
+  $SkateGateway$_fun_owner PROCREF:<{
+    s3 PUSH
+  }>
+  $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info PROCINLINE:<{
+  }>
+  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
+    TRUE
+    4 -ROLL
+    PUSHNULL
+    PUSHNULL
+  }>
+  $DeployOk$_constructor_queryId PROCINLINE:<{
+  }>
+  $ChangeOwnerOk$_constructor_queryId_newOwner PROCINLINE:<{
+  }>
+  $SkateGateway$_internal_binary_SetExecutor PROCINLINE:<{
+    4 -ROLL
+    $SkateGateway$_fun_requireOwner INLINECALLDICT
+    4 ROLL
+    $SkateGateway$_fun_set_executor INLINECALLDICT
+  }>
+  $SkateGateway$_internal_binary_RevokeExecutor PROCINLINE:<{
+    4 -ROLL
+    $SkateGateway$_fun_requireOwner INLINECALLDICT
+    4 ROLL
+    $SkateGateway$_fun_revoke_executor INLINECALLDICT
+  }>
+  $SkateGateway$_internal_binary_ChangeRelayer PROCINLINE:<{
+    s3 s6 XCHG
+    s5 s4 s6 XCHG3
+    $SkateGateway$_fun_requireOwner INLINECALLDICT
+    s3 s6 XCHG
+    3 3 BLKSWAP
+    $SkateGateway$_fun_set_relayer INLINECALLDICT
+  }>
+  $SkateGateway$_internal_binary_SkateInitiateTaskNotification PROCINLINE:<{
+    __tact_context_get INLINECALLDICT
+    DROP
+    6808 PUSHINT
+    s3 POP
+    -1 GTINT
+    s1 s2 XCHG
+    THROWANYIFNOT
+    4 -ROLL
+    $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info INLINECALLDICT
+    $SkateInitiateTaskEvent$_store_cell INLINECALLDICT
+    $global_emit INLINECALLDICT
+  }>
+  $SkateGateway$_internal_binary_SkateExecuteTask PROCINLINE:<{
+    s6 POP
+    s3 s9 XCHG
+    s8 s7 s6 XCHG3
+    $SkateGateway$_fun_only_executor INLINECALLDICT
+    45396 PUSHINT
+    NOW
+    s0 s10 XCHG2
+    LEQ
+    s1 s9 XCHG
+    THROWANYIFNOT
+    s6 s5 XCPU
+    s3 s5 XCHG
+    s2 s4 XCHG
+    s3 s7 XCHG
+    s2 s8 XCHG
+    $SkateGateway$_fun__encode_payload INLINECALLDICT
+    SWAP
+    INC
+    s4 s5 XCHG
+    s3 s4 XCHG
+    s0 s1 s3 XCHG3
+    s0 s6 XCHG
+    $SkateGateway$_fun_validate_relayer_signature INLINECALLDICT
+    s5 s6 s0 XCHG3
+    1 PUSHINT
+    s0 s5 XCHG2
+    $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
+    $global_send INLINECALLDICT
+    s3 s3 XCHG2
+  }>
+  $SkateGateway$_internal_binary_Deploy PROCINLINE:<{
+    $DeployOk$_constructor_queryId INLINECALLDICT
+    $DeployOk$_store_cell INLINECALLDICT
+    $SkateGateway$_fun_notify INLINECALLDICT
+  }>
+  $SkateGateway$_internal_binary_ChangeOwner PROCINLINE:<{
+    4 2 BLKSWAP
+    $SkateGateway$_fun_requireOwner INLINECALLDICT
+    s3 POP
+    s4 s3 XCPU
+    $ChangeOwnerOk$_constructor_queryId_newOwner INLINECALLDICT
+    $ChangeOwnerOk$_store_cell INLINECALLDICT
+    s1 s3 XCHG
+    s4 s4 s0 XCHG3
+    $SkateGateway$_fun_reply INLINECALLDICT
+  }>
+  %currentNonce PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_currentNonce INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %relayer PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_relayer INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %isExecutor PROC:<{
+    __tact_verify_address INLINECALLDICT
+    $SkateGateway$_contract_load INLINECALLDICT
+    4 ROLL
+    $SkateGateway$_fun_isExecutor INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %executors PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_executors INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %changeRelayerMsg PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_changeRelayerMsg INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %payload_hash PROC:<{
+    $Payload$_from_tuple INLINECALLDICT
+    $SkateGateway$_contract_load INLINECALLDICT
+    2 4 BLKSWAP
+    $SkateGateway$_fun_payload_hash INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %owner PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_owner INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  supported_interfaces PROC:<{
+    123515602279859691144772641439386770278 PUSHINT
+    209801025412363888721030803524359905849 PUSHINT
+    42980537499636128163026532310500881091 PUSHINT
+    36993126140238121407019133875791708966 PUSHINT
+    209474421377847335869795010607481022628 PUSHINT
+    322875185039650075936310953974817993034 PUSHINT
+    86142586315491086060343270784266291122 PUSHINT
+  }>
+  get_abi_ipfs PROC:<{
+    x{697066733a2f2f516d534b6d383475667a456a32734b6b703470683752387a6f5159383159734c584e6573476a664c6a4371374868} PUSHSLICE
+  }>
+  lazy_deployment_completed PROC:<{
+    c4 PUSH
+    CTOS
+    1 LDI
+    SWAP
+  }>
+  $SkateGateway$_contract_router_internal PROCREF:<{
+    SWAP
+    IFJMP:<{
+      DROP
+      TRUE
+    }>
+    0 PUSHINT
+    OVER
+    SBITS
+    31 GTINT
+    IF:<{
+      DROP
+      DUP
+      32 PLDU
+    }>
+    DUP
+    3368193837 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $SetExecutor$_load INLINECALLDICT
+      NIP
+      $SkateGateway$_internal_binary_SetExecutor INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    1193027593 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $RevokeExecutor$_load INLINECALLDICT
+      NIP
+      $SkateGateway$_internal_binary_RevokeExecutor INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    3991949411 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $ChangeRelayer$_load INLINECALLDICT
+      1 3 BLKDROP2
+      $SkateGateway$_internal_binary_ChangeRelayer INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    960016369 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $SkateInitiateTaskNotification$_load INLINECALLDICT
+      1 6 BLKDROP2
+      $SkateGateway$_internal_binary_SkateInitiateTaskNotification INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    3832306660 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $SkateExecuteTask$_load INLINECALLDICT
+      1 7 BLKDROP2
+      $SkateGateway$_internal_binary_SkateExecuteTask INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    2490013878 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $Deploy$_load INLINECALLDICT
+      NIP
+      $SkateGateway$_internal_binary_Deploy INLINECALLDICT
+      TRUE
+    }>
+    2174598809 PUSHINT
+    EQUAL
+    IFJMP:<{
+      $ChangeOwner$_load INLINECALLDICT
+      1 2 BLKDROP2
+      $SkateGateway$_internal_binary_ChangeOwner INLINECALLDICT
+      TRUE
+    }>
+    DROP
+    FALSE
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    4 LDU
+    SWAP
+    1 PUSHINT
+    AND
+    NEGATE
+    SWAP
+    LDMSGADDR
+    SWAP
+    __tact_verify_address INLINECALLDICT
+    s0 s4 s2 PUXCPU
+    s0 s3 XCHG
+    4 TUPLE
+    __tact_context SETGLOB
+    s0 s2 XCHG
+    __tact_context_sender SETGLOB
+    $SkateGateway$_contract_load INLINECALLDICT
+    2 4 BLKSWAP
+    $SkateGateway$_contract_router_internal INLINECALLDICT
+    130 THROWIFNOT
+    $SkateGateway$_contract_store INLINECALLDICT
+  }>
+}END>c

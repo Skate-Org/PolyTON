@@ -1,0 +1,29 @@
+{
+  "name": "@skate-org/ton-bindings",
+  "version": "1.0.0",
+  "description": "Typescript bindings for Skate-TON Polymarket contracts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "exports": {
+    "./SkateGateway": "./dist/SkateGateway.js",
+    "./PolyMarket": "./dist/PolyMarket.js",
+    "./JettonMaster": "./dist/JettonMaster.js",
+    "./JettonWallet": "./dist/JettonWallet.js",
+    "./JettonConstants": "./dist/JettonConstants.js"
+  },
+  "author": "Skate-Org",
+  "license": "BSL1.1",
+  "dependencies": {
+    "@ton/core": "~0",
+    "typescript": "^5.5.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
