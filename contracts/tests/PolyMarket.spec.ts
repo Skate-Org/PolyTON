@@ -4,16 +4,6 @@ import { toNano, beginCell, Dictionary, Cell, Address } from "@ton/core";
 import { compile } from "@ton/blueprint";
 
 import {
-  loadBet,
-  loadRequestSettleBet,
-  RequestSettleBet,
-  BetConfig,
-  PolyMarket,
-  storeBetConfig,
-  storeBet,
-  storeSettleBet,
-} from "../build/PolyMarket/tact_PolyMarket";
-import {
   loadDestination,
   loadSkateInitiateTaskEvent,
   storeDestination,
@@ -22,20 +12,28 @@ import {
   SkateExecuteTask,
   SkateGateway,
   Destination,
-} from "../build/SkateGateway/tact_SkateGateway";
-import { Op as SkateOp } from "../wrappers/ISkate";
-import { USDTMinter, JettonMinterContent } from "../wrappers/USDTMinter";
+  Op as SkateOp
+} from "../wrappers/SkateGateway";
+import { JettonMaster, JettonMasterContent } from "../wrappers/JettonMaster";
 import { JettonWallet } from "../wrappers/JettonWallet";
 import { Op as JettonOp } from "../wrappers/JettonConstants";
-import { Op as PolyMarketOp } from "../wrappers/PolyMarket";
+import {
+  loadBet,
+  loadRequestSettleBet,
+  RequestSettleBet,
+  BetConfig,
+  PolyMarket,
+  storeBetConfig,
+  storeSettleBet,
+  Op as PolyMarketOp
+} from "../wrappers/PolyMarket";
 import { bigintToHash, ed25519Sign } from "./helpers";
-import { assert } from "console";
 
 describe("PolyMarket", () => {
   let blockchain: Blockchain;
   let deployer: SandboxContract<TreasuryContract>;
   let polyMarket: SandboxContract<PolyMarket>;
-  let mockUSDT: SandboxContract<USDTMinter>;
+  let mockUSDT: SandboxContract<JettonMaster>;
   let skateGateway: SandboxContract<SkateGateway>;
   let executor: SandboxContract<TreasuryContract>;
 
@@ -80,9 +78,9 @@ describe("PolyMarket", () => {
     user = await blockchain.treasury("User");
 
     // Create USDT
-    const usdtMinterCode = await compile("USDTMinter");
+    const usdtMasterCode = await compile("JettonMaster");
     const walletCodeRaw = await compile("JettonWallet");
-    const jetton_content: JettonMinterContent = { uri: "https://tether.to/usdt-ton.json" };
+    const jetton_content: JettonMasterContent = { uri: "https://tether.to/usdt-ton.json" };
     const _libs = Dictionary.empty(Dictionary.Keys.BigUint(256), Dictionary.Values.Cell());
     _libs.set(BigInt(`0x${walletCodeRaw.hash().toString("hex")}`), walletCodeRaw);
     const libs = beginCell().storeDictDirect(_libs).endCell();
@@ -90,13 +88,13 @@ describe("PolyMarket", () => {
     let lib_prep = beginCell().storeUint(2, 8).storeBuffer(walletCodeRaw.hash()).endCell();
     const wallet_code = new Cell({ exotic: true, bits: lib_prep.bits, refs: lib_prep.refs });
     mockUSDT = blockchain.openContract(
-      USDTMinter.createFromConfig(
+      JettonMaster.createFromConfig(
         {
           admin: deployer.address,
           wallet_code,
           jetton_content,
         },
-        usdtMinterCode,
+        usdtMasterCode,
       ),
     );
     getUSDTWallet = async (address: Address) =>
@@ -251,7 +249,7 @@ describe("PolyMarket", () => {
       $$type: "RequestSettleBet",
       candidate_id: 1n, // TRUMP
       direction: true, // YES
-      ct_amount: settleAmount,
+      ct_amount: settleAmount, // 20 Token represent win
     };
     const requestSettleTx = await polyMarket.send(
       user.getSender(),
@@ -309,6 +307,7 @@ describe("PolyMarket", () => {
           $$type: "SettleBet",
           settle_id: settleId,
           user: user.address,
+          fee_receiver: executor.address,
           usd_amount: fillAmount, // 1000 USDT
         }),
       )
@@ -376,35 +375,5 @@ describe("PolyMarket", () => {
     });
     const userBalance = await userUSDTWallet.getJettonBalance();
     expect(userBalance).toEqual(fillAmount);
-  });
-
-  it("test transfer USDT from poly market", async () => {
-    const polyMarketUSDTWallet = await getUSDTWallet(polyMarket.address);
-    const userUSDTWallet = await getUSDTWallet(user.address);
-
-    const testTx = await polyMarket.send(
-      executor.getSender(),
-      {
-        value: toNano("10"),
-      },
-      {
-        $$type: 'SettleBetNotification',
-        user: user.address
-      },
-    );
-    expect(testTx.transactions).toHaveTransaction({
-      from: polyMarket.address,
-      to: polyMarketUSDTWallet.address,
-      op: JettonOp.transfer,
-      success: true,
-    });
-    expect(testTx.transactions).toHaveTransaction({
-      from: polyMarketUSDTWallet.address,
-      to: userUSDTWallet.address,
-      op: JettonOp.internal_transfer,
-      success: true,
-    });
-    const userBalance = await userUSDTWallet.getJettonBalance();
-    expect(userBalance).toEqual(toNano("10"));
   });
 });

@@ -2,17 +2,17 @@ import "@stdlib/deploy";
 import "@stdlib/ownable";
 import "./traits/skate/ISkate.tact"; // implicit
 
-message ChangeRelayer {
+message(0xedf05063) ChangeRelayer {
     newRelayer: Int;
     currentSignature: Slice;
     newSignature: Slice;
 }
 
-message SetExecutor {
+message(0xc8c28f2d) SetExecutor {
     executor: Address;
 }
 
-message RevokeExecutor {
+message(0x471c2809) RevokeExecutor {
     executor: Address;
 }
 
@@ -128,7 +128,7 @@ contract SkateGateway with Deployable, OwnableTransferable  {
 
         send(SendParameters{
             to: msg.target_app,
-            value: execution_info.value + ton("0.2"), // some large buffer to make sure enough for gas
+            value: execution_info.value,
             mode: SendPayGasSeparately,
             body: execution_info.payload.data,
         })

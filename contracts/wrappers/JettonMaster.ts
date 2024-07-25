@@ -1,5 +1,4 @@
-// NOTE:
-// Source: https://github.com/ton-blockchain/stablecoin-contract/blob/main/wrappers/JettonMinter.ts
+// NOTE: https://github.com/ton-blockchain/stablecoin-contract/blob/main/wrappers/JettonMinter.ts
 // with removed forced transfer/burn functions
 import {
   Address,
@@ -16,21 +15,21 @@ import {
 import { Op } from "./JettonConstants";
 import { endParse } from "./utils";
 
-export type JettonMinterContent = {
+export type JettonMasterContent = {
   uri: string;
 };
-export type JettonMinterConfig = {
+export type JettonMasterConfig = {
   admin: Address;
   wallet_code: Cell;
-  jetton_content: Cell | JettonMinterContent;
+  jetton_content: Cell | JettonMasterContent;
 };
-export type JettonMinterConfigFull = {
+export type JettonMasterConfigFull = {
   supply: bigint;
   admin: Address;
   //Makes no sense to update transfer admin. ...Or is it?
   transfer_admin: Address | null;
   wallet_code: Cell;
-  jetton_content: Cell | JettonMinterContent;
+  jetton_content: Cell | JettonMasterContent;
 };
 
 export type LockType = "unlock" | "out" | "in" | "full";
@@ -67,9 +66,9 @@ export const intToLockType = (lockType: number): LockType => {
   }
 };
 
-export function jettonMinterConfigCellToConfig(config: Cell): JettonMinterConfigFull {
+export function jettonMasterConfigCellToConfig(config: Cell): JettonMasterConfigFull {
   const sc = config.beginParse();
-  const parsed: JettonMinterConfigFull = {
+  const parsed: JettonMasterConfigFull = {
     supply: sc.loadCoins(),
     admin: sc.loadAddress(),
     transfer_admin: sc.loadMaybeAddress(),
@@ -80,11 +79,11 @@ export function jettonMinterConfigCellToConfig(config: Cell): JettonMinterConfig
   return parsed;
 }
 
-export function parseJettonMinterData(data: Cell): JettonMinterConfigFull {
-  return jettonMinterConfigCellToConfig(data);
+export function parseJettonMasterData(data: Cell): JettonMasterConfigFull {
+  return jettonMasterConfigCellToConfig(data);
 }
 
-export function jettonMinterConfigFullToCell(config: JettonMinterConfigFull): Cell {
+export function jettonMasterConfigFullToCell(config: JettonMasterConfigFull): Cell {
   const content =
     config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
   return beginCell()
@@ -96,7 +95,7 @@ export function jettonMinterConfigFullToCell(config: JettonMinterConfigFull): Ce
     .endCell();
 }
 
-export function jettonMinterConfigToCell(config: JettonMinterConfig): Cell {
+export function jettonMasterConfigToCell(config: JettonMasterConfig): Cell {
   const content =
     config.jetton_content instanceof Cell ? config.jetton_content : jettonContentToCell(config.jetton_content);
   return beginCell()
@@ -108,26 +107,26 @@ export function jettonMinterConfigToCell(config: JettonMinterConfig): Cell {
     .endCell();
 }
 
-export function jettonContentToCell(content: JettonMinterContent) {
+export function jettonContentToCell(content: JettonMasterContent) {
   return beginCell()
     .storeStringRefTail(content.uri) //Snake logic under the hood
     .endCell();
 }
 
-export class USDTMinter implements Contract {
+export class JettonMaster implements Contract {
   constructor(
     readonly address: Address,
     readonly init?: { code: Cell; data: Cell },
   ) {}
 
   static createFromAddress(address: Address) {
-    return new USDTMinter(address);
+    return new JettonMaster(address);
   }
 
-  static createFromConfig(config: JettonMinterConfig, code: Cell, workchain = 0) {
-    const data = jettonMinterConfigToCell(config);
+  static createFromConfig(config: JettonMasterConfig, code: Cell, workchain = 0) {
+    const data = jettonMasterConfigToCell(config);
     const init = { code, data };
-    return new USDTMinter(contractAddress(workchain, init), init);
+    return new JettonMaster(contractAddress(workchain, init), init);
   }
 
   async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
@@ -214,7 +213,7 @@ export class USDTMinter implements Contract {
   ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.mintMessage(
+      body: JettonMaster.mintMessage(
         to,
         jetton_amount,
         from,
@@ -247,7 +246,7 @@ export class USDTMinter implements Contract {
   ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.discoveryMessage(owner, include_address),
+      body: JettonMaster.discoveryMessage(owner, include_address),
       value: value,
     });
   }
@@ -272,7 +271,7 @@ export class USDTMinter implements Contract {
   async sendTopUp(provider: ContractProvider, via: Sender, value: bigint = toNano("0.1")) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.topUpMessage(),
+      body: JettonMaster.topUpMessage(),
       value: value,
     });
   }
@@ -300,7 +299,7 @@ export class USDTMinter implements Contract {
   async sendChangeAdmin(provider: ContractProvider, via: Sender, newOwner: Address) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.changeAdminMessage(newOwner),
+      body: JettonMaster.changeAdminMessage(newOwner),
       value: toNano("0.1"),
     });
   }
@@ -322,12 +321,12 @@ export class USDTMinter implements Contract {
   async sendClaimAdmin(provider: ContractProvider, via: Sender, query_id: bigint = 0n) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.claimAdminMessage(query_id),
+      body: JettonMaster.claimAdminMessage(query_id),
       value: toNano("0.1"),
     });
   }
 
-  static changeContentMessage(content: Cell | JettonMinterContent) {
+  static changeContentMessage(content: Cell | JettonMasterContent) {
     const contentString = content instanceof Cell ? content.beginParse().loadStringTail() : content.uri;
     return beginCell()
       .storeUint(Op.change_metadata_url, 32)
@@ -348,10 +347,10 @@ export class USDTMinter implements Contract {
     };
   }
 
-  async sendChangeContent(provider: ContractProvider, via: Sender, content: Cell | JettonMinterContent) {
+  async sendChangeContent(provider: ContractProvider, via: Sender, content: Cell | JettonMasterContent) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.changeContentMessage(content),
+      body: JettonMaster.changeContentMessage(content),
       value: toNano("0.1"),
     });
   }
@@ -406,7 +405,7 @@ export class USDTMinter implements Contract {
 
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.lockWalletMessage(lock_address, lockCmd, amount, query_id),
+      body: JettonMaster.lockWalletMessage(lock_address, lockCmd, amount, query_id),
       value: amount + toNano("0.1"),
     });
   }
@@ -481,7 +480,7 @@ export class USDTMinter implements Contract {
   ) {
     await provider.internal(via, {
       sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: USDTMinter.upgradeMessage(new_code, new_data, query_id),
+      body: JettonMaster.upgradeMessage(new_code, new_data, query_id),
       value,
     });
   }

@@ -1,3 +1,5 @@
+const OP_JettonTransfer: Int = 0x0f8a7ea5;
+
 message(0x0f8a7ea5) JettonTransfer {
     query_id: Int as uint64; // arbitrary request number
     amount: Int as coins; // amount of jettons to transfer

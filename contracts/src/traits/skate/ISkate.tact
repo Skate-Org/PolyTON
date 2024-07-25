@@ -49,14 +49,14 @@ struct SkateInitiateTaskEvent {
 }
 
 // For Skate App
-message(0xe3db123b) SkateInitiateTaskNotification {
+message(0x3938aff1) SkateInitiateTaskNotification {
     query_id: Int as uint64;
     user: Address;
     execution_info: ExecutionInfo;
 }
 
 // For Skate executors
-message(0xe8b8b601) SkateExecuteTask {
+message(0xe46c5be4) SkateExecuteTask {
     query_id: Int as uint64;
     target_app: Address;
     execution_info: ExecutionInfo;

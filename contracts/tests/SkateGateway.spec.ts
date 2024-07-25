@@ -1,6 +1,7 @@
 import { Blockchain, SandboxContract, SendMessageResult, TreasuryContract } from "@ton/sandbox";
 import { toNano, beginCell, Cell } from "@ton/core";
 import "@ton/test-utils";
+import { bigintToHash, ed25519Sign, sha256 } from "./helpers";
 import {
   ExecutionInfo,
   loadSkateInitiateTaskEvent,
@@ -9,9 +10,9 @@ import {
   SkateGateway,
   SkateInitiateTaskNotification,
   storeDestination,
-} from "../build/SkateGateway/tact_SkateGateway";
-import { bigintToHash, ed25519Sign, sha256 } from "./helpers";
-import { ExitCode, Op as SkateOp } from "../wrappers/ISkate";
+  ExitCode as SkateGateway_ExitCode, 
+  Op as SkateGateway_Op
+} from "../wrappers/SkateGateway";
 import { storeBet } from "../build/PolyMarket/tact_PolyMarket";
 
 describe("SkateGateway", () => {
@@ -217,7 +218,7 @@ describe("SkateGateway", () => {
       from: mockApp.address,
       to: skateGateway.address,
       success: true,
-      op: SkateOp.initiate_task_notification,
+      op: SkateGateway_Op.initiate_task_notification,
     });
 
     expect(initiateTaskTx.externals).toHaveLength(1);
@@ -315,12 +316,12 @@ describe("SkateGateway", () => {
 
   it("should execute task", async () => {
     const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
-    const forward_amount = toNano("0.05");
+    const forward_amount = toNano("0.5");
     const { tx: executeTaskTx } = await callExecuteTask({ executor: executor0, forward_amount });
     expect(executeTaskTx.transactions).toHaveTransaction({
       from: executor0.address,
       to: skateGateway.address,
-      op: SkateOp.execute_task,
+      op: SkateGateway_Op.execute_task,
       success: true,
       exitCode: 0,
     });
@@ -343,8 +344,8 @@ describe("SkateGateway", () => {
       from: executor0.address,
       to: skateGateway.address,
       success: false,
-      op: SkateOp.execute_task,
-      exitCode: ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
     });
 
     expect(executeTaskTx.transactions).not.toHaveTransaction({
@@ -365,8 +366,8 @@ describe("SkateGateway", () => {
       from: executor0.address,
       to: skateGateway.address,
       success: false,
-      op: SkateOp.execute_task,
-      exitCode: ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
     });
 
     expect(executeTaskTx.transactions).not.toHaveTransaction({
