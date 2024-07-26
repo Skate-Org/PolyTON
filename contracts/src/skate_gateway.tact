@@ -16,6 +16,8 @@ message(0x471c2809) RevokeExecutor {
     executor: Address;
 }
 
+message TopUpTON {}
+
 contract SkateGateway with Deployable, OwnableTransferable  {
     const SKATE_FEE: Int = ton("0.00"); // Gas required to process intent.
     owner: Address;
@@ -30,6 +32,10 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         self.owner = owner;
         self.relayer = relayer;
         self.executors = emptyMap();
+    }
+
+    receive(msg: TopUpTON) {
+        // Do nothing, just accept TON.
     }
 
     ////////////////////// GOVERNANCE /////////////////////

@@ -1,17 +1,17 @@
 import { toNano } from "@ton/core";
-import { SkateGateway } from "../build/SkateGateway/tact_SkateGateway";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
+import { PolyMarket } from "../wrappers/PolyMarket";
+import { gatewayAddress } from "./const";
 
 export async function run(provider: NetworkProvider) {
   const owner = provider.sender().address;
-  const relayerKey = BigInt(`0x${process.env.RELAYER_PUBLIC_KEY!}`);
-  if (!owner || !relayerKey) {
+  if (!owner) {
     throw "Missing deployer address or relayer key not specified";
   }
-  const skateGateway = provider.open(await SkateGateway.fromInit(owner, relayerKey));
+  const polyMarket = provider.open(await PolyMarket.fromInit(owner, gatewayAddress));
 
-  await skateGateway.send(
+  await polyMarket.send(
     provider.sender(),
     {
       value: toNano("2"),
@@ -22,5 +22,5 @@ export async function run(provider: NetworkProvider) {
     },
   );
 
-  await provider.waitForDeploy(skateGateway.address);
+  await provider.waitForDeploy(polyMarket.address);
 }

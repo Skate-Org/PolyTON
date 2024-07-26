@@ -29,4 +29,3 @@ trait SkateAppBase {
         nativeThrowUnless(132, sender() == self.skate_gateway);
     }
 }
-

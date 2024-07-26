@@ -15,6 +15,7 @@ export abstract class Op {
   static settle_bet = 0xc4a35d45;
   static request_settle_bet = 0x873b1472;
   static set_jetton_wallet = 0x77321783;
+  static top_up_TON = 0x75a6e8ec;
 }
 
 // NOTE: code generation algorithm: https://docs.tact-lang.org/ref/core-debug#require

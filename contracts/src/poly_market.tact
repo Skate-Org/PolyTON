@@ -44,6 +44,8 @@ message(0x873b1472) RequestSettleBet {
 message(0x77321783) SetJettonWallet {
     jetton_wallet: Address;
 }
+
+message TopUpTON {}
 ///////////////////////////////////////////////
 
 /////////////// Unstable API //////////////////
@@ -77,6 +79,10 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     }
     get fun gateway(): Address {
         return self.skate_gateway;
+    }
+
+    receive(msg: TopUpTON) {
+        // Do nothing, just accept TON.
     }
 
     // TODO: A proper estimation for fee framework before public launch, should satisfy:
