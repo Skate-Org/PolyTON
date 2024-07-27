@@ -9,13 +9,6 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "exports": {
-    "./SkateGateway": "./dist/SkateGateway.js",
-    "./PolyMarket": "./dist/PolyMarket.js",
-    "./JettonMaster": "./dist/JettonMaster.js",
-    "./JettonWallet": "./dist/JettonWallet.js",
-    "./JettonConstants": "./dist/JettonConstants.js"
-  },
   "author": "Skate-Org",
   "license": "BSL1.1",
   "dependencies": {
