@@ -10,11 +10,7 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const polyMarket = provider.open(
-    PolyMarket.fromAddress(
-      polyMarketAddress
-    ),
-  );
+  const polyMarket = provider.open(PolyMarket.fromAddress(polyMarketAddress));
 
   const settleRequest: RequestSettleBet = {
     $$type: "RequestSettleBet",

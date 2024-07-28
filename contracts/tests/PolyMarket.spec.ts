@@ -12,7 +12,7 @@ import {
   SkateExecuteTask,
   SkateGateway,
   Destination,
-  Op as SkateOp
+  Op as SkateOp,
 } from "../wrappers/SkateGateway";
 import { JettonMaster, JettonMasterContent } from "../wrappers/JettonMaster";
 import { JettonWallet } from "../wrappers/JettonWallet";
@@ -25,7 +25,7 @@ import {
   PolyMarket,
   storeBetConfig,
   storeSettleBet,
-  Op as PolyMarketOp
+  Op as PolyMarketOp,
 } from "../wrappers/PolyMarket";
 import { bigintToHash, ed25519Sign } from "./helpers";
 

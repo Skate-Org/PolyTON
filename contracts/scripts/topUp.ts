@@ -13,12 +13,10 @@ export async function run(provider: NetworkProvider) {
   }
   const to = polyMarketAddress;
 
-  await provider.sender().send(
-    {
-      value: toNano("5"),
-      to,
-      sendMode: SendMode.PAY_GAS_SEPARATELY,
-      body: beginCell().storeUint(PolymarketOp.top_up_TON, 32).storeUint(0, 64).endCell(),
-    },
-  );
+  await provider.sender().send({
+    value: toNano("5"),
+    to,
+    sendMode: SendMode.PAY_GAS_SEPARATELY,
+    body: beginCell().storeUint(PolymarketOp.top_up_TON, 32).storeUint(0, 64).endCell(),
+  });
 }

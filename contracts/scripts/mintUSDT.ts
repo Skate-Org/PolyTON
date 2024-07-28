@@ -10,23 +10,10 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const mockUSDT = provider.open(
-    JettonMaster.createFromAddress(
-      mockUSDTAddress
-    ),
-  );
+  const mockUSDT = provider.open(JettonMaster.createFromAddress(mockUSDTAddress));
   // NOTE: user
   // const to = address("0QBuMAzv90ZXWm2JRgMO0Hr2StP4dsy-Gb7ygeizxYBp3jmU");
 
   const to = owner;
-  await mockUSDT.sendMint(
-    provider.sender(),
-    to,
-    toNano("10000"),
-    null,
-    null,
-    null,
-    toNano("0"),
-    toNano("0.1"),
-  );
+  await mockUSDT.sendMint(provider.sender(), to, toNano("10000"), null, null, null, toNano("0"), toNano("0.1"));
 }

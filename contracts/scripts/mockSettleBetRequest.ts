@@ -66,7 +66,7 @@ export async function run(provider: NetworkProvider) {
     {
       value: toNano("2"),
     },
-    MsgExecuteTask
+    MsgExecuteTask,
   );
 
   await provider.waitForDeploy(skateGateway.address);

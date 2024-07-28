@@ -10,8 +10,8 @@ import {
   SkateGateway,
   SkateInitiateTaskNotification,
   storeDestination,
-  ExitCode as SkateGateway_ExitCode, 
-  Op as SkateGateway_Op
+  ExitCode as SkateGateway_ExitCode,
+  Op as SkateGateway_Op,
 } from "../wrappers/SkateGateway";
 import { storeRequestPlaceBet } from "../build/PolyMarket/tact_PolyMarket";
 

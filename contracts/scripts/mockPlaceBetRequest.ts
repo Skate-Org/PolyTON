@@ -12,15 +12,12 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const mockUSDT = provider.open(
-    JettonMaster.createFromAddress(
-      mockUSDTAddress
-    ),
-  );
+  const mockUSDT = provider.open(JettonMaster.createFromAddress(mockUSDTAddress));
   // NOTE: user
   // const to = address("0QBuMAzv90ZXWm2JRgMO0Hr2StP4dsy-Gb7ygeizxYBp3jmU");
 
-  const getUSDTWallet = async (address: Address) => provider.open(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
+  const getUSDTWallet = async (address: Address) =>
+    provider.open(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
   const userUSDTWallet = await getUSDTWallet(owner);
 
   const betAmount = toNano("1"); // 1000 USDT, since decimal is 6

@@ -12,20 +12,18 @@ export async function run(provider: NetworkProvider) {
   }
   const polyMarket = provider.open(PolyMarket.fromAddress(polyMarketAddress));
 
-  const mockUSDT = provider.open(
-    JettonMaster.createFromAddress(
-      mockUSDTAddress
-    ),
-  );
+  const mockUSDT = provider.open(JettonMaster.createFromAddress(mockUSDTAddress));
 
   const marketUSDTWallet = await mockUSDT.getWalletAddress(polyMarketAddress);
 
   await polyMarket.send(
     provider.sender(),
     {
-      value: toNano("0.1")
-    }, {
-    $$type: "SetJettonWallet",
-    jetton_wallet: marketUSDTWallet,
-  })
+      value: toNano("0.1"),
+    },
+    {
+      $$type: "SetJettonWallet",
+      jetton_wallet: marketUSDTWallet,
+    },
+  );
 }
