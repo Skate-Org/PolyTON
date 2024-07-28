@@ -18,8 +18,8 @@ PROGRAM{
   DECLPROC $ExecutionInfo$_store
   DECLPROC $SkateInitiateTaskNotification$_store
   DECLPROC $SkateInitiateTaskNotification$_store_cell
-  DECLPROC $Bet$_store
-  DECLPROC $Bet$_store_cell
+  DECLPROC $RequestPlaceBet$_store
+  DECLPROC $RequestPlaceBet$_store_cell
   DECLPROC $BetConfig$_load
   DECLPROC $BetConfig$_load_not_mut
   DECLPROC $SettleBet$_load
@@ -27,6 +27,7 @@ PROGRAM{
   DECLPROC $RequestSettleBet$_store_cell
   DECLPROC $RequestSettleBet$_load
   DECLPROC $SetJettonWallet$_load
+  DECLPROC $TopUpTON$_load
   DECLPROC $PolyMarket$_store
   DECLPROC $PolyMarket$_load
   DECLPROC $StateInit$_not_null
@@ -38,6 +39,7 @@ PROGRAM{
   DECLPROC $PolyMarket$_fun_initiateCount
   DECLPROC $PolyMarket$_fun_settleCount
   DECLPROC $PolyMarket$_fun_gateway
+  DECLPROC $PolyMarket$_fun_jettonWallet
   DECLPROC $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info
   DECLPROC $ExecutionInfo$_constructor_value_expiration_payload
   DECLPROC $Payload$_constructor_destination_data
@@ -52,9 +54,10 @@ PROGRAM{
   DECLPROC $PolyMarket$_fun_only_gateway
   DECLPROC $PolyMarket$_fun_requireOwner
   DECLPROC $PolyMarket$_fun_owner
-  DECLPROC $Bet$_constructor_candidate_id_usd_amount_direction
+  DECLPROC $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction
   DECLPROC $SendParameters$_constructor_to_value_mode
   DECLPROC $DeployOk$_constructor_queryId
+  DECLPROC $PolyMarket$_internal_binary_TopUpTON
   DECLPROC $PolyMarket$_internal_binary_SetJettonWallet
   DECLPROC $PolyMarket$_internal_binary_JettonTransferNotification
   DECLPROC $PolyMarket$_internal_binary_RequestSettleBet
@@ -63,6 +66,7 @@ PROGRAM{
   98895 DECLMETHOD %initiateCount
   92282 DECLMETHOD %settleCount
   84940 DECLMETHOD %gateway
+  90133 DECLMETHOD %jettonWallet
   83229 DECLMETHOD %owner
   113617 DECLMETHOD supported_interfaces
   121275 DECLMETHOD get_abi_ipfs
@@ -195,17 +199,20 @@ PROGRAM{
     $SkateInitiateTaskNotification$_store INLINECALLDICT
     ENDC
   }>
-  $Bet$_store PROCINLINE:<{
-    s2 s3 XCHG2
+  $RequestPlaceBet$_store PROCINLINE:<{
+    750876413 PUSHINT
+    s0 s4 XCHG2
+    32 STU
+    s1 s2 XCHG
     8 STU
     1 STI
     SWAP
     STGRAMS
   }>
-  $Bet$_store_cell PROCINLINE:<{
+  $RequestPlaceBet$_store_cell PROCINLINE:<{
     NEWC
     3 -ROLL
-    $Bet$_store INLINECALLDICT
+    $RequestPlaceBet$_store INLINECALLDICT
     ENDC
   }>
   $BetConfig$_load PROCINLINE:<{
@@ -267,6 +274,14 @@ PROGRAM{
     EQUAL
     129 THROWIFNOT
     __tact_load_address INLINECALLDICT
+  }>
+  $TopUpTON$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    1973872876 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    PUSHNULL
   }>
   $PolyMarket$_store PROCINLINE:<{
     s9 s8 XCHG2
@@ -485,6 +500,9 @@ PROGRAM{
   $PolyMarket$_fun_gateway PROCREF:<{
     s7 PUSH
   }>
+  $PolyMarket$_fun_jettonWallet PROCREF:<{
+    OVER
+  }>
   $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info PROCINLINE:<{
   }>
   $ExecutionInfo$_constructor_value_expiration_payload PROCINLINE:<{
@@ -580,7 +598,7 @@ PROGRAM{
   $PolyMarket$_fun_owner PROCREF:<{
     s8 PUSH
   }>
-  $Bet$_constructor_candidate_id_usd_amount_direction PROCINLINE:<{
+  $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction PROCINLINE:<{
     SWAP
   }>
   $SendParameters$_constructor_to_value_mode PROCINLINE:<{
@@ -591,6 +609,9 @@ PROGRAM{
     PUSHNULL
   }>
   $DeployOk$_constructor_queryId PROCINLINE:<{
+  }>
+  $PolyMarket$_internal_binary_TopUpTON PROCINLINE:<{
+    DROP
   }>
   $PolyMarket$_internal_binary_SetJettonWallet PROCINLINE:<{
     9 -ROLL
@@ -621,11 +642,11 @@ PROGRAM{
     5 LESSINT
     THROWANYIFNOT
     s1 s6 s0 XCHG3
-    $Bet$_constructor_candidate_id_usd_amount_direction INLINECALLDICT
+    $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction INLINECALLDICT
     s0 s13 XCHG
     INC
     s0 s13 XCHG
-    $Bet$_store_cell INLINECALLDICT
+    $RequestPlaceBet$_store_cell INLINECALLDICT
     s11 PUSH
     s11 s15 XCHG
     s10 s14 XCHG
@@ -766,6 +787,11 @@ PROGRAM{
     $PolyMarket$_fun_gateway INLINECALLDICT
     9 1 BLKDROP2
   }>
+  %jettonWallet PROC:<{
+    $PolyMarket$_contract_load INLINECALLDICT
+    $PolyMarket$_fun_jettonWallet INLINECALLDICT
+    9 1 BLKDROP2
+  }>
   %owner PROC:<{
     $PolyMarket$_contract_load INLINECALLDICT
     $PolyMarket$_fun_owner INLINECALLDICT
@@ -780,7 +806,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d516967767038517a6f59365776346d466b764a4e6f556f3364576766706e7055725857715a7165726b73314b} PUSHSLICE
+    x{697066733a2f2f516d613646436147734b77685a6a7376584b37437357675036637a5971726a6e4e526965766b46344a5974555658} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -802,6 +828,16 @@ PROGRAM{
       DROP
       DUP
       32 PLDU
+    }>
+    DUP
+    1973872876 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $TopUpTON$_load INLINECALLDICT
+      NIP
+      $PolyMarket$_internal_binary_TopUpTON INLINECALLDICT
+      TRUE
     }>
     DUP
     1999771523 PUSHINT

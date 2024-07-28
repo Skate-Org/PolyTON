@@ -60,11 +60,11 @@ builder $SkateInitiateTaskNotification$_store(builder build_0, (int, slice, (int
 ;; $SkateInitiateTaskNotification$_store_cell
 cell $SkateInitiateTaskNotification$_store_cell((int, slice, (int, int, (cell, cell))) v) inline;
 
-;; $Bet$_store
-builder $Bet$_store(builder build_0, (int, int, int) v) inline;
+;; $RequestPlaceBet$_store
+builder $RequestPlaceBet$_store(builder build_0, (int, int, int) v) inline;
 
-;; $Bet$_store_cell
-cell $Bet$_store_cell((int, int, int) v) inline;
+;; $RequestPlaceBet$_store_cell
+cell $RequestPlaceBet$_store_cell((int, int, int) v) inline;
 
 ;; $BetConfig$_load
 (slice, ((int, int))) $BetConfig$_load(slice sc_0) inline;
@@ -86,6 +86,9 @@ cell $RequestSettleBet$_store_cell((int, int, int) v) inline;
 
 ;; $SetJettonWallet$_load
 (slice, ((slice))) $SetJettonWallet$_load(slice sc_0) inline;
+
+;; $TopUpTON$_load
+(slice, (tuple)) $TopUpTON$_load(slice sc_0) inline;
 
 ;; $PolyMarket$_store
 builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, int, slice, int) v) inline;
@@ -119,6 +122,9 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, i
 
 ;; $PolyMarket$_fun_gateway
 ((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_gateway((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref;
+
+;; $PolyMarket$_fun_jettonWallet
+((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_jettonWallet((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref;
 
 ;; $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info
 ((int, slice, int, (int, int, (cell, cell)))) $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info(int query_id, slice user, int processing_fee, (int, int, (cell, cell)) execution_info) inline;
@@ -162,8 +168,8 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, i
 ;; $PolyMarket$_fun_owner
 ((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_owner((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref;
 
-;; $Bet$_constructor_candidate_id_usd_amount_direction
-((int, int, int)) $Bet$_constructor_candidate_id_usd_amount_direction(int candidate_id, int usd_amount, int direction) inline;
+;; $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction
+((int, int, int)) $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction(int candidate_id, int usd_amount, int direction) inline;
 
 ;; $SendParameters$_constructor_to_value_mode
 ((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode(slice to, int value, int mode) inline;

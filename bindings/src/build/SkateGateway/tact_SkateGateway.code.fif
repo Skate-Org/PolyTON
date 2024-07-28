@@ -31,6 +31,7 @@ PROGRAM{
   DECLPROC $RevokeExecutor$_store
   DECLPROC $RevokeExecutor$_store_cell
   DECLPROC $RevokeExecutor$_load
+  DECLPROC $TopUpTON$_load
   DECLPROC $SkateGateway$_store
   DECLPROC $SkateGateway$_load
   DECLPROC $StateInit$_not_null
@@ -67,6 +68,7 @@ PROGRAM{
   DECLPROC $SendParameters$_constructor_to_value_mode_body
   DECLPROC $DeployOk$_constructor_queryId
   DECLPROC $ChangeOwnerOk$_constructor_queryId_newOwner
+  DECLPROC $SkateGateway$_internal_binary_TopUpTON
   DECLPROC $SkateGateway$_internal_binary_SetExecutor
   DECLPROC $SkateGateway$_internal_binary_RevokeExecutor
   DECLPROC $SkateGateway$_internal_binary_ChangeRelayer
@@ -237,7 +239,10 @@ PROGRAM{
     s2 s3 XCHG
   }>
   $SkateInitiateTaskEvent$_store PROCINLINE:<{
-    s6 s7 XCHG2
+    1969273797 PUSHINT
+    s0 s8 XCHG2
+    32 STU
+    s1 s6 XCHG
     64 STU
     s0 s4 XCHG2
     __tact_store_address INLINECALLDICT
@@ -341,6 +346,14 @@ PROGRAM{
     EQUAL
     129 THROWIFNOT
     __tact_load_address INLINECALLDICT
+  }>
+  $TopUpTON$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    1973872876 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    PUSHNULL
   }>
   $SkateGateway$_store PROCINLINE:<{
     s4 s3 XCHG2
@@ -710,6 +723,9 @@ PROGRAM{
   }>
   $ChangeOwnerOk$_constructor_queryId_newOwner PROCINLINE:<{
   }>
+  $SkateGateway$_internal_binary_TopUpTON PROCINLINE:<{
+    DROP
+  }>
   $SkateGateway$_internal_binary_SetExecutor PROCINLINE:<{
     4 -ROLL
     $SkateGateway$_fun_requireOwner INLINECALLDICT
@@ -839,7 +855,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d534b6d383475667a456a32734b6b703470683752387a6f5159383159734c584e6573476a664c6a4371374868} PUSHSLICE
+    x{697066733a2f2f516d564238694c6974364c715034317a386575464334695857316670366f65535655314c43444461343459635363} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -861,6 +877,16 @@ PROGRAM{
       DROP
       DUP
       32 PLDU
+    }>
+    DUP
+    1973872876 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $TopUpTON$_load INLINECALLDICT
+      NIP
+      $SkateGateway$_internal_binary_TopUpTON INLINECALLDICT
+      TRUE
     }>
     DUP
     3368193837 PUSHINT

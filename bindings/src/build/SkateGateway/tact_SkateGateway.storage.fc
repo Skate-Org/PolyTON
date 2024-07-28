@@ -137,11 +137,13 @@ builder $ExecutionInfo$_store(builder build_0, (int, int, (cell, cell)) v) inlin
 
 ;;
 ;; Type: SkateInitiateTaskEvent
-;; TLB: _ query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent
+;; Header: 0x7560bbc5
+;; TLB: skate_initiate_task_event#7560bbc5 query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent
 ;;
 
 builder $SkateInitiateTaskEvent$_store(builder build_0, (int, slice, slice, (int, int, (cell, cell))) v) inline {
     var (v'query_id, v'user, v'skate_app, (v'execution_info'value, v'execution_info'expiration, (v'execution_info'payload'destination, v'execution_info'payload'data))) = v;
+    build_0 = store_uint(build_0, 1969273797, 32);
     build_0 = build_0.store_uint(v'query_id, 64);
     build_0 = __tact_store_address(build_0, v'user);
     build_0 = __tact_store_address(build_0, v'skate_app);
@@ -252,6 +254,17 @@ cell $RevokeExecutor$_store_cell((slice) v) inline {
 
 ((slice)) $RevokeExecutor$_constructor_executor(slice executor) inline {
     return (executor);
+}
+
+;;
+;; Type: TopUpTON
+;; Header: 0x75a6e8ec
+;; TLB: top_up_ton#75a6e8ec  = TopUpTON
+;;
+
+(slice, (tuple)) $TopUpTON$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1973872876);
+    return (sc_0, null());
 }
 
 ;;

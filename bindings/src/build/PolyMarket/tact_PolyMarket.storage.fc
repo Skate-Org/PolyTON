@@ -161,23 +161,25 @@ cell $SkateInitiateTaskNotification$_store_cell((int, slice, (int, int, (cell, c
 }
 
 ;;
-;; Type: Bet
-;; TLB: _ candidate_id:uint8 direction:bool usd_amount:coins = Bet
+;; Type: RequestPlaceBet
+;; Header: 0x2cc176fd
+;; TLB: request_place_bet#2cc176fd candidate_id:uint8 direction:bool usd_amount:coins = RequestPlaceBet
 ;;
 
-builder $Bet$_store(builder build_0, (int, int, int) v) inline {
+builder $RequestPlaceBet$_store(builder build_0, (int, int, int) v) inline {
     var (v'candidate_id, v'direction, v'usd_amount) = v;
+    build_0 = store_uint(build_0, 750876413, 32);
     build_0 = build_0.store_uint(v'candidate_id, 8);
     build_0 = build_0.store_int(v'direction, 1);
     build_0 = build_0.store_coins(v'usd_amount);
     return build_0;
 }
 
-cell $Bet$_store_cell((int, int, int) v) inline {
-    return $Bet$_store(begin_cell(), v).end_cell();
+cell $RequestPlaceBet$_store_cell((int, int, int) v) inline {
+    return $RequestPlaceBet$_store(begin_cell(), v).end_cell();
 }
 
-((int, int, int)) $Bet$_constructor_candidate_id_usd_amount_direction(int candidate_id, int usd_amount, int direction) inline {
+((int, int, int)) $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction(int candidate_id, int usd_amount, int direction) inline {
     return (candidate_id, direction, usd_amount);
 }
 
@@ -250,6 +252,17 @@ cell $RequestSettleBet$_store_cell((int, int, int) v) inline {
     throw_unless(129, sc_0~load_uint(32) == 1999771523);
     var v'jetton_wallet = sc_0~__tact_load_address();
     return (sc_0, (v'jetton_wallet));
+}
+
+;;
+;; Type: TopUpTON
+;; Header: 0x75a6e8ec
+;; TLB: top_up_ton#75a6e8ec  = TopUpTON
+;;
+
+(slice, (tuple)) $TopUpTON$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1973872876);
+    return (sc_0, null());
 }
 
 ;;

@@ -1,9 +1,9 @@
 # TACT Compilation Report
 Contract: SkateGateway
-BOC Size: 2044 bytes
+BOC Size: 2088 bytes
 
 # Types
-Total Types: 18
+Total Types: 19
 
 ## StateInit
 TLB: `_ code:^cell data:^cell = StateInit`
@@ -54,7 +54,7 @@ TLB: `_ query_id:uint64 user:address processing_fee:coins execution_info:Executi
 Signature: `SkateInitiateTask{query_id:uint64,user:address,processing_fee:coins,execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}}}`
 
 ## SkateInitiateTaskEvent
-TLB: `_ query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent`
+TLB: `skate_initiate_task_event#7560bbc5 query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent`
 Signature: `SkateInitiateTaskEvent{query_id:uint64,user:address,skate_app:address,execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}}}`
 
 ## SkateInitiateTaskNotification
@@ -76,6 +76,10 @@ Signature: `SetExecutor{executor:address}`
 ## RevokeExecutor
 TLB: `revoke_executor#471c2809 executor:address = RevokeExecutor`
 Signature: `RevokeExecutor{executor:address}`
+
+## TopUpTON
+TLB: `top_up_ton#75a6e8ec  = TopUpTON`
+Signature: `TopUpTON{}`
 
 # Get Methods
 Total Get Methods: 7

@@ -116,6 +116,12 @@
 ;; Receivers of a Contract SkateGateway
 ;;
 
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_TopUpTON((slice, int, cell, int) $self, tuple $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var $msg = $msg;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
 (((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_SetExecutor((slice, int, cell, int) $self, (slice) $msg) impure inline {
     var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
     var ($msg'executor) = $msg;
@@ -239,7 +245,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmSKm84ufzEj2sKkp4ph7R8zoQY81YsLXNesGjfLjCq7Hh";
+    return "ipfs://QmVB8iLit6LqP41z8euFC4iXW1fp6oeSVU1LCDDa44YcSc";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -262,6 +268,13 @@ _ lazy_deployment_completed() method_id {
         op = in_msg.preload_uint(32);
     }
     
+    
+    ;; Receive TopUpTON message
+    if (op == 1973872876) {
+        var msg = in_msg~$TopUpTON$_load();
+        self~$SkateGateway$_internal_binary_TopUpTON(msg);
+        return (self, true);
+    }
     
     ;; Receive SetExecutor message
     if (op == 3368193837) {

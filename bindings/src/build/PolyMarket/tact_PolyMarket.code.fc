@@ -33,6 +33,11 @@
     return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'skate_gateway);
 }
 
+((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_jettonWallet((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'jetton_wallet);
+}
+
 ((slice, slice, int, int, int, int, int, slice, int), (int, slice, int, (int, int, (cell, cell)))) $PolyMarket$_fun_construct_initiate_params((slice, slice, int, int, int, int, int, slice, int) $self, int $query_id, slice $user, cell $execution_data) impure inline {
     var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
     var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info($query_id, $user, 20000000, $ExecutionInfo$_constructor_value_expiration_payload(0, (now() + 120), $Payload$_constructor_destination_data($Destination$_store_cell($Destination$_constructor_chain_id_chain_type_address(137, 0, 433777529873732693045429853904182553028484175918)), $execution_data)));
@@ -68,6 +73,12 @@
 ;; Receivers of a Contract PolyMarket
 ;;
 
+(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_TopUpTON((slice, slice, int, int, int, int, int, slice, int) $self, tuple $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+    var $msg = $msg;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+}
+
 (((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_SetJettonWallet((slice, slice, int, int, int, int, int, slice, int) $self, (slice) $msg) impure inline {
     var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($msg'jetton_wallet) = $msg;
@@ -86,9 +97,9 @@
     var ($bet_config'candidate_id, $bet_config'direction) = $BetConfig$_load_not_mut($msg'forward_payload);
     throw_unless(2543, ($msg'amount > 100000));
     throw_unless(17637, ($bet_config'candidate_id <= 4));
-    var ($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount) = $Bet$_constructor_candidate_id_usd_amount_direction($bet_config'candidate_id, $msg'amount, $bet_config'direction);
+    var ($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount) = $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction($bet_config'candidate_id, $msg'amount, $bet_config'direction);
     $self'initiate_id = $self'initiate_id + 1;
-    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'initiate_id, $msg'sender, $Bet$_store_cell(($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount)));
+    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'initiate_id, $msg'sender, $RequestPlaceBet$_store_cell(($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount)));
     ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify_gateway(($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
     return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
@@ -148,6 +159,12 @@ _ %gateway() method_id(84940) {
     return res;
 }
 
+_ %jettonWallet() method_id(90133) {
+    var self = $PolyMarket$_contract_load();
+    var res = self~$PolyMarket$_fun_jettonWallet();
+    return res;
+}
+
 _ %owner() method_id(83229) {
     var self = $PolyMarket$_contract_load();
     var res = self~$PolyMarket$_fun_owner();
@@ -166,7 +183,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmQigvp8QzoY6Wv4mFkvJNoUo3dWgfpnpUrXWqZqerks1K";
+    return "ipfs://Qma6FCaGsKwhZjsvXK7CsWgP6czYqrjnNRievkF4JYtUVX";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -189,6 +206,13 @@ _ lazy_deployment_completed() method_id {
         op = in_msg.preload_uint(32);
     }
     
+    
+    ;; Receive TopUpTON message
+    if (op == 1973872876) {
+        var msg = in_msg~$TopUpTON$_load();
+        self~$PolyMarket$_internal_binary_TopUpTON(msg);
+        return (self, true);
+    }
     
     ;; Receive SetJettonWallet message
     if (op == 1999771523) {

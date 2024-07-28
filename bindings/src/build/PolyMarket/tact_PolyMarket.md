@@ -1,9 +1,9 @@
 # TACT Compilation Report
 Contract: PolyMarket
-BOC Size: 2065 bytes
+BOC Size: 2123 bytes
 
 # Types
-Total Types: 27
+Total Types: 28
 
 ## StateInit
 TLB: `_ code:^cell data:^cell = StateInit`
@@ -82,7 +82,7 @@ TLB: `_ query_id:uint64 user:address processing_fee:coins execution_info:Executi
 Signature: `SkateInitiateTask{query_id:uint64,user:address,processing_fee:coins,execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}}}`
 
 ## SkateInitiateTaskEvent
-TLB: `_ query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent`
+TLB: `skate_initiate_task_event#7560bbc5 query_id:uint64 user:address skate_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTaskEvent`
 Signature: `SkateInitiateTaskEvent{query_id:uint64,user:address,skate_app:address,execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}}}`
 
 ## SkateInitiateTaskNotification
@@ -93,9 +93,9 @@ Signature: `SkateInitiateTaskNotification{query_id:uint64,user:address,execution
 TLB: `skate_execute_task#e46c5be4 query_id:uint64 target_app:address execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} relayer_signature:^slice = SkateExecuteTask`
 Signature: `SkateExecuteTask{query_id:uint64,target_app:address,execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}},relayer_signature:^slice}`
 
-## Bet
-TLB: `_ candidate_id:uint8 direction:bool usd_amount:coins = Bet`
-Signature: `Bet{candidate_id:uint8,direction:bool,usd_amount:coins}`
+## RequestPlaceBet
+TLB: `request_place_bet#2cc176fd candidate_id:uint8 direction:bool usd_amount:coins = RequestPlaceBet`
+Signature: `RequestPlaceBet{candidate_id:uint8,direction:bool,usd_amount:coins}`
 
 ## BetConfig
 TLB: `_ candidate_id:uint8 direction:bool = BetConfig`
@@ -113,14 +113,20 @@ Signature: `RequestSettleBet{candidate_id:uint8,direction:bool,ct_amount:coins}`
 TLB: `set_jetton_wallet#77321783 jetton_wallet:address = SetJettonWallet`
 Signature: `SetJettonWallet{jetton_wallet:address}`
 
+## TopUpTON
+TLB: `top_up_ton#75a6e8ec  = TopUpTON`
+Signature: `TopUpTON{}`
+
 # Get Methods
-Total Get Methods: 4
+Total Get Methods: 5
 
 ## initiateCount
 
 ## settleCount
 
 ## gateway
+
+## jettonWallet
 
 ## owner
 

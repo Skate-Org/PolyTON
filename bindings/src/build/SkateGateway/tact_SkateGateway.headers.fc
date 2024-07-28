@@ -99,6 +99,9 @@ cell $RevokeExecutor$_store_cell((slice) v) inline;
 ;; $RevokeExecutor$_load
 (slice, ((slice))) $RevokeExecutor$_load(slice sc_0) inline;
 
+;; $TopUpTON$_load
+(slice, (tuple)) $TopUpTON$_load(slice sc_0) inline;
+
 ;; $SkateGateway$_store
 builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline;
 
