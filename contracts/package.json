@@ -1,6 +1,6 @@
 {
   "name": "PolyTON-contracts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "BSL1.1",
   "scripts": {
     "start": "blueprint run",

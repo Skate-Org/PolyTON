@@ -41,7 +41,8 @@ struct SkateInitiateTask {
     execution_info: ExecutionInfo;
 }
 
-struct SkateInitiateTaskEvent {
+// NOTE: External message
+message SkateInitiateTaskEvent {
     query_id: Int as uint64;
     user: Address;
     skate_app: Address;

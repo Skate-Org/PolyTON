@@ -18,7 +18,7 @@ import { JettonMaster, JettonMasterContent } from "../wrappers/JettonMaster";
 import { JettonWallet } from "../wrappers/JettonWallet";
 import { Op as JettonOp } from "../wrappers/JettonConstants";
 import {
-  loadBet,
+  loadRequestPlaceBet,
   loadRequestSettleBet,
   RequestSettleBet,
   BetConfig,
@@ -236,13 +236,13 @@ describe("PolyMarket", () => {
     expect(destination.chain_id).toEqual(137n);
     expect(destination.chain_type).toEqual(0n);
     expect(BigInt(destination.address)).toEqual(BigInt("0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E"));
-    const request = loadBet(task.execution_info.payload.data.asSlice());
+    const request = loadRequestPlaceBet(task.execution_info.payload.data.asSlice());
     expect(request.candidate_id).toEqual(1n);
     expect(request.direction).toEqual(true);
     expect(request.usd_amount).toEqual(betAmount);
   });
 
-  it("should successfully request settle bet", async () => {
+  it("should request settle bet", async () => {
     //// 1. Request settle a bet /////
     const settleAmount = toNano("1"); // 1000 ct_token, 6 decimal places to match USDT
     const settleRequest: RequestSettleBet = {
@@ -289,7 +289,7 @@ describe("PolyMarket", () => {
     expect(decodedSettleRequest.ct_amount).toEqual(settleAmount);
   });
 
-  it("should successfully settle user bet", async () => {
+  it("should settle user bet", async () => {
     //// 2. Executor settle a bet /////
     const polyMarketCTF_ID: Destination = {
       $$type: "Destination",

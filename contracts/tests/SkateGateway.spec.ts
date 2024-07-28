@@ -13,7 +13,7 @@ import {
   ExitCode as SkateGateway_ExitCode, 
   Op as SkateGateway_Op
 } from "../wrappers/SkateGateway";
-import { storeBet } from "../build/PolyMarket/tact_PolyMarket";
+import { storeRequestPlaceBet } from "../build/PolyMarket/tact_PolyMarket";
 
 describe("SkateGateway", () => {
   let blockchain: Blockchain;
@@ -172,8 +172,8 @@ describe("SkateGateway", () => {
   it("should receive task initiation request", async () => {
     const mockData = beginCell()
       .store(
-        storeBet({
-          $$type: "Bet",
+        storeRequestPlaceBet({
+          $$type: "RequestPlaceBet",
           candidate_id: 1n,
           direction: true,
           usd_amount: toNano("1"),
@@ -256,8 +256,8 @@ describe("SkateGateway", () => {
     const mockExecutor = executor ?? (await blockchain.treasury("MockExecutor"));
     const mockData = beginCell()
       .store(
-        storeBet({
-          $$type: "Bet",
+        storeRequestPlaceBet({
+          $$type: "RequestPlaceBet",
           candidate_id: 1n,
           direction: true,
           usd_amount: toNano("1"),

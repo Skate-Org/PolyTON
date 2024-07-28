@@ -6,7 +6,7 @@ import "./traits/skate/SkateApp.tact";
 
 //////////////// Stable API ///////////////////
 // NOTE: We only allow to bet on Election market now.
-struct Bet {
+message(0x2cc176fd) RequestPlaceBet {
     candidate_id: Int as uint8; // Mapping on frontend, now we allow TRUMP (1) | Harris (2) | Obama (3) |  Kanye (4)
     direction: Bool; // True = YES, False = NO
     // WARN: mind the type, coins != uint256
@@ -112,6 +112,9 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
 
     // Calculate jetton address and update post deployment
     jetton_wallet: Address = newAddress(0, 0x1000000000000000000000000000000000000000000000000000000000000000); // dummy address
+    get fun jettonWallet(): Address {
+        return self.jetton_wallet;
+    }
     is_jetton_set: Bool = false;
     receive(msg: SetJettonWallet) {
         self.requireOwner();
@@ -160,7 +163,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         require(bet_config.candidate_id <= self.MAX_CANDIDATE_ID, "PolyMarket::JettonTransferNotification::Invalid candidate id!");
 
         // 1. Create and save the bet struct
-        let new_bet: Bet = Bet {
+        let new_bet = RequestPlaceBet {
             candidate_id: bet_config.candidate_id,
             usd_amount: msg.amount, // Jetton USDT amount
             direction: bet_config.direction,
