@@ -1,6 +1,6 @@
 {
   "name": "@skate-org/ton-bindings",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Typescript bindings for Skate-TON Polymarket contracts",
   "scripts": {
     "build": "tsc"
