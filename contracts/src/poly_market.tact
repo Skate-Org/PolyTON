@@ -45,7 +45,7 @@ message(0x77321783) SetJettonWallet {
     jetton_wallet: Address;
 }
 
-message TopUpTON {}
+message(0x75a6e8ec) TopUpTON {}
 ///////////////////////////////////////////////
 
 /////////////// Unstable API //////////////////

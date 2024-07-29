@@ -11,7 +11,7 @@ export async function run(provider: NetworkProvider) {
   if (!owner || !relayerKey) {
     throw "Missing deployer address or relayer key not specified";
   }
-  const to = polyMarketAddress;
+  const to = gatewayAddress;
 
   await provider.sender().send({
     value: toNano("5"),

@@ -16,7 +16,7 @@ message(0x471c2809) RevokeExecutor {
     executor: Address;
 }
 
-message TopUpTON {}
+message(0x75a6e8ec) TopUpTON {}
 
 contract SkateGateway with Deployable, OwnableTransferable  {
     const SKATE_FEE: Int = ton("0.00"); // Gas required to process intent.
@@ -107,6 +107,9 @@ contract SkateGateway with Deployable, OwnableTransferable  {
             execution_info: msg.execution_info,
         }.toCell());
 
+        // TODO: Refund gas - amount exceeding SKATE_FEE
+        // self.reply(null);
+
         // TODO: DISCUSSION POINT
         // This callback enable supports for different type of use cases:
         //  a. default gateway => empty callback, for app with user = normal wallet (e.g. walletV4) uses.
@@ -163,3 +166,4 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         require(isValid, "SkateGateway::validate_relayer_signature()::Invalid relayer signature!");
     }
 }
+

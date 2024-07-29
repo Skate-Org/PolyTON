@@ -30,12 +30,12 @@ export async function run(provider: NetworkProvider) {
   const betSlice = beginCell().store(storeBetConfig(newBet)).endCell().asSlice();
   await userUSDTWallet.sendTransfer(
     provider.sender(),
-    toNano("0.1"), // NOTE: this consume gas on USDT wallet, Skate will rebate
+    toNano("0.02"), // NOTE: this consume gas on USDT wallet, Skate will rebate
     betAmount,
     polyMarketAddress,
     owner,
     null, // payload for USDT wallet, skip
-    toNano("0.05"),
+    toNano("0.01"),
     betSlice,
   );
 }
