@@ -32,6 +32,7 @@ PROGRAM{
   DECLPROC $RevokeExecutor$_store_cell
   DECLPROC $RevokeExecutor$_load
   DECLPROC $TopUpTON$_load
+  DECLPROC $WithdrawTON$_load
   DECLPROC $SkateGateway$_store
   DECLPROC $SkateGateway$_load
   DECLPROC $StateInit$_not_null
@@ -64,11 +65,13 @@ PROGRAM{
   DECLPROC $SkateGateway$_fun_notify
   DECLPROC $SkateGateway$_fun_requireOwner
   DECLPROC $SkateGateway$_fun_owner
+  DECLPROC $SendParameters$_constructor_to_value_mode
   DECLPROC $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info
   DECLPROC $SendParameters$_constructor_to_value_mode_body
   DECLPROC $DeployOk$_constructor_queryId
   DECLPROC $ChangeOwnerOk$_constructor_queryId_newOwner
   DECLPROC $SkateGateway$_internal_binary_TopUpTON
+  DECLPROC $SkateGateway$_internal_binary_WithdrawTON
   DECLPROC $SkateGateway$_internal_binary_SetExecutor
   DECLPROC $SkateGateway$_internal_binary_RevokeExecutor
   DECLPROC $SkateGateway$_internal_binary_ChangeRelayer
@@ -351,6 +354,14 @@ PROGRAM{
     32 LDU
     SWAP
     1973872876 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    PUSHNULL
+  }>
+  $WithdrawTON$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    1149271657 PUSHINT
     EQUAL
     129 THROWIFNOT
     PUSHNULL
@@ -711,6 +722,13 @@ PROGRAM{
   $SkateGateway$_fun_owner PROCREF:<{
     s3 PUSH
   }>
+  $SendParameters$_constructor_to_value_mode PROCINLINE:<{
+    TRUE
+    3 -ROLL
+    PUSHNULL
+    PUSHNULL
+    PUSHNULL
+  }>
   $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info PROCINLINE:<{
   }>
   $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
@@ -725,6 +743,14 @@ PROGRAM{
   }>
   $SkateGateway$_internal_binary_TopUpTON PROCINLINE:<{
     DROP
+  }>
+  $SkateGateway$_internal_binary_WithdrawTON PROCINLINE:<{
+    DROP
+    s3 PUSH
+    0 PUSHINT
+    7 PUSHPOW2
+    $SendParameters$_constructor_to_value_mode INLINECALLDICT
+    $global_send INLINECALLDICT
   }>
   $SkateGateway$_internal_binary_SetExecutor PROCINLINE:<{
     4 -ROLL
@@ -855,7 +881,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d564238694c6974364c715034317a386575464334695857316670366f65535655314c43444461343459635363} PUSHSLICE
+    x{697066733a2f2f516d5239336b4b56396e725861583157616e47664e4b67634e6f474b62364275364c464e52526e4a62446d703933} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -886,6 +912,16 @@ PROGRAM{
       $TopUpTON$_load INLINECALLDICT
       NIP
       $SkateGateway$_internal_binary_TopUpTON INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    1149271657 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $WithdrawTON$_load INLINECALLDICT
+      NIP
+      $SkateGateway$_internal_binary_WithdrawTON INLINECALLDICT
       TRUE
     }>
     DUP

@@ -28,6 +28,7 @@ PROGRAM{
   DECLPROC $RequestSettleBet$_load
   DECLPROC $SetJettonWallet$_load
   DECLPROC $TopUpTON$_load
+  DECLPROC $WithdrawTON$_load
   DECLPROC $PolyMarket$_store
   DECLPROC $PolyMarket$_load
   DECLPROC $StateInit$_not_null
@@ -36,8 +37,7 @@ PROGRAM{
   DECLPROC $PolyMarket$_contract_load
   DECLPROC $PolyMarket$_contract_store
   DECLPROC $global_send
-  DECLPROC $PolyMarket$_fun_initiateCount
-  DECLPROC $PolyMarket$_fun_settleCount
+  DECLPROC $PolyMarket$_fun_queryId
   DECLPROC $PolyMarket$_fun_gateway
   DECLPROC $PolyMarket$_fun_jettonWallet
   DECLPROC $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info
@@ -54,17 +54,17 @@ PROGRAM{
   DECLPROC $PolyMarket$_fun_only_gateway
   DECLPROC $PolyMarket$_fun_requireOwner
   DECLPROC $PolyMarket$_fun_owner
-  DECLPROC $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction
   DECLPROC $SendParameters$_constructor_to_value_mode
+  DECLPROC $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction
   DECLPROC $DeployOk$_constructor_queryId
   DECLPROC $PolyMarket$_internal_binary_TopUpTON
+  DECLPROC $PolyMarket$_internal_binary_WithdrawTON
   DECLPROC $PolyMarket$_internal_binary_SetJettonWallet
   DECLPROC $PolyMarket$_internal_binary_JettonTransferNotification
   DECLPROC $PolyMarket$_internal_binary_RequestSettleBet
   DECLPROC $PolyMarket$_internal_binary_SettleBet
   DECLPROC $PolyMarket$_internal_binary_Deploy
-  98895 DECLMETHOD %initiateCount
-  92282 DECLMETHOD %settleCount
+  94948 DECLMETHOD %queryId
   84940 DECLMETHOD %gateway
   90133 DECLMETHOD %jettonWallet
   83229 DECLMETHOD %owner
@@ -283,16 +283,22 @@ PROGRAM{
     129 THROWIFNOT
     PUSHNULL
   }>
+  $WithdrawTON$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    1149271657 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    PUSHNULL
+  }>
   $PolyMarket$_store PROCINLINE:<{
-    s9 s8 XCHG2
+    s8 s7 XCHG2
     __tact_store_address INLINECALLDICT
-    s0 s6 XCHG2
+    s0 s5 XCHG2
     __tact_store_address INLINECALLDICT
-    s1 s4 XCHG
+    s1 s3 XCHG
     257 PUSHINT
     STIX
-    s1 s2 XCHG
-    64 STU
     64 STU
     SWAP
     NEWC
@@ -316,7 +322,6 @@ PROGRAM{
     257 PUSHINT
     LDIX
     64 LDU
-    64 LDU
     LDREF
     SWAP
     CTOS
@@ -328,7 +333,6 @@ PROGRAM{
     SWAP
     1 LDI
     DROP
-    s4 s9 XCHG
     s4 s8 XCHG
     s4 s7 XCHG
     s4 s6 XCHG
@@ -349,7 +353,6 @@ PROGRAM{
   $PolyMarket$_contract_init PROCREF:<{
     0 PUSHINT
     s0 s0 s0 PUSH3
-    DUP
     B{b5ee9c724101010100240000438002000000000000000000000000000000000000000000000000000000000000001014baf029} B>boc <s PUSHSLICE
     FALSE
   }>
@@ -363,7 +366,7 @@ PROGRAM{
     SWAP
     IFJMP:<{
       $PolyMarket$_load INLINECALLDICT
-      1 9 BLKDROP2
+      1 8 BLKDROP2
     }>
     MYADDR
     11 PLDU
@@ -384,7 +387,7 @@ PROGRAM{
     TRUE
     SWAP
     1 STI
-    9 -ROLL
+    8 -ROLL
     $PolyMarket$_store INLINECALLDICT
     ENDC
     c4 POP
@@ -491,14 +494,11 @@ PROGRAM{
     SWAP
     SENDRAWMSG
   }>
-  $PolyMarket$_fun_initiateCount PROCREF:<{
-    s5 PUSH
-  }>
-  $PolyMarket$_fun_settleCount PROCREF:<{
+  $PolyMarket$_fun_queryId PROCREF:<{
     s4 PUSH
   }>
   $PolyMarket$_fun_gateway PROCREF:<{
-    s7 PUSH
+    s6 PUSH
   }>
   $PolyMarket$_fun_jettonWallet PROCREF:<{
     OVER
@@ -512,7 +512,7 @@ PROGRAM{
   $Destination$_constructor_chain_id_chain_type_address PROCINLINE:<{
   }>
   $PolyMarket$_fun_construct_initiate_params PROCINLINE:<{
-    20000000 PUSHINT
+    10000000 PUSHINT
     0 PUSHINT
     NOW
     120 ADDCONST
@@ -578,28 +578,25 @@ PROGRAM{
     s0 s7 XCHG
     $SkateInitiateTaskNotification$_constructor_query_id_user_execution_info INLINECALLDICT
     $SkateInitiateTaskNotification$_store_cell INLINECALLDICT
-    s10 PUSH
+    s9 PUSH
     s3 s3 XCHG2
     $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
     $global_send INLINECALLDICT
   }>
   $PolyMarket$_fun_only_gateway PROCINLINE:<{
     __tact_context_get_sender INLINECALLDICT
-    s8 s(-1) PUXC
+    s7 s(-1) PUXC
     __tact_slice_eq_bits INLINECALLDICT
     132 THROWIFNOT
   }>
   $PolyMarket$_fun_requireOwner PROCREF:<{
     __tact_context_get_sender INLINECALLDICT
-    s9 s(-1) PUXC
+    s8 s(-1) PUXC
     __tact_slice_eq_bits INLINECALLDICT
     132 THROWIFNOT
   }>
   $PolyMarket$_fun_owner PROCREF:<{
-    s8 PUSH
-  }>
-  $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction PROCINLINE:<{
-    SWAP
+    s7 PUSH
   }>
   $SendParameters$_constructor_to_value_mode PROCINLINE:<{
     TRUE
@@ -608,19 +605,30 @@ PROGRAM{
     PUSHNULL
     PUSHNULL
   }>
+  $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction PROCINLINE:<{
+    SWAP
+  }>
   $DeployOk$_constructor_queryId PROCINLINE:<{
   }>
   $PolyMarket$_internal_binary_TopUpTON PROCINLINE:<{
     DROP
   }>
+  $PolyMarket$_internal_binary_WithdrawTON PROCINLINE:<{
+    DROP
+    s7 PUSH
+    0 PUSHINT
+    7 PUSHPOW2
+    $SendParameters$_constructor_to_value_mode INLINECALLDICT
+    $global_send INLINECALLDICT
+  }>
   $PolyMarket$_internal_binary_SetJettonWallet PROCINLINE:<{
-    9 -ROLL
+    8 -ROLL
     $PolyMarket$_fun_requireOwner INLINECALLDICT
     2340 PUSHINT
     s2 POP
     NOT
     THROWANYIFNOT
-    7 ROLL
+    6 ROLL
     TRUE
   }>
   $PolyMarket$_internal_binary_JettonTransferNotification PROCINLINE:<{
@@ -643,33 +651,41 @@ PROGRAM{
     THROWANYIFNOT
     s1 s6 s0 XCHG3
     $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction INLINECALLDICT
-    s0 s13 XCHG
+    s0 s12 XCHG
     INC
-    s0 s13 XCHG
+    s0 s12 XCHG
     $RequestPlaceBet$_store_cell INLINECALLDICT
-    s11 PUSH
-    s11 s15 XCHG
-    s10 s14 XCHG
-    s9 s13 XCHG
-    s0 s8 XCHG
-    s7 s15 XCHG
-    s6 s14 XCHG
-    s5 s13 XCHG
-    s0 s4 XCHG
-    s3 s15 XCHG
-    s12 s0 s0 XCHG3
+    s10 PUSH
+    s9 s14 XCHG
+    s8 s13 XCHG
+    s7 s12 XCHG
+    s0 s6 XCHG
+    s5 s10 XCHG
+    s4 s14 XCHG
+    s3 s13 XCHG
+    s12 s11 s0 XCHG3
+    s14 s11 PUXC
     $PolyMarket$_fun_construct_initiate_params INLINECALLDICT
-    s15 19 s() XCHG
-    s14 18 s() XCHG
-    s13 17 s() XCHG
-    s12 16 s() XCHG
-    s11 s15 XCHG
-    s10 s14 XCHG
-    s9 s13 XCHG
-    s8 s12 XCHG
-    s7 s11 XCHG
-    4 7 REVERSE
+    s14 17 s() XCHG
+    s13 16 s() XCHG
+    s12 s15 XCHG
+    s11 s14 XCHG
+    s10 s13 XCHG
+    s9 s12 XCHG
+    s8 s11 XCHG
+    s7 s10 XCHG
+    s9 18 s() XCHG
+    18 s() PUSH
+    8 -ROLL
     $PolyMarket$_fun_notify_gateway INLINECALLDICT
+    2800000 PUSHINT
+    s0 s9 XCHG2
+    ADD
+    s1 s9 XCHG
+    1 PUSHINT
+    $SendParameters$_constructor_to_value_mode INLINECALLDICT
+    $global_send INLINECALLDICT
+    2 6 BLKSWAP
   }>
   $PolyMarket$_internal_binary_RequestSettleBet PROCINLINE:<{
     __tact_context_get INLINECALLDICT
@@ -682,7 +698,6 @@ PROGRAM{
     s6 s5 s4 XCHG3
     $RequestSettleBet$_store_cell INLINECALLDICT
     s2 PUSH
-    s10 s14 XCHG
     s9 s13 XCHG
     s8 s12 XCHG
     s7 s11 XCHG
@@ -693,7 +708,6 @@ PROGRAM{
     s11 s13 s2 XCPUXC
     s0 s12 XCHG
     $PolyMarket$_fun_construct_initiate_params INLINECALLDICT
-    s15 17 s() XCHG
     s14 16 s() XCHG
     s13 s15 XCHG
     s12 s14 XCHG
@@ -703,32 +717,21 @@ PROGRAM{
     s8 s10 XCHG
     s7 s9 XCHG
     18 s() PUSH
-    s8 s0 XCPU
     s0 s8 XCHG
-    s7 21 s() XCHG
-    s0 s6 XCHG
-    s5 21 s() XCHG
-    s0 s4 XCHG
-    s3 21 s() XCHG
-    s0 s2 XCHG
-    s1 21 s() XCHG
+    18 s() PUSH
+    s0 s8 XCHG
+    6 2 BLKSWAP
     $PolyMarket$_fun_notify_gateway INLINECALLDICT
-    s9 s10 XCHG2
+    s9 s8 XCHG2
     1 PUSHINT
     $SendParameters$_constructor_to_value_mode INLINECALLDICT
     $global_send INLINECALLDICT
-    s6 s8 XCHG
     2 6 BLKSWAP
   }>
   $PolyMarket$_internal_binary_SettleBet PROCINLINE:<{
     NIP
     s2 POP
-    s8 s10 XCHG
-    5 6 REVERSE
-    s5 s9 XCHG
-    s4 s10 XCHG
-    s3 s9 XCHG
-    s10 s9 s10 XCHG3
+    8 2 BLKSWAP
     $PolyMarket$_fun_only_gateway INLINECALLDICT
     __tact_context_get INLINECALLDICT
     s1 s3 XCHG
@@ -742,7 +745,7 @@ PROGRAM{
     64 STU
     s0 s11 XCHG2
     STGRAMS
-    s11 PUSH
+    s9 PUSH
     __tact_store_address INLINECALLDICT
     MYADDR
     __tact_store_address INLINECALLDICT
@@ -755,47 +758,43 @@ PROGRAM{
     SWAP
     1 STU
     ENDC
-    50000000 PUSHINT
+    10000000 PUSHINT
     1 PUSHINT
     s4 PUSH
     s0 s3 XCHG
     $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
     $global_send INLINECALLDICT
-    s10 s9 XCHG2
+    s8 s9 XCHG2
     1 PUSHINT
     $SendParameters$_constructor_to_value_mode INLINECALLDICT
     $global_send INLINECALLDICT
-    2 7 BLKSWAP
+    s5 s7 XCHG
+    2 5 BLKSWAP
   }>
   $PolyMarket$_internal_binary_Deploy PROCINLINE:<{
     $DeployOk$_constructor_queryId INLINECALLDICT
     $DeployOk$_store_cell INLINECALLDICT
     $PolyMarket$_fun_notify INLINECALLDICT
   }>
-  %initiateCount PROC:<{
+  %queryId PROC:<{
     $PolyMarket$_contract_load INLINECALLDICT
-    $PolyMarket$_fun_initiateCount INLINECALLDICT
-    9 1 BLKDROP2
-  }>
-  %settleCount PROC:<{
-    $PolyMarket$_contract_load INLINECALLDICT
-    $PolyMarket$_fun_settleCount INLINECALLDICT
-    9 1 BLKDROP2
+    $PolyMarket$_fun_queryId INLINECALLDICT
+    8 1 BLKDROP2
   }>
   %gateway PROC:<{
     $PolyMarket$_contract_load INLINECALLDICT
     $PolyMarket$_fun_gateway INLINECALLDICT
-    9 1 BLKDROP2
+    8 1 BLKDROP2
   }>
   %jettonWallet PROC:<{
     $PolyMarket$_contract_load INLINECALLDICT
     $PolyMarket$_fun_jettonWallet INLINECALLDICT
-    9 1 BLKDROP2
+    8 1 BLKDROP2
   }>
   %owner PROC:<{
     $PolyMarket$_contract_load INLINECALLDICT
     $PolyMarket$_fun_owner INLINECALLDICT
-    9 1 BLKDROP2
+    8 1 BLKDROP2
   }>
   supported_interfaces PROC:<{
     123515602279859691144772641439386770278 PUSHINT
@@ -806,7 +805,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d613646436147734b77685a6a7376584b37437357675036637a5971726a6e4e526965766b46344a5974555658} PUSHSLICE
+    x{697066733a2f2f516d5277413761454c4d6754596a6a5572336845335677444443446f6a59374647583452356e4251555932505664} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -837,6 +836,16 @@ PROGRAM{
       $TopUpTON$_load INLINECALLDICT
       NIP
       $PolyMarket$_internal_binary_TopUpTON INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    1149271657 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $WithdrawTON$_load INLINECALLDICT
+      NIP
+      $PolyMarket$_internal_binary_WithdrawTON INLINECALLDICT
       TRUE
     }>
     DUP
@@ -909,7 +918,7 @@ PROGRAM{
     s0 s2 XCHG
     __tact_context_sender SETGLOB
     $PolyMarket$_contract_load INLINECALLDICT
-    2 9 BLKSWAP
+    2 8 BLKSWAP
     $PolyMarket$_contract_router_internal INLINECALLDICT
     130 THROWIFNOT
     $PolyMarket$_contract_store INLINECALLDICT

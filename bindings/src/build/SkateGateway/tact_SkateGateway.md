@@ -1,9 +1,9 @@
 # TACT Compilation Report
 Contract: SkateGateway
-BOC Size: 2088 bytes
+BOC Size: 2131 bytes
 
 # Types
-Total Types: 19
+Total Types: 20
 
 ## StateInit
 TLB: `_ code:^cell data:^cell = StateInit`
@@ -80,6 +80,10 @@ Signature: `RevokeExecutor{executor:address}`
 ## TopUpTON
 TLB: `top_up_ton#75a6e8ec  = TopUpTON`
 Signature: `TopUpTON{}`
+
+## WithdrawTON
+TLB: `withdraw_ton#44807e69  = WithdrawTON`
+Signature: `WithdrawTON{}`
 
 # Get Methods
 Total Get Methods: 7

@@ -122,6 +122,13 @@
     return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
 }
 
+(((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_WithdrawTON((slice, int, cell, int) $self, tuple $msg) impure inline {
+    var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
+    var $msg = $msg;
+    $global_send($SendParameters$_constructor_to_value_mode($self'owner, 0, 128));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
+}
+
 (((slice, int, cell, int)), ()) $SkateGateway$_internal_binary_SetExecutor((slice, int, cell, int) $self, (slice) $msg) impure inline {
     var ($self'owner, $self'relayer, $self'executors, $self'nonce) = $self;
     var ($msg'executor) = $msg;
@@ -245,7 +252,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmVB8iLit6LqP41z8euFC4iXW1fp6oeSVU1LCDDa44YcSc";
+    return "ipfs://QmR93kKV9nrXaX1WanGfNKgcNoGKb6Bu6LFNRRnJbDmp93";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -273,6 +280,13 @@ _ lazy_deployment_completed() method_id {
     if (op == 1973872876) {
         var msg = in_msg~$TopUpTON$_load();
         self~$SkateGateway$_internal_binary_TopUpTON(msg);
+        return (self, true);
+    }
+    
+    ;; Receive WithdrawTON message
+    if (op == 1149271657) {
+        var msg = in_msg~$WithdrawTON$_load();
+        self~$SkateGateway$_internal_binary_WithdrawTON(msg);
         return (self, true);
     }
     

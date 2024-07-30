@@ -11,86 +11,88 @@
 ;; Contract PolyMarket functions
 ;;
 
-(slice, slice, int, int, int, int, int, slice, int) $PolyMarket$_contract_init(slice $owner, slice $skate_gateway) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = (null(), null(), 0, 0, 0, 0, 0, __gen_slice_address_030da0d64286f78f9e461a54a461ef599f4ccfe16f0b43ca5575ad566c915bb9(), false);
+(slice, slice, int, int, int, int, slice, int) $PolyMarket$_contract_init(slice $owner, slice $skate_gateway) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = (null(), null(), 0, 0, 0, 0, __gen_slice_address_030da0d64286f78f9e461a54a461ef599f4ccfe16f0b43ca5575ad566c915bb9(), false);
     $self'owner = $owner;
     $self'skate_gateway = $skate_gateway;
-    return ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set);
+    return ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set);
 }
 
-((slice, slice, int, int, int, int, int, slice, int), int) $PolyMarket$_fun_initiateCount((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'initiate_id);
+((slice, slice, int, int, int, int, slice, int), int) $PolyMarket$_fun_queryId((slice, slice, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'query_id);
 }
 
-((slice, slice, int, int, int, int, int, slice, int), int) $PolyMarket$_fun_settleCount((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'settle_id);
+((slice, slice, int, int, int, int, slice, int), slice) $PolyMarket$_fun_gateway((slice, slice, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'skate_gateway);
 }
 
-((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_gateway((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'skate_gateway);
+((slice, slice, int, int, int, int, slice, int), slice) $PolyMarket$_fun_jettonWallet((slice, slice, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'jetton_wallet);
 }
 
-((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_jettonWallet((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'jetton_wallet);
+((slice, slice, int, int, int, int, slice, int), (int, slice, int, (int, int, (cell, cell)))) $PolyMarket$_fun_construct_initiate_params((slice, slice, int, int, int, int, slice, int) $self, int $query_id, slice $user, cell $execution_data) impure inline {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info($query_id, $user, 10000000, $ExecutionInfo$_constructor_value_expiration_payload(0, (now() + 120), $Payload$_constructor_destination_data($Destination$_store_cell($Destination$_constructor_chain_id_chain_type_address(137, 0, 433777529873732693045429853904182553028484175918)), $execution_data)));
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
 }
 
-((slice, slice, int, int, int, int, int, slice, int), (int, slice, int, (int, int, (cell, cell)))) $PolyMarket$_fun_construct_initiate_params((slice, slice, int, int, int, int, int, slice, int) $self, int $query_id, slice $user, cell $execution_data) impure inline {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info($query_id, $user, 20000000, $ExecutionInfo$_constructor_value_expiration_payload(0, (now() + 120), $Payload$_constructor_destination_data($Destination$_store_cell($Destination$_constructor_chain_id_chain_type_address(137, 0, 433777529873732693045429853904182553028484175918)), $execution_data)));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
-}
-
-((slice, slice, int, int, int, int, int, slice, int), ()) $PolyMarket$_fun_notify_gateway((slice, slice, int, int, int, int, int, slice, int) $self, (int, slice, int, slice) $ctx, (int, slice, int, (int, int, (cell, cell))) $initiate_params) impure inline {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_notify_gateway((slice, slice, int, int, int, int, slice, int) $self, (int, slice, int, slice) $ctx, (int, slice, int, (int, int, (cell, cell))) $initiate_params) impure inline {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
     var (($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw)) = $ctx;
     var (($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data)))) = $initiate_params;
     $global_send($SendParameters$_constructor_to_value_mode_body($self'skate_gateway, $initiate_params'processing_fee, 1, $SkateInitiateTaskNotification$_store_cell($SkateInitiateTaskNotification$_constructor_query_id_user_execution_info($initiate_params'query_id, $ctx'sender, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))))));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-((slice, slice, int, int, int, int, int, slice, int), ()) $PolyMarket$_fun_only_gateway((slice, slice, int, int, int, int, int, slice, int) $self) impure inline {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_only_gateway((slice, slice, int, int, int, int, slice, int) $self) impure inline {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
     throw_unless(132, ( __tact_slice_eq_bits($self'skate_gateway, __tact_context_get_sender()) ));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-((slice, slice, int, int, int, int, int, slice, int), ()) $PolyMarket$_fun_requireOwner((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_requireOwner((slice, slice, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
     throw_unless(132, ( __tact_slice_eq_bits($self'owner, __tact_context_get_sender()) ));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-((slice, slice, int, int, int, int, int, slice, int), slice) $PolyMarket$_fun_owner((slice, slice, int, int, int, int, int, slice, int) $self) impure inline_ref {
-    var (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'owner);
+((slice, slice, int, int, int, int, slice, int), slice) $PolyMarket$_fun_owner((slice, slice, int, int, int, int, slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)) = $self;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), $self'owner);
 }
 
 ;;
 ;; Receivers of a Contract PolyMarket
 ;;
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_TopUpTON((slice, slice, int, int, int, int, int, slice, int) $self, tuple $msg) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_TopUpTON((slice, slice, int, int, int, int, slice, int) $self, tuple $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var $msg = $msg;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_SetJettonWallet((slice, slice, int, int, int, int, int, slice, int) $self, (slice) $msg) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_WithdrawTON((slice, slice, int, int, int, int, slice, int) $self, tuple $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+    var $msg = $msg;
+    $global_send($SendParameters$_constructor_to_value_mode($self'owner, 0, 128));
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+}
+
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_SetJettonWallet((slice, slice, int, int, int, int, slice, int) $self, (slice) $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($msg'jetton_wallet) = $msg;
-    ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_requireOwner();
+    ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_requireOwner();
     throw_unless(2340, (~ $self'is_jetton_set));
     $self'jetton_wallet = $msg'jetton_wallet;
     $self'is_jetton_set = true;
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_JettonTransferNotification((slice, slice, int, int, int, int, int, slice, int) $self, (int, int, slice, slice) $msg) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_JettonTransferNotification((slice, slice, int, int, int, int, slice, int) $self, (int, int, slice, slice) $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($msg'query_id, $msg'amount, $msg'sender, $msg'forward_payload) = $msg;
     var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
     throw_unless(15264, ($ctx'value >= 0));
@@ -98,58 +100,53 @@
     throw_unless(2543, ($msg'amount > 100000));
     throw_unless(17637, ($bet_config'candidate_id <= 4));
     var ($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount) = $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction($bet_config'candidate_id, $msg'amount, $bet_config'direction);
-    $self'initiate_id = $self'initiate_id + 1;
-    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'initiate_id, $msg'sender, $RequestPlaceBet$_store_cell(($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount)));
-    ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify_gateway(($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    $self'query_id = $self'query_id + 1;
+    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'query_id, $msg'sender, $RequestPlaceBet$_store_cell(($new_bet'candidate_id, $new_bet'direction, $new_bet'usd_amount)));
+    ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify_gateway(($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
+    $global_send($SendParameters$_constructor_to_value_mode($msg'sender, (2800000 + $ctx'value), 1));
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_RequestSettleBet((slice, slice, int, int, int, int, int, slice, int) $self, (int, int, int) $msg) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_RequestSettleBet((slice, slice, int, int, int, int, slice, int) $self, (int, int, int) $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($msg'candidate_id, $msg'direction, $msg'ct_amount) = $msg;
     var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
     throw_unless(15264, ($ctx'value >= 0));
-    $self'settle_id = $self'settle_id + 1;
-    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'settle_id, $ctx'sender, $RequestSettleBet$_store_cell(($msg'candidate_id, $msg'direction, $msg'ct_amount)));
-    ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify_gateway(($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
+    $self'query_id = $self'query_id + 1;
+    var ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))) = ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_construct_initiate_params($self'query_id, $ctx'sender, $RequestSettleBet$_store_cell(($msg'candidate_id, $msg'direction, $msg'ct_amount)));
+    ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify_gateway(($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw), ($initiate_params'query_id, $initiate_params'user, $initiate_params'processing_fee, ($initiate_params'execution_info'value, $initiate_params'execution_info'expiration, ($initiate_params'execution_info'payload'destination, $initiate_params'execution_info'payload'data))));
     $global_send($SendParameters$_constructor_to_value_mode($ctx'sender, $ctx'value, 1));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_SettleBet((slice, slice, int, int, int, int, int, slice, int) $self, (int, slice, slice, int) $msg) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_SettleBet((slice, slice, int, int, int, int, slice, int) $self, (int, slice, slice, int) $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($msg'settle_id, $msg'user, $msg'fee_receiver, $msg'usd_amount) = $msg;
-    ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_only_gateway();
+    ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_only_gateway();
     var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
     cell $transfer_msg = end_cell(store_uint(store_coins(store_uint(__tact_store_address(__tact_store_address(store_coins(store_uint(store_uint(begin_cell(), 260734629, 32), 0, 64), $msg'usd_amount), $msg'user), my_address()), 0, 1), 0), 0, 1));
-    $global_send($SendParameters$_constructor_to_value_mode_body($self'jetton_wallet, 50000000, 1, $transfer_msg));
+    $global_send($SendParameters$_constructor_to_value_mode_body($self'jetton_wallet, 10000000, 1, $transfer_msg));
     $global_send($SendParameters$_constructor_to_value_mode($msg'user, $ctx'value, 1));
     if (false) {
         $global_send($SendParameters$_constructor_to_value_mode($msg'fee_receiver, 0, 1));
     }
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
-(((slice, slice, int, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_Deploy((slice, slice, int, int, int, int, int, slice, int) $self, (int) $deploy) impure inline {
-    var ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_Deploy((slice, slice, int, int, int, int, slice, int) $self, (int) $deploy) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var ($deploy'queryId) = $deploy;
-    ($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId)));
-    return (($self'owner, $self'skate_gateway, $self'balance, $self'initiate_id, $self'settle_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+    ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set)~$PolyMarket$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId)));
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
 ;;
 ;; Get methods of a Contract PolyMarket
 ;;
 
-_ %initiateCount() method_id(98895) {
+_ %queryId() method_id(94948) {
     var self = $PolyMarket$_contract_load();
-    var res = self~$PolyMarket$_fun_initiateCount();
-    return res;
-}
-
-_ %settleCount() method_id(92282) {
-    var self = $PolyMarket$_contract_load();
-    var res = self~$PolyMarket$_fun_settleCount();
+    var res = self~$PolyMarket$_fun_queryId();
     return res;
 }
 
@@ -183,7 +180,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://Qma6FCaGsKwhZjsvXK7CsWgP6czYqrjnNRievkF4JYtUVX";
+    return "ipfs://QmRwA7aELMgTYjjUr3hE3VwDDCDojY7FGX4R5nBQUY2PVd";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -194,7 +191,7 @@ _ lazy_deployment_completed() method_id {
 ;; Routing of a Contract PolyMarket
 ;;
 
-((slice, slice, int, int, int, int, int, slice, int), int) $PolyMarket$_contract_router_internal((slice, slice, int, int, int, int, int, slice, int) self, int msg_bounced, slice in_msg) impure inline_ref {
+((slice, slice, int, int, int, int, slice, int), int) $PolyMarket$_contract_router_internal((slice, slice, int, int, int, int, slice, int) self, int msg_bounced, slice in_msg) impure inline_ref {
     ;; Handle bounced messages
     if (msg_bounced) {
         return (self, true);
@@ -211,6 +208,13 @@ _ lazy_deployment_completed() method_id {
     if (op == 1973872876) {
         var msg = in_msg~$TopUpTON$_load();
         self~$PolyMarket$_internal_binary_TopUpTON(msg);
+        return (self, true);
+    }
+    
+    ;; Receive WithdrawTON message
+    if (op == 1149271657) {
+        var msg = in_msg~$WithdrawTON$_load();
+        self~$PolyMarket$_internal_binary_WithdrawTON(msg);
         return (self, true);
     }
     

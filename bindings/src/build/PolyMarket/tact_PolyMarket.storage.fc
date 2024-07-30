@@ -266,16 +266,26 @@ cell $RequestSettleBet$_store_cell((int, int, int) v) inline {
 }
 
 ;;
+;; Type: WithdrawTON
+;; Header: 0x44807e69
+;; TLB: withdraw_ton#44807e69  = WithdrawTON
+;;
+
+(slice, (tuple)) $WithdrawTON$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1149271657);
+    return (sc_0, null());
+}
+
+;;
 ;; Type: PolyMarket
 ;;
 
-builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, int, slice, int) v) inline {
-    var (v'owner, v'skate_gateway, v'balance, v'initiate_id, v'settle_id, v'total_deposit, v'protocol_amount, v'jetton_wallet, v'is_jetton_set) = v;
+builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, slice, int) v) inline {
+    var (v'owner, v'skate_gateway, v'balance, v'query_id, v'total_deposit, v'protocol_amount, v'jetton_wallet, v'is_jetton_set) = v;
     build_0 = __tact_store_address(build_0, v'owner);
     build_0 = __tact_store_address(build_0, v'skate_gateway);
     build_0 = build_0.store_int(v'balance, 257);
-    build_0 = build_0.store_uint(v'initiate_id, 64);
-    build_0 = build_0.store_uint(v'settle_id, 64);
+    build_0 = build_0.store_uint(v'query_id, 64);
     var build_1 = begin_cell();
     build_1 = build_1.store_int(v'total_deposit, 257);
     build_1 = build_1.store_int(v'protocol_amount, 257);
@@ -285,18 +295,17 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, i
     return build_0;
 }
 
-(slice, ((slice, slice, int, int, int, int, int, slice, int))) $PolyMarket$_load(slice sc_0) inline {
+(slice, ((slice, slice, int, int, int, int, slice, int))) $PolyMarket$_load(slice sc_0) inline {
     var v'owner = sc_0~__tact_load_address();
     var v'skate_gateway = sc_0~__tact_load_address();
     var v'balance = sc_0~load_int(257);
-    var v'initiate_id = sc_0~load_uint(64);
-    var v'settle_id = sc_0~load_uint(64);
+    var v'query_id = sc_0~load_uint(64);
     slice sc_1 = sc_0~load_ref().begin_parse();
     var v'total_deposit = sc_1~load_int(257);
     var v'protocol_amount = sc_1~load_int(257);
     var v'jetton_wallet = sc_1~__tact_load_address();
     var v'is_jetton_set = sc_1~load_int(1);
-    return (sc_0, (v'owner, v'skate_gateway, v'balance, v'initiate_id, v'settle_id, v'total_deposit, v'protocol_amount, v'jetton_wallet, v'is_jetton_set));
+    return (sc_0, (v'owner, v'skate_gateway, v'balance, v'query_id, v'total_deposit, v'protocol_amount, v'jetton_wallet, v'is_jetton_set));
 }
 
 (slice, ((slice, slice))) $PolyMarket$init$_load(slice sc_0) inline {
@@ -305,7 +314,7 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, i
     return (sc_0, (v'owner, v'skate_gateway));
 }
 
-(slice, slice, int, int, int, int, int, slice, int) $PolyMarket$_contract_load() impure inline_ref {
+(slice, slice, int, int, int, int, slice, int) $PolyMarket$_contract_load() impure inline_ref {
     slice $sc = get_data().begin_parse();
     __tact_context_sys = $sc~load_ref();
     int $loaded = $sc~load_int(1);
@@ -320,7 +329,7 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, i
     }
 }
 
-() $PolyMarket$_contract_store((slice, slice, int, int, int, int, int, slice, int) v) impure inline {
+() $PolyMarket$_contract_store((slice, slice, int, int, int, int, slice, int) v) impure inline {
     builder b = begin_cell();
     b = b.store_ref(__tact_context_sys);
     b = b.store_int(true, 1);

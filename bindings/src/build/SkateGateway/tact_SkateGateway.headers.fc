@@ -102,6 +102,9 @@ cell $RevokeExecutor$_store_cell((slice) v) inline;
 ;; $TopUpTON$_load
 (slice, (tuple)) $TopUpTON$_load(slice sc_0) inline;
 
+;; $WithdrawTON$_load
+(slice, (tuple)) $WithdrawTON$_load(slice sc_0) inline;
+
 ;; $SkateGateway$_store
 builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline;
 
@@ -197,6 +200,9 @@ slice $Cell$_fun_asSlice(cell $self) impure inline;
 
 ;; $SkateGateway$_fun_owner
 ((slice, int, cell, int), slice) $SkateGateway$_fun_owner((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SendParameters$_constructor_to_value_mode
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode(slice to, int value, int mode) inline;
 
 ;; $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info
 ((int, slice, slice, (int, int, (cell, cell)))) $SkateInitiateTaskEvent$_constructor_query_id_user_skate_app_execution_info(int query_id, slice user, slice skate_app, (int, int, (cell, cell)) execution_info) inline;

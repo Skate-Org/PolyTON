@@ -1,9 +1,9 @@
 # TACT Compilation Report
 Contract: PolyMarket
-BOC Size: 2123 bytes
+BOC Size: 2122 bytes
 
 # Types
-Total Types: 28
+Total Types: 29
 
 ## StateInit
 TLB: `_ code:^cell data:^cell = StateInit`
@@ -117,12 +117,14 @@ Signature: `SetJettonWallet{jetton_wallet:address}`
 TLB: `top_up_ton#75a6e8ec  = TopUpTON`
 Signature: `TopUpTON{}`
 
+## WithdrawTON
+TLB: `withdraw_ton#44807e69  = WithdrawTON`
+Signature: `WithdrawTON{}`
+
 # Get Methods
-Total Get Methods: 5
+Total Get Methods: 4
 
-## initiateCount
-
-## settleCount
+## queryId
 
 ## gateway
 

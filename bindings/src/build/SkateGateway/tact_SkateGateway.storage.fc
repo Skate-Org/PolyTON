@@ -18,6 +18,10 @@
     return (bounce, to, value, mode, body, code, data);
 }
 
+((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode(slice to, int value, int mode) inline {
+    return (true, to, value, mode, null(), null(), null());
+}
+
 ((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode_body(slice to, int value, int mode, cell body) inline {
     return (true, to, value, mode, body, null(), null());
 }
@@ -264,6 +268,17 @@ cell $RevokeExecutor$_store_cell((slice) v) inline {
 
 (slice, (tuple)) $TopUpTON$_load(slice sc_0) inline {
     throw_unless(129, sc_0~load_uint(32) == 1973872876);
+    return (sc_0, null());
+}
+
+;;
+;; Type: WithdrawTON
+;; Header: 0x44807e69
+;; TLB: withdraw_ton#44807e69  = WithdrawTON
+;;
+
+(slice, (tuple)) $WithdrawTON$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1149271657);
     return (sc_0, null());
 }
 
