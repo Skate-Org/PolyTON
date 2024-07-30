@@ -25,8 +25,9 @@ export abstract class Op {
   static change_relayer = 0xedf05063;
   static set_executor = 0xc8c28f2d;
   static revoke_executor = 0x471c2809;
-  static top_up_TON = 0x75a6e8ec;
   static initiate_task_event = 0x7560bbc5;
+  static top_up_TON = 0x75a6e8ec;
+  static withdraw_TON = 0x44807e69;
 }
 
 // NOTE: code generation algorithm: https://docs.tact-lang.org/ref/core-debug#require

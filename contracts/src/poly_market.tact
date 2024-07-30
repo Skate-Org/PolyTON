@@ -46,11 +46,15 @@ message(0x77321783) SetJettonWallet {
 }
 
 message(0x75a6e8ec) TopUpTON {}
+
+message WithdrawTON {}
+
 ///////////////////////////////////////////////
 
 /////////////// Unstable API //////////////////
 // TODO: Contracts INTEROP
-// message PlaceBetNotification {}
+// message RequestPlaceBetNotification {}
+// message RequestSettleBetNotification {}
 // struct SettleBetNotification {}
 
 // TODO: Protocol collect permissible USDT & TON amount
@@ -64,18 +68,14 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     skate_gateway: Address;
 
     balance: Int = 0; // Jetton balance (USDT)
-    initiate_id: Int as uint64 = 0; // task initiated by this contract
-    settle_id: Int as uint64 = 0; // task initiated by this contract
+    query_id: Int as uint64 = 0; // task initiated by this contract
     const SETTLE_OFFSET: Int = 0xffffffff; // 2^32 offset.
 
     total_deposit: Int = 0;
     protocol_amount: Int = 0;
 
-    get fun initiateCount(): Int {
-        return self.initiate_id;
-    }
-    get fun settleCount(): Int {
-        return self.settle_id;
+    get fun queryId(): Int {
+        return self.query_id;
     }
     get fun gateway(): Address {
         return self.skate_gateway;
@@ -83,6 +83,14 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
 
     receive(msg: TopUpTON) {
         // Do nothing, just accept TON.
+    }
+
+    receive(msg: WithdrawTON) {
+        send(SendParameters{
+            to: self.owner,
+            value: 0,
+            mode: SendRemainingBalance,
+        })
     }
 
     // TODO: A proper estimation for fee framework before public launch, should satisfy:
@@ -102,8 +110,9 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     const MAX_CANDIDATE_ID: Int = 4;
 
     // Message gas cost
-    const NOTIFICATION_COST: Int = ton("0.02"); // WARN: minimum amount for SkateInitiateTaskNotification to pass, app must calculate this.
-    const TRANSFER_USDT_COST: Int = ton("0.05"); // WARN: minimum amount for JettonTransfer to pass.
+    const NOTIFICATION_COST: Int = ton("0.01"); // WARN: minimum amount for SkateInitiateTaskNotification to pass, app must calculate this.
+    const TRANSFER_USDT_COST: Int = ton("0.01"); // WARN: minimum amount for JettonTransfer to pass.
+
 
     init(owner: Address, skate_gateway: Address) {
         self.owner = owner;
@@ -154,6 +163,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     // => EQUIVALENTLY, PLACE BET = SENT JETTON (USDT) + BET INFO.
     //
     //// 1. PLACE BET
+    const TRANSFER_USDT_GAS: Int = ton("0.0028");
     receive(msg: JettonTransferNotification) {
         let ctx: Context = context();
         require(ctx.value >= self.USER_FEE, "PolyMarket::Not enough user fee!");
@@ -170,22 +180,24 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         };
 
         // 2. Notify SkateGateway to initiate a task
-        self.initiate_id += 1;
-        let initiate_params = self.construct_initiate_params(self.initiate_id, msg.sender, new_bet.toCell());
+        self.query_id += 1;
+        let initiate_params = self.construct_initiate_params(self.query_id, msg.sender, new_bet.toCell());
         self.notify_gateway(ctx, initiate_params);
 
-        // TODO:(IMPORTANT)
-        // How to correctly rebates gas for user?
+        // NOTE: estimated user, rebate this amount for user as gas consumption
+        send(SendParameters{
+            to: msg.sender,
+            value: self.TRANSFER_USDT_GAS + ctx.value,
+            mode: SendPayGasSeparately,
+        })
 
         // TODO: (Contracts INTEROP)
         // 3. Notify the caller that the receiver was executed and forward remaining value back
         // self.notify("Bet placed".asComment());
     }
-
     // TODO: (Contracts INTEROP)
-    // Announce execution is done on other periphery chain (polygon)
     //
-    // receive(msg: PlaceBetNotification) {}
+    // receive(msg: RequestPlaceBetNotification) {}
 
     //// 2. Settle Bet
     receive(msg: RequestSettleBet) {
@@ -193,8 +205,8 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         require(ctx.value >= self.USER_FEE, "PolyMarket::Not enough user fee!");
 
         // 1. Initiate an withdrawal request
-        self.settle_id += 1;
-        let initiate_params = self.construct_initiate_params(self.settle_id, ctx.sender, msg.toCell());
+        self.query_id += 1;
+        let initiate_params = self.construct_initiate_params(self.query_id, ctx.sender, msg.toCell());
         self.notify_gateway(ctx, initiate_params);
 
         // TODO:(IMPORTANT)
@@ -205,6 +217,10 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
             mode: SendPayGasSeparately,
         })
     }
+    // TODO: (Contracts INTEROP)
+    //
+    // receive(msg: RequestSettleBetNotification) {}
+
     ///////////////////////////////////////////
 
     ////////// Executor interactions //////////
@@ -268,3 +284,4 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         }
     }
 }
+

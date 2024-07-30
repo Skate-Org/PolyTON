@@ -18,6 +18,8 @@ message(0x471c2809) RevokeExecutor {
 
 message(0x75a6e8ec) TopUpTON {}
 
+message WithdrawTON {}
+
 contract SkateGateway with Deployable, OwnableTransferable  {
     const SKATE_FEE: Int = ton("0.00"); // Gas required to process intent.
     owner: Address;
@@ -36,6 +38,14 @@ contract SkateGateway with Deployable, OwnableTransferable  {
 
     receive(msg: TopUpTON) {
         // Do nothing, just accept TON.
+    }
+
+    receive(msg: WithdrawTON) {
+        send(SendParameters{
+            to: self.owner,
+            value: 0,
+            mode: SendRemainingBalance,
+        })
     }
 
     ////////////////////// GOVERNANCE /////////////////////
@@ -108,7 +118,7 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         }.toCell());
 
         // TODO: Refund gas - amount exceeding SKATE_FEE
-        // self.reply(null);
+        // self.notify(null);
 
         // TODO: DISCUSSION POINT
         // This callback enable supports for different type of use cases:

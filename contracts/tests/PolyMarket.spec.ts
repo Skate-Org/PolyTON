@@ -173,11 +173,8 @@ describe("PolyMarket", () => {
     const gateway = await polyMarket.getGateway();
     expect(gateway.toString()).toEqual(skateGateway.address.toString());
 
-    const bets = await polyMarket.getInitiateCount();
-    expect(bets).toEqual(0n);
-
-    const settles = await polyMarket.getSettleCount();
-    expect(settles).toEqual(0n);
+    const queryId = await polyMarket.getQueryId();
+    expect(queryId).toEqual(0n);
   });
 
   it("should place bet", async () => {
@@ -192,14 +189,19 @@ describe("PolyMarket", () => {
       direction: true, // YES
     };
     const betSlice = beginCell().store(storeBetConfig(newBet)).endCell().asSlice();
+
+    const FORWARD_AMOUNT = toNano("0.008");
+    const TRANSFER_USDT_GAS = toNano("0.0028");
+    const TOTAL_AMOUNT = toNano("0.02");
+
     const placeBetTx = await userUSDTWallet.sendTransfer(
       user.getSender(),
-      toNano("0.5"), // NOTE: this consume gas on USDT wallet, Skate will rebate
+      TOTAL_AMOUNT, // NOTE: this consume gas on USDT wallet, Skate will rebate
       betAmount,
       polyMarket.address,
       user.address,
       null, // payload for USDT wallet, skip
-      toNano("0.2"),
+      FORWARD_AMOUNT,
       betSlice,
     );
     const polyMarketUSDTWallet = await getUSDTWallet(polyMarket.address);
@@ -220,12 +222,20 @@ describe("PolyMarket", () => {
       op: JettonOp.transfer_notification,
       success: true,
     });
-    /// 2.3 Should initiate task notification on SkateGateway
+    /// 2.3.1 Should initiate task notification on SkateGateway
     expect(placeBetTx.transactions).toHaveTransaction({
       from: polyMarket.address,
       to: skateGateway.address,
       op: SkateOp.initiate_task_notification,
       success: true,
+    });
+
+    /// 2.3.2 Should rebate gas for user
+    expect(placeBetTx.transactions).toHaveTransaction({
+      from: polyMarket.address,
+      to: user.address,
+      success: true,
+      value: FORWARD_AMOUNT + TRANSFER_USDT_GAS,
     });
 
     expect(placeBetTx.externals).toHaveLength(1);
@@ -251,13 +261,8 @@ describe("PolyMarket", () => {
       direction: true, // YES
       ct_amount: settleAmount, // 20 Token represent win
     };
-    const requestSettleTx = await polyMarket.send(
-      user.getSender(),
-      {
-        value: toNano("0.2"),
-      },
-      settleRequest,
-    );
+    const GAS_USED = toNano("0.01");
+    const requestSettleTx = await polyMarket.send(user.getSender(), { value: GAS_USED }, settleRequest);
 
     /// 1.1 User transaction to polyMarket
     expect(requestSettleTx.transactions).toHaveTransaction({
@@ -266,7 +271,7 @@ describe("PolyMarket", () => {
       op: PolyMarketOp.request_settle_bet,
       success: true,
     });
-    /// 1.2 Should initiate task notification on SkateGateway
+    /// 1.2.1 Should initiate task notification on SkateGateway
     expect(requestSettleTx.transactions).toHaveTransaction({
       from: polyMarket.address,
       to: skateGateway.address,
@@ -274,6 +279,15 @@ describe("PolyMarket", () => {
       success: true,
     });
 
+    /// 1.2.2 Should rebate gas for user
+    expect(requestSettleTx.transactions).toHaveTransaction({
+      from: polyMarket.address,
+      to: user.address,
+      success: true,
+      value: GAS_USED,
+    });
+
+    /// 1.3 Match emitted event
     expect(requestSettleTx.externals).toHaveLength(1);
     const eventSlice = requestSettleTx.externals[0].body.asSlice();
     const task = loadSkateInitiateTaskEvent(eventSlice);
