@@ -157,7 +157,7 @@ builder $PolyMarket$_store(builder build_0, (slice, slice, int, int, int, int, s
 ((int, slice, (int, int, (cell, cell)))) $SkateInitiateTaskNotification$_constructor_query_id_user_execution_info(int query_id, slice user, (int, int, (cell, cell)) execution_info) inline;
 
 ;; $PolyMarket$_fun_notify_gateway
-((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_notify_gateway((slice, slice, int, int, int, int, slice, int) $self, (int, slice, int, slice) $ctx, (int, slice, int, (int, int, (cell, cell))) $initiate_params) impure inline;
+((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_notify_gateway((slice, slice, int, int, int, int, slice, int) $self, (int, slice, int, (int, int, (cell, cell))) $initiate_params) impure inline;
 
 ;; $PolyMarket$_fun_only_gateway
 ((slice, slice, int, int, int, int, slice, int), ()) $PolyMarket$_fun_only_gateway((slice, slice, int, int, int, int, slice, int) $self) impure inline;

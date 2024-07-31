@@ -10,6 +10,16 @@
 }
 
 ;;
+;; Type: Context
+;; TLB: _ bounced:bool sender:address value:int257 raw:^slice = Context
+;;
+
+_ $Context$_get_value((int, slice, int, slice) v) inline {
+    var (v'bounced, v'sender, v'value, v'raw) = v;
+    return v'value;
+}
+
+;;
 ;; Type: SendParameters
 ;; TLB: _ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell = SendParameters
 ;;
@@ -303,10 +313,11 @@ builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline 
     return (sc_0, (v'owner, v'relayer, v'executors, v'nonce));
 }
 
-(slice, ((slice, int))) $SkateGateway$init$_load(slice sc_0) inline {
+(slice, ((slice, int, slice))) $SkateGateway$init$_load(slice sc_0) inline {
     var v'owner = sc_0~__tact_load_address();
     var v'relayer = sc_0~load_int(257);
-    return (sc_0, (v'owner, v'relayer));
+    var v'signature = sc_0~load_ref().begin_parse();
+    return (sc_0, (v'owner, v'relayer, v'signature));
 }
 
 (slice, int, cell, int) $SkateGateway$_contract_load() impure inline_ref {
@@ -318,9 +329,9 @@ builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline 
     } else {
         ;; Allow only workchain deployments
         throw_unless(137, my_address().preload_uint(11) == 1024);
-        (slice owner, int relayer) = $sc~$SkateGateway$init$_load();
+        (slice owner, int relayer, slice signature) = $sc~$SkateGateway$init$_load();
         $sc.end_parse();
-        return $SkateGateway$_contract_init(owner, relayer);
+        return $SkateGateway$_contract_init(owner, relayer, signature);
     }
 }
 

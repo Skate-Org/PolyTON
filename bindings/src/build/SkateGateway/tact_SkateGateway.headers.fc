@@ -114,14 +114,17 @@ builder $SkateGateway$_store(builder build_0, (slice, int, cell, int) v) inline;
 ;; $StateInit$_not_null
 ((cell, cell)) $StateInit$_not_null(tuple v) inline;
 
+;; $Context$_get_value
+_ $Context$_get_value((int, slice, int, slice) v) inline;
+
 ;; $Payload$_from_tuple
 (cell, cell) $Payload$_from_tuple(tuple v) inline;
 
 ;; $SkateGateway$init$_load
-(slice, ((slice, int))) $SkateGateway$init$_load(slice sc_0) inline;
+(slice, ((slice, int, slice))) $SkateGateway$init$_load(slice sc_0) inline;
 
 ;; $SkateGateway$_contract_init
-(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer) impure inline_ref;
+(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer, slice $signature) impure inline_ref;
 
 ;; $SkateGateway$_contract_load
 (slice, int, cell, int) $SkateGateway$_contract_load() impure inline_ref;
@@ -140,6 +143,9 @@ slice $Cell$_fun_asSlice(cell $self) impure inline;
 
 ;; $SkateGateway$_fun_currentNonce
 ((slice, int, cell, int), int) $SkateGateway$_fun_currentNonce((slice, int, cell, int) $self) impure inline_ref;
+
+;; $SkateGateway$_fun_creationMsg
+((slice, int, cell, int), slice) $SkateGateway$_fun_creationMsg((slice, int, cell, int) $self) impure inline_ref;
 
 ;; $SkateGateway$_fun_relayer
 ((slice, int, cell, int), int) $SkateGateway$_fun_relayer((slice, int, cell, int) $self) impure inline_ref;

@@ -36,6 +36,7 @@ PROGRAM{
   DECLPROC $SkateGateway$_store
   DECLPROC $SkateGateway$_load
   DECLPROC $StateInit$_not_null
+  DECLPROC $Context$_get_value
   DECLPROC $Payload$_from_tuple
   DECLPROC $SkateGateway$init$_load
   DECLPROC $SkateGateway$_contract_init
@@ -45,6 +46,7 @@ PROGRAM{
   DECLPROC $global_emit
   DECLPROC $Cell$_fun_asSlice
   DECLPROC $SkateGateway$_fun_currentNonce
+  DECLPROC $SkateGateway$_fun_creationMsg
   DECLPROC $SkateGateway$_fun_relayer
   DECLPROC $SkateGateway$_fun_is_executor
   DECLPROC $SkateGateway$_fun_isExecutor
@@ -80,6 +82,7 @@ PROGRAM{
   DECLPROC $SkateGateway$_internal_binary_Deploy
   DECLPROC $SkateGateway$_internal_binary_ChangeOwner
   89617 DECLMETHOD %currentNonce
+  72091 DECLMETHOD %creationMsg
   108953 DECLMETHOD %relayer
   70922 DECLMETHOD %isExecutor
   89018 DECLMETHOD %executors
@@ -390,6 +393,10 @@ PROGRAM{
     128 THROWIF
     2 UNTUPLE
   }>
+  $Context$_get_value PROCINLINE:<{
+    s1 s3 XCHG
+    3 BLKDROP
+  }>
   $Payload$_from_tuple PROCINLINE:<{
     2 UNTUPLE
   }>
@@ -398,10 +405,20 @@ PROGRAM{
     SWAP
     257 PUSHINT
     LDIX
-    -ROT
+    LDREF
+    SWAP
+    CTOS
+    s3 s3 s0 XCHG3
   }>
   $SkateGateway$_contract_init PROCREF:<{
     0 PUSHINT
+    64275862242017842999406760721591491809125369245129852673557213303344019160870 PUSHINT
+    ROT
+    s3 PUSH
+    CHKSIGNU
+    10580 PUSHINT
+    SWAP
+    THROWANYIFNOT
     PUSHNULL
     SWAP
   }>
@@ -423,9 +440,9 @@ PROGRAM{
     EQUAL
     137 THROWIFNOT
     $SkateGateway$init$_load INLINECALLDICT
-    s0 s2 XCHG
+    s0 s3 XCHG
     ENDS
-    SWAP
+    ROT
     $SkateGateway$_contract_init INLINECALLDICT
   }>
   $SkateGateway$_contract_store PROCINLINE:<{
@@ -558,6 +575,9 @@ PROGRAM{
   }>
   $SkateGateway$_fun_currentNonce PROCREF:<{
     DUP
+  }>
+  $SkateGateway$_fun_creationMsg PROCREF:<{
+    B{b5ee9c7241010101000f00001a4465706c6f794761746577617922433753} B>boc <s PUSHSLICE
   }>
   $SkateGateway$_fun_relayer PROCREF:<{
     s2 PUSH
@@ -796,6 +816,12 @@ PROGRAM{
     LEQ
     s1 s9 XCHG
     THROWANYIFNOT
+    12859 PUSHINT
+    __tact_context_get INLINECALLDICT
+    $Context$_get_value INLINECALLDICT
+    s10 PUSH
+    GREATER
+    THROWANYIFNOT
     s6 s5 XCPU
     s3 s5 XCHG
     s2 s4 XCHG
@@ -835,6 +861,11 @@ PROGRAM{
   %currentNonce PROC:<{
     $SkateGateway$_contract_load INLINECALLDICT
     $SkateGateway$_fun_currentNonce INLINECALLDICT
+    4 1 BLKDROP2
+  }>
+  %creationMsg PROC:<{
+    $SkateGateway$_contract_load INLINECALLDICT
+    $SkateGateway$_fun_creationMsg INLINECALLDICT
     4 1 BLKDROP2
   }>
   %relayer PROC:<{
@@ -881,7 +912,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d5239336b4b56396e725861583157616e47664e4b67634e6f474b62364275364c464e52526e4a62446d703933} PUSHSLICE
+    x{697066733a2f2f516d6548363867526363527a3470695278526a6e357834455245695a68475971765052644a7a563846744e633937} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH

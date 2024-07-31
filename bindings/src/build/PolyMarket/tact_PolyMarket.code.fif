@@ -512,7 +512,7 @@ PROGRAM{
   $Destination$_constructor_chain_id_chain_type_address PROCINLINE:<{
   }>
   $PolyMarket$_fun_construct_initiate_params PROCINLINE:<{
-    10000000 PUSHINT
+    5000000 PUSHINT
     0 PUSHINT
     NOW
     120 ADDCONST
@@ -568,18 +568,15 @@ PROGRAM{
   $SkateInitiateTaskNotification$_constructor_query_id_user_execution_info PROCINLINE:<{
   }>
   $PolyMarket$_fun_notify_gateway PROCINLINE:<{
-    s5 POP
-    s6 POP
-    s6 POP
-    s7 POP
-    s4 s1 s5 XCHG3
-    s6 s6 s3 XCHG3
+    s4 s6 XCHG
+    s0 s5 XCHG
+    3 -ROLL
     1 PUSHINT
-    s0 s7 XCHG
+    s0 s6 XCHG
     $SkateInitiateTaskNotification$_constructor_query_id_user_execution_info INLINECALLDICT
     $SkateInitiateTaskNotification$_store_cell INLINECALLDICT
     s9 PUSH
-    s3 s3 XCHG2
+    3 -ROLL
     $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
     $global_send INLINECALLDICT
   }>
@@ -634,108 +631,85 @@ PROGRAM{
   $PolyMarket$_internal_binary_JettonTransferNotification PROCINLINE:<{
     s3 POP
     __tact_context_get INLINECALLDICT
+    s1 s3 XCHG
+    3 BLKDROP
     15264 PUSHINT
-    s2 PUSH
+    OVER
     -1 GTINT
     THROWANYIFNOT
-    s0 s6 XCHG
+    s0 s3 XCHG
     $BetConfig$_load_not_mut INLINECALLDICT
     2543 PUSHINT
-    s7 PUSH
+    s4 PUSH
     100000 PUSHINT
-    GREATER
+    GEQ
     THROWANYIFNOT
     17637 PUSHINT
     s2 PUSH
     5 LESSINT
     THROWANYIFNOT
-    s1 s6 s0 XCHG3
+    s1 s3 s0 XCHG3
     $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction INLINECALLDICT
-    s0 s12 XCHG
+    s0 s9 XCHG
     INC
-    s0 s12 XCHG
+    s0 s9 XCHG
     $RequestPlaceBet$_store_cell INLINECALLDICT
-    s10 PUSH
-    s9 s14 XCHG
-    s8 s13 XCHG
-    s7 s12 XCHG
+    s8 s10 XCHG
+    5 6 REVERSE
+    s9 PUSH
     s0 s6 XCHG
-    s5 s10 XCHG
-    s4 s14 XCHG
-    s3 s13 XCHG
-    s12 s11 s0 XCHG3
-    s14 s11 PUXC
+    s5 s11 XCHG
+    s0 s4 XCHG
+    s3 s11 XCHG
+    s10 s2 s0 XC2PU
+    s0 s11 XCHG
     $PolyMarket$_fun_construct_initiate_params INLINECALLDICT
-    s14 17 s() XCHG
-    s13 16 s() XCHG
-    s12 s15 XCHG
-    s11 s14 XCHG
-    s10 s13 XCHG
-    s9 s12 XCHG
-    s8 s11 XCHG
-    s7 s10 XCHG
-    s9 18 s() XCHG
-    18 s() PUSH
-    8 -ROLL
     $PolyMarket$_fun_notify_gateway INLINECALLDICT
     2800000 PUSHINT
-    s0 s9 XCHG2
+    s0 s10 XCHG2
     ADD
-    s1 s9 XCHG
+    s1 s8 XCHG
     1 PUSHINT
     $SendParameters$_constructor_to_value_mode INLINECALLDICT
     $global_send INLINECALLDICT
-    2 6 BLKSWAP
+    s5 s7 XCHG
+    2 5 BLKSWAP
   }>
   $PolyMarket$_internal_binary_RequestSettleBet PROCINLINE:<{
     __tact_context_get INLINECALLDICT
+    DROP
+    s2 POP
     15264 PUSHINT
     s2 PUSH
     -1 GTINT
     THROWANYIFNOT
-    s0 s11 XCHG
+    s0 s9 XCHG
     INC
-    s6 s5 s4 XCHG3
+    s4 s3 s4 XCHG3
     $RequestSettleBet$_store_cell INLINECALLDICT
+    s8 s10 XCHG
+    5 6 REVERSE
     s2 PUSH
-    s9 s13 XCHG
-    s8 s12 XCHG
-    s7 s11 XCHG
     s0 s6 XCHG
-    s5 s13 XCHG
-    s4 s12 XCHG
+    s5 s11 XCHG
+    s0 s4 XCHG
     s3 s11 XCHG
-    s11 s13 s2 XCPUXC
+    s11 s10 s2 XCPUXC
     s0 s12 XCHG
     $PolyMarket$_fun_construct_initiate_params INLINECALLDICT
-    s14 16 s() XCHG
-    s13 s15 XCHG
-    s12 s14 XCHG
-    s11 s13 XCHG
-    s10 s12 XCHG
-    s9 s11 XCHG
-    s8 s10 XCHG
-    s7 s9 XCHG
-    18 s() PUSH
-    s0 s8 XCHG
-    18 s() PUSH
-    s0 s8 XCHG
-    6 2 BLKSWAP
     $PolyMarket$_fun_notify_gateway INLINECALLDICT
-    s9 s8 XCHG2
+    s8 s9 XCHG2
     1 PUSHINT
     $SendParameters$_constructor_to_value_mode INLINECALLDICT
     $global_send INLINECALLDICT
-    2 6 BLKSWAP
+    s5 s7 XCHG
+    2 5 BLKSWAP
   }>
   $PolyMarket$_internal_binary_SettleBet PROCINLINE:<{
     NIP
     s2 POP
     8 2 BLKSWAP
     $PolyMarket$_fun_only_gateway INLINECALLDICT
-    __tact_context_get INLINECALLDICT
-    s1 s3 XCHG
-    3 BLKDROP
     NEWC
     260734629 PUSHINT
     SWAP
@@ -743,9 +717,9 @@ PROGRAM{
     0 PUSHINT
     SWAP
     64 STU
-    s0 s11 XCHG2
+    s0 s10 XCHG2
     STGRAMS
-    s9 PUSH
+    s0 s8 XCHG2
     __tact_store_address INLINECALLDICT
     MYADDR
     __tact_store_address INLINECALLDICT
@@ -758,15 +732,11 @@ PROGRAM{
     SWAP
     1 STU
     ENDC
-    10000000 PUSHINT
+    8500000 PUSHINT
     1 PUSHINT
-    s4 PUSH
+    s9 PUSH
     s0 s3 XCHG
     $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
-    $global_send INLINECALLDICT
-    s8 s9 XCHG2
-    1 PUSHINT
-    $SendParameters$_constructor_to_value_mode INLINECALLDICT
     $global_send INLINECALLDICT
     s5 s7 XCHG
     2 5 BLKSWAP

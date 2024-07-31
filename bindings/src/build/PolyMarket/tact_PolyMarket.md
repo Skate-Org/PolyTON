@@ -1,6 +1,6 @@
 # TACT Compilation Report
 Contract: PolyMarket
-BOC Size: 2122 bytes
+BOC Size: 2047 bytes
 
 # Types
 Total Types: 29

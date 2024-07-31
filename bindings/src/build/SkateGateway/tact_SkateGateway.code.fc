@@ -11,8 +11,10 @@
 ;; Contract SkateGateway functions
 ;;
 
-(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer) impure inline_ref {
+(slice, int, cell, int) $SkateGateway$_contract_init(slice $owner, int $relayer, slice $signature) impure inline_ref {
     var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = (null(), null(), null(), 0);
+    int $isValid = check_signature(64275862242017842999406760721591491809125369245129852673557213303344019160870, $signature, $relayer);
+    throw_unless(10580, $isValid);
     $self'owner = $owner;
     $self'relayer = $relayer;
     $self'executors = null();
@@ -22,6 +24,11 @@
 ((slice, int, cell, int), int) $SkateGateway$_fun_currentNonce((slice, int, cell, int) $self) impure inline_ref {
     var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
     return (($self'owner, $self'relayer, $self'executors, $self'nonce), $self'nonce);
+}
+
+((slice, int, cell, int), slice) $SkateGateway$_fun_creationMsg((slice, int, cell, int) $self) impure inline_ref {
+    var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), __gen_slice_string_e2ed673b70af3f249c798f154ddc344dcfe66fa8d4555f1b4e5f1fcac1b69c5e());
 }
 
 ((slice, int, cell, int), int) $SkateGateway$_fun_relayer((slice, int, cell, int) $self) impure inline_ref {
@@ -168,6 +175,7 @@
     ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_only_executor();
     var ($execution_info'value, $execution_info'expiration, ($execution_info'payload'destination, $execution_info'payload'data)) = ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data));
     throw_unless(45396, (now() <= $execution_info'expiration));
+    throw_unless(12859, ($Context$_get_value(__tact_context_get()) > ($execution_info'value + 0)));
     int $msg_hash = ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($Payload$_tensor_cast(($execution_info'payload'destination, $execution_info'payload'data)));
     $self'nonce = $self'nonce + 1;
     ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_validate_relayer_signature($msg_hash, $msg'relayer_signature);
@@ -198,6 +206,12 @@
 _ %currentNonce() method_id(89617) {
     var self = $SkateGateway$_contract_load();
     var res = self~$SkateGateway$_fun_currentNonce();
+    return res;
+}
+
+_ %creationMsg() method_id(72091) {
+    var self = $SkateGateway$_contract_load();
+    var res = self~$SkateGateway$_fun_creationMsg();
     return res;
 }
 
@@ -252,7 +266,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmR93kKV9nrXaX1WanGfNKgcNoGKb6Bu6LFNRRnJbDmp93";
+    return "ipfs://QmeH68gRccRz4piRxRjn5x4EREiZhGYqvPRdJzV8FtNc97";
 }
 
 _ lazy_deployment_completed() method_id {

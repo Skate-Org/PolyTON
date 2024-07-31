@@ -1,6 +1,6 @@
 # TACT Compilation Report
 Contract: SkateGateway
-BOC Size: 2131 bytes
+BOC Size: 2233 bytes
 
 # Types
 Total Types: 20
@@ -86,9 +86,11 @@ TLB: `withdraw_ton#44807e69  = WithdrawTON`
 Signature: `WithdrawTON{}`
 
 # Get Methods
-Total Get Methods: 7
+Total Get Methods: 8
 
 ## currentNonce
+
+## creationMsg
 
 ## relayer
 
@@ -131,5 +133,6 @@ Argument: payload
 137: Masterchain support is not enabled for this contract
 6808: SkateGateway::SkateInitiateTaskNotification::Not enough processing fee!
 10580: SkateGateway::validate_relayer_signature()::Invalid relayer signature!
+12859: SkateGateway::SkateExecuteTask::Not enough processing fee!
 45396: SkateGateway::SkateExecuteTask::Task expired!
 48599: SkateGateway::set_relayer()::Not approved by new relayer!

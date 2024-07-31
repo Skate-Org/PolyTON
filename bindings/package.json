@@ -1,9 +1,10 @@
 {
   "name": "@skate-org/ton-bindings",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "description": "Typescript bindings for Skate-TON Polymarket contracts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "publish": "npx tsc && npm publish"
   },
   "files": [
     "dist"

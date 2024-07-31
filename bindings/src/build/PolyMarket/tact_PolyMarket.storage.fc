@@ -133,6 +133,8 @@ builder $ExecutionInfo$_store(builder build_0, (int, int, (cell, cell)) v) inlin
 ;; TLB: _ query_id:uint64 user:address processing_fee:coins execution_info:ExecutionInfo{value:coins,expiration:uint32,payload:Payload{destination:^cell,data:^cell}} = SkateInitiateTask
 ;;
 
+((int, slice, int, (int, int, (cell, cell)))) $SkateInitiateTask$_tensor_cast((int, slice, int, (int, int, (cell, cell))) v) asm "NOP";
+
 ((int, slice, int, (int, int, (cell, cell)))) $SkateInitiateTask$_constructor_query_id_user_processing_fee_execution_info(int query_id, slice user, int processing_fee, (int, int, (cell, cell)) execution_info) inline {
     return (query_id, user, processing_fee, execution_info);
 }
