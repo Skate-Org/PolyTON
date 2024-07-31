@@ -36,7 +36,10 @@ describe("SkateGateway", () => {
     mockApp = await blockchain.treasury("MockApp");
     deployer = await blockchain.treasury("deployer");
 
-    skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey));
+    const hashedMsg = sha256("DeployGateway");
+    const bufSignature = ed25519Sign(hashedMsg, relayerPrivateKey);
+    const signature = beginCell().storeBuffer(bufSignature, 64).endCell();
+    skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey, signature));
     const deployResult = await skateGateway.send(
       deployer.getSender(),
       {

@@ -1,7 +1,7 @@
 import { toNano } from "@ton/core";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { polyMarketAddress } from "./const";
+import { TESTNET_POLYMARKET_ADDRESS } from "./const";
 import { PolyMarket, RequestSettleBet } from "../wrappers/PolyMarket";
 
 export async function run(provider: NetworkProvider) {
@@ -10,7 +10,7 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const polyMarket = provider.open(PolyMarket.fromAddress(polyMarketAddress));
+  const polyMarket = provider.open(PolyMarket.fromAddress(TESTNET_POLYMARKET_ADDRESS));
 
   const settleRequest: RequestSettleBet = {
     $$type: "RequestSettleBet",

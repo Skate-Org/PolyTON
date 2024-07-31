@@ -33,6 +33,7 @@ export abstract class Op {
 // NOTE: code generation algorithm: https://docs.tact-lang.org/ref/core-debug#require
 export abstract class ExitCode {
   static SkateInitiateTaskNotification_NotEnoughProcessingFee = 6808;
+  static SkateExecuteTask_NotEnoughProcessingFee = 12859;
   static ValidateRelayerSignature_InvalidRelayerSignature = 10580;
   static SkateExecuteTask_TaskExpired = 45396;
   static SetRelayer_NotApprovedByNewRelayer = 48599;

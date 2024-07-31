@@ -1,8 +1,8 @@
-import { toNano } from "@ton/core";
+import { address, toNano } from "@ton/core";
 import { JettonMaster } from "../wrappers/JettonMaster";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { mockUSDTAddress, polyMarketAddress } from "./const";
+import { TESTNET_USDT_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "./const";
 
 export async function run(provider: NetworkProvider) {
   const owner = provider.sender().address;
@@ -10,10 +10,10 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const mockUSDT = provider.open(JettonMaster.createFromAddress(mockUSDTAddress));
-  // NOTE: user
-  // const to = address("0QBuMAzv90ZXWm2JRgMO0Hr2StP4dsy-Gb7ygeizxYBp3jmU");
+  const mockUSDT = provider.open(JettonMaster.createFromAddress(TESTNET_USDT_ADDRESS));
 
-  const to = owner;
+  const to = address("UQDx8RdK6nH0VfSynD7pyPXCCjWJOBoff7K0YWkzg-C68qIS");
+  // const to = TESTNET_POLYMARKET_ADDRESS;
+
   await mockUSDT.sendMint(provider.sender(), to, toNano("10000"), null, null, null, toNano("0"), toNano("0.1"));
 }

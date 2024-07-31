@@ -105,12 +105,12 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
     const POLYMARKET_CTF: Int = 0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E;
 
     // Bet config
-    const MIN_BET_SIZE: Int = ton("0.0001"); // TBD - set at 0.1 USDT minimum bet for now
+    const MIN_BET_SIZE: Int = ton("0.0001"); // Sync with Polymarket OrderAPI, set at 0.1 USDT minimum bet for now
     const MAX_CANDIDATE_ID: Int = 4;
 
     // Message gas cost
-    const NOTIFICATION_COST: Int = ton("0.01"); // WARN: minimum amount for SkateInitiateTaskNotification to pass, app must calculate this.
-    const TRANSFER_USDT_COST: Int = ton("0.01"); // WARN: minimum amount for JettonTransfer to pass.
+    const NOTIFICATION_COST: Int = ton("0.005"); // WARN: minimum amount for SkateInitiateTaskNotification to pass, app must calculate this.
+    const TRANSFER_USDT_COST: Int = ton("0.0085"); // WARN: minimum amount for JettonTransfer to pass.
 
 
     init(owner: Address, skate_gateway: Address) {
@@ -181,7 +181,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         // 2. Notify SkateGateway to initiate a task
         self.query_id += 1;
         let initiate_params = self.construct_initiate_params(self.query_id, msg.sender, new_bet.toCell());
-        self.notify_gateway(ctx, initiate_params);
+        self.notify_gateway(initiate_params);
 
         // NOTE: estimated user, rebate this amount for user as gas consumption
         send(SendParameters{
@@ -206,7 +206,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         // 1. Initiate an withdrawal request
         self.query_id += 1;
         let initiate_params = self.construct_initiate_params(self.query_id, ctx.sender, msg.toCell());
-        self.notify_gateway(ctx, initiate_params);
+        self.notify_gateway(initiate_params);
 
         // TODO:(IMPORTANT)
         // How to correctly rebates gas for user?
@@ -246,31 +246,25 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         //     forward_payload: emptySlice()
         // };
 
-        // 1.1 Transfer USDT
+        // 1 Transfer USDT
         let transfer_msg = beginCell()
-            .storeUint(0x0f8a7ea5, 32)
-            .storeUint(0, 64) // op, queryId
-            .storeCoins(msg.usd_amount)
-            .storeAddress(msg.user)
-            .storeAddress(myAddress()) // make sure excess gas are returned
-            .storeUint(0, 1)
+            .storeUint(OP_JettonTransfer, 32) // opcode
+            .storeUint(0, 64) // queryId
+            .storeCoins(msg.usd_amount) // usd amount
+            .storeAddress(msg.user) // to address
+            .storeAddress(myAddress()) // response address
+            .storeUint(0, 1) // custom payload
             // TODO: (Contracts INTEROP)
             // Set custom forward payload to user (contract), user needs to pay fee to executor to set gas for processing this payload.
             // forward_payload: SettleBetNotification{}.toCell().asSlice()
-            .storeCoins(0)
-            .storeUint(0, 1)
+            .storeCoins(0) // forward_amount
+            .storeUint(0, 1) // forward_payload
             .endCell();
         send(SendParameters{
             to: self.jetton_wallet,
             value: self.TRANSFER_USDT_COST, // NOTE: depends on payload size, this must be enough to pay gas to transfer
             mode: SendPayGasSeparately, // make sure user get their amount
             body: transfer_msg
-        });
-        // 1.2 Transfer TON amount to user
-        send(SendParameters{
-            to: msg.user,
-            value: ctx.value, // NOTE: depends on payload size, this must be enough to pay gas to transfer
-            mode: SendPayGasSeparately, // make sure user get their amount
         });
 
         // 2. Transfer ton to executor

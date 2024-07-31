@@ -2,7 +2,7 @@ import { Address, beginCell, toNano } from "@ton/core";
 import { JettonMaster } from "../wrappers/JettonMaster";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { TESTNET_POLYMARKET_ADDRESS, TESTNET_USDT_ADDRESS } from "./const";
+import { POLYMARKET_ADDRESS, USDT_ADDRSES } from "./const";
 import { BetConfig, storeBetConfig } from "../wrappers/PolyMarket";
 import { JettonWallet } from "../wrappers/JettonWallet";
 
@@ -12,7 +12,7 @@ export async function run(provider: NetworkProvider) {
     throw "Missing deployer address or relayer key not specified";
   }
 
-  const mockUSDT = provider.open(JettonMaster.createFromAddress(TESTNET_USDT_ADDRESS));
+  const mockUSDT = provider.open(JettonMaster.createFromAddress(USDT_ADDRSES));
   // NOTE: user
   // const to = address("0QBuMAzv90ZXWm2JRgMO0Hr2StP4dsy-Gb7ygeizxYBp3jmU");
 
@@ -20,7 +20,7 @@ export async function run(provider: NetworkProvider) {
     provider.open(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
   const userUSDTWallet = await getUSDTWallet(owner);
 
-  const betAmount = toNano("0.0002"); // 0.2 USDT, since decimal is 6
+  const betAmount = toNano("0.0001"); // 0.1 USDT, since decimal is 6
   // const betCell = beginCell().storeUint(newBet.candidate_id, 8).storeBit(newBet.direction).endCell();
   const newBet: BetConfig = {
     $$type: "BetConfig",
@@ -32,7 +32,7 @@ export async function run(provider: NetworkProvider) {
     provider.sender(),
     toNano("0.018"),
     betAmount,
-    TESTNET_POLYMARKET_ADDRESS,
+    POLYMARKET_ADDRESS,
     owner,
     null, // payload for USDT wallet, skip
     toNano("0.008"),

@@ -27,7 +27,7 @@ import {
   storeSettleBet,
   Op as PolyMarketOp,
 } from "../wrappers/PolyMarket";
-import { bigintToHash, ed25519Sign } from "./helpers";
+import { bigintToHash, ed25519Sign, sha256 } from "./helpers";
 
 describe("PolyMarket", () => {
   let blockchain: Blockchain;
@@ -108,7 +108,10 @@ describe("PolyMarket", () => {
     });
 
     // Deploy gateway
-    skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey));
+    const hashedMsg = sha256("DeployGateway");
+    const bufSignature = ed25519Sign(hashedMsg, relayerPrivateKey);
+    const signature = beginCell().storeBuffer(bufSignature, 64).endCell();
+    skateGateway = blockchain.openContract(await SkateGateway.fromInit(deployer.address, relayerPublicKey, signature));
     const gwDeployResult = await skateGateway.send(
       deployer.getSender(),
       { value: toNano("10000") },
@@ -242,6 +245,8 @@ describe("PolyMarket", () => {
     const eventSlice = placeBetTx.externals[0].body.asSlice();
     const task = loadSkateInitiateTaskEvent(eventSlice);
 
+    expect(task.user.toString()).toEqual(user.address.toString());
+    expect(task.skate_app.toString()).toEqual(polyMarket.address.toString());
     const destination = loadDestination(task.execution_info.payload.destination.asSlice());
     expect(destination.chain_id).toEqual(137n);
     expect(destination.chain_type).toEqual(0n);
@@ -336,7 +341,7 @@ describe("PolyMarket", () => {
       $$type: "ExecutionInfo",
       payload,
       expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: toNano("5"),
+      value: toNano("0.006"),
     };
     const msg_hash = await skateGateway.getPayloadHash(payload);
     const signature = ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
@@ -351,7 +356,7 @@ describe("PolyMarket", () => {
     const executeTaskTx = await skateGateway.send(
       executor.getSender(),
       {
-        value: toNano("10"),
+        value: toNano("0.009"),
       },
       mockExecuteTask,
     );

@@ -30,7 +30,14 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         return self.nonce;
     }
 
-    init(owner: Address, relayer: Int) {
+    const CREATION_MSG: String = "DeployGateway";
+    get fun creationMsg(): String {
+        return self.CREATION_MSG;
+    }
+    init(owner: Address, relayer: Int, signature: Slice) {
+        let isValid: Bool = checkSignature(sha256(self.CREATION_MSG), signature, relayer);
+        require(isValid, "SkateGateway::validate_relayer_signature()::Invalid relayer signature!");
+
         self.owner = owner;
         self.relayer = relayer;
         self.executors = emptyMap();
@@ -134,6 +141,7 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         self.only_executor();
         let execution_info: ExecutionInfo = msg.execution_info;
         require(now() <= execution_info.expiration, "SkateGateway::SkateExecuteTask::Task expired!");
+        require(context().value > execution_info.value + self.SKATE_FEE, "SkateGateway::SkateExecuteTask::Not enough processing fee!");
 
         // Construct the message hash = keccak256(encode(payload)).
         let msg_hash: Int = self._encode_payload(execution_info.payload);
@@ -176,3 +184,4 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         require(isValid, "SkateGateway::validate_relayer_signature()::Invalid relayer signature!");
     }
 }
+

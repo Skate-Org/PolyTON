@@ -9,7 +9,7 @@ trait SkateAppBase {
     skate_gateway: Address;
 
     // Initiate task to Gateway => task will be registered on Skate Kernel
-    inline fun notify_gateway(ctx: Context, initiate_params: SkateInitiateTask) {
+    inline fun notify_gateway(initiate_params: SkateInitiateTask) {
         send(SendParameters{
             to: self.skate_gateway,
             value: initiate_params.processing_fee,
@@ -19,7 +19,7 @@ trait SkateAppBase {
             // App implementation must handle `self.only_gateway()` lock according to their business requirements.
             body: SkateInitiateTaskNotification {
                 query_id: initiate_params.query_id,
-                user: ctx.sender,
+                user: initiate_params.user,
                 execution_info: initiate_params.execution_info
             }.toCell()
         });
