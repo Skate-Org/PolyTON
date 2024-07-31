@@ -69,7 +69,6 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
 
     balance: Int = 0; // Jetton balance (USDT)
     query_id: Int as uint64 = 0; // task initiated by this contract
-    const SETTLE_OFFSET: Int = 0xffffffff; // 2^32 offset.
 
     total_deposit: Int = 0;
     protocol_amount: Int = 0;
@@ -169,7 +168,7 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
         require(ctx.value >= self.USER_FEE, "PolyMarket::Not enough user fee!");
 
         let bet_config: BetConfig = BetConfig.fromSlice(msg.forward_payload);
-        require(msg.amount > self.MIN_BET_SIZE, "PolyMarket::JettonTransferNotification::Bet size too small!");
+        require(msg.amount >= self.MIN_BET_SIZE, "PolyMarket::JettonTransferNotification::Bet size too small!");
         require(bet_config.candidate_id <= self.MAX_CANDIDATE_ID, "PolyMarket::JettonTransferNotification::Invalid candidate id!");
 
         // 1. Create and save the bet struct

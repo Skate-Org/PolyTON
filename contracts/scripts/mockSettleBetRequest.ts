@@ -22,7 +22,7 @@ export async function run(provider: NetworkProvider) {
   await polyMarket.send(
     provider.sender(),
     {
-      value: toNano("0.01"),
+      value: toNano("0.006"),
     },
     settleRequest,
   );

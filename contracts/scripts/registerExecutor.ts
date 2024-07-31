@@ -11,16 +11,16 @@ export async function run(provider: NetworkProvider) {
   }
   const skateGateway = provider.open(SkateGateway.fromAddress(gatewayAddress));
 
-  const newExecutorAddress = owner;
+  const EXECUTOR_ADDRSES = owner;
 
   await skateGateway.send(
     provider.sender(),
     {
-      value: toNano("0.02"),
+      value: toNano("0.00383"),
     },
     {
       $$type: "SetExecutor",
-      executor: newExecutorAddress,
+      executor: EXECUTOR_ADDRSES,
     },
   );
 }

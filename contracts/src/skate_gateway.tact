@@ -176,4 +176,3 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         require(isValid, "SkateGateway::validate_relayer_signature()::Invalid relayer signature!");
     }
 }
-
