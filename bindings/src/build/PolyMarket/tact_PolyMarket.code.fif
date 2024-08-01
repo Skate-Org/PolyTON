@@ -12,6 +12,7 @@ PROGRAM{
   DECLPROC $DeployOk$_store
   DECLPROC $DeployOk$_store_cell
   DECLPROC $JettonTransferNotification$_load
+  DECLPROC $JettonExcesses$_load
   DECLPROC $Destination$_store
   DECLPROC $Destination$_store_cell
   DECLPROC $Payload$_store
@@ -58,6 +59,7 @@ PROGRAM{
   DECLPROC $RequestPlaceBet$_constructor_candidate_id_usd_amount_direction
   DECLPROC $DeployOk$_constructor_queryId
   DECLPROC $PolyMarket$_internal_binary_TopUpTON
+  DECLPROC $PolyMarket$_internal_binary_JettonExcesses
   DECLPROC $PolyMarket$_internal_binary_WithdrawTON
   DECLPROC $PolyMarket$_internal_binary_SetJettonWallet
   DECLPROC $PolyMarket$_internal_binary_JettonTransferNotification
@@ -157,6 +159,15 @@ PROGRAM{
     __tact_load_address INLINECALLDICT
     s3 s0 s3 XC2PU
     s2 s3 XCHG
+  }>
+  $JettonExcesses$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    3576854235 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    64 LDU
+    SWAP
   }>
   $Destination$_store PROCINLINE:<{
     s2 s3 XCHG2
@@ -610,6 +621,9 @@ PROGRAM{
   $PolyMarket$_internal_binary_TopUpTON PROCINLINE:<{
     DROP
   }>
+  $PolyMarket$_internal_binary_JettonExcesses PROCINLINE:<{
+    DROP
+  }>
   $PolyMarket$_internal_binary_WithdrawTON PROCINLINE:<{
     DROP
     s7 PUSH
@@ -775,7 +789,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d5277413761454c4d6754596a6a5572336845335677444443446f6a59374647583452356e4251555932505664} PUSHSLICE
+    x{697066733a2f2f516d63323735504d4a465465684838414d757048384266366235634d7a5a4d724c367478366a6768367962446165} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -806,6 +820,16 @@ PROGRAM{
       $TopUpTON$_load INLINECALLDICT
       NIP
       $PolyMarket$_internal_binary_TopUpTON INLINECALLDICT
+      TRUE
+    }>
+    DUP
+    3576854235 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      $JettonExcesses$_load INLINECALLDICT
+      NIP
+      $PolyMarket$_internal_binary_JettonExcesses INLINECALLDICT
       TRUE
     }>
     DUP

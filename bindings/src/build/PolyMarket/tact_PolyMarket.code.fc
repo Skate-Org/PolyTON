@@ -73,6 +73,12 @@
     return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
 }
 
+(((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_JettonExcesses((slice, slice, int, int, int, int, slice, int) $self, (int) $msg) impure inline {
+    var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
+    var ($msg'query_id) = $msg;
+    return (($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set), ());
+}
+
 (((slice, slice, int, int, int, int, slice, int)), ()) $PolyMarket$_internal_binary_WithdrawTON((slice, slice, int, int, int, int, slice, int) $self, tuple $msg) impure inline {
     var ($self'owner, $self'skate_gateway, $self'balance, $self'query_id, $self'total_deposit, $self'protocol_amount, $self'jetton_wallet, $self'is_jetton_set) = $self;
     var $msg = $msg;
@@ -178,7 +184,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmRwA7aELMgTYjjUr3hE3VwDDCDojY7FGX4R5nBQUY2PVd";
+    return "ipfs://Qmc275PMJFTehH8AMupH8Bf6b5cMzZMrL6tx6jgh6ybDae";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -206,6 +212,13 @@ _ lazy_deployment_completed() method_id {
     if (op == 1973872876) {
         var msg = in_msg~$TopUpTON$_load();
         self~$PolyMarket$_internal_binary_TopUpTON(msg);
+        return (self, true);
+    }
+    
+    ;; Receive JettonExcesses message
+    if (op == 3576854235) {
+        var msg = in_msg~$JettonExcesses$_load();
+        self~$PolyMarket$_internal_binary_JettonExcesses(msg);
         return (self, true);
     }
     

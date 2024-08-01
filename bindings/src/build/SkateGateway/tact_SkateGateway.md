@@ -1,6 +1,6 @@
 # TACT Compilation Report
 Contract: SkateGateway
-BOC Size: 2233 bytes
+BOC Size: 2320 bytes
 
 # Types
 Total Types: 20
@@ -102,7 +102,10 @@ Argument: addr
 ## changeRelayerMsg
 
 ## payload_hash
+Argument: query_id
+Argument: target
 Argument: payload
+Argument: expiration
 
 ## owner
 
@@ -134,5 +137,6 @@ Argument: payload
 6808: SkateGateway::SkateInitiateTaskNotification::Not enough processing fee!
 10580: SkateGateway::validate_relayer_signature()::Invalid relayer signature!
 12859: SkateGateway::SkateExecuteTask::Not enough processing fee!
+34923: SkateGateway::SkateExecuteTask::Execution value is less than the minimum requirement!
 45396: SkateGateway::SkateExecuteTask::Task expired!
 48599: SkateGateway::set_relayer()::Not approved by new relayer!

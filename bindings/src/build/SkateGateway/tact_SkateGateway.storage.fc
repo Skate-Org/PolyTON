@@ -116,13 +116,15 @@ builder $Payload$_store(builder build_0, (cell, cell) v) inline {
     return build_0;
 }
 
+cell $Payload$_store_cell((cell, cell) v) inline {
+    return $Payload$_store(begin_cell(), v).end_cell();
+}
+
 (slice, ((cell, cell))) $Payload$_load(slice sc_0) inline {
     var v'destination = sc_0~load_ref();
     var v'data = sc_0~load_ref();
     return (sc_0, (v'destination, v'data));
 }
-
-((cell, cell)) $Payload$_tensor_cast((cell, cell) v) asm "NOP";
 
 (cell, cell) $Payload$_from_tuple(tuple v) inline {
     var (cell v'destination, cell v'data) = __tact_tuple_destroy_2(v);
