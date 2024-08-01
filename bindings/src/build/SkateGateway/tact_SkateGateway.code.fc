@@ -88,18 +88,18 @@
     return (($self'owner, $self'relayer, $self'executors, $self'nonce), ());
 }
 
-((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, (cell, cell) $execution_payload) impure inline {
+((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, int $query_id, slice $target, (cell, cell) $payload, int $expiration) impure inline {
     var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
-    var (($execution_payload'destination, $execution_payload'data)) = $execution_payload;
-    slice $msg_slice = $Cell$_fun_asSlice(end_cell(store_int(store_uint(store_uint(begin_cell(), cell_hash($execution_payload'data), 256), cell_hash($execution_payload'destination), 256), $self'nonce, 64)));
+    var (($payload'destination, $payload'data)) = $payload;
+    slice $msg_slice = $Cell$_fun_asSlice(end_cell(store_uint(store_int(store_uint(store_uint(store_uint(begin_cell(), $query_id, 64), cell_hash($Payload$_store_cell(($payload'destination, $payload'data))), 256), $expiration, 32), $self'nonce, 64), load_uint$not_mut(__tact_address_to_slice($target), 256), 256)));
     int $hashed_msg = string_hash($msg_slice);
     return (($self'owner, $self'relayer, $self'executors, $self'nonce), $hashed_msg);
 }
 
-((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, (cell, cell) $payload) impure inline_ref {
+((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, int $query_id, slice $target, (cell, cell) $payload, int $expiration) impure inline_ref {
     var (($self'owner, $self'relayer, $self'executors, $self'nonce)) = $self;
     var (($payload'destination, $payload'data)) = $payload;
-    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($Payload$_tensor_cast(($payload'destination, $payload'data))));
+    return (($self'owner, $self'relayer, $self'executors, $self'nonce), ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($query_id, $target, ($payload'destination, $payload'data), $expiration));
 }
 
 ((slice, int, cell, int), ()) $SkateGateway$_fun_only_executor((slice, int, cell, int) $self) impure inline {
@@ -175,8 +175,9 @@
     ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_only_executor();
     var ($execution_info'value, $execution_info'expiration, ($execution_info'payload'destination, $execution_info'payload'data)) = ($msg'execution_info'value, $msg'execution_info'expiration, ($msg'execution_info'payload'destination, $msg'execution_info'payload'data));
     throw_unless(45396, (now() <= $execution_info'expiration));
+    throw_unless(34923, ($execution_info'value >= 8000000));
     throw_unless(12859, ($Context$_get_value(__tact_context_get()) > ($execution_info'value + 0)));
-    int $msg_hash = ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($Payload$_tensor_cast(($execution_info'payload'destination, $execution_info'payload'data)));
+    int $msg_hash = ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun__encode_payload($msg'query_id, $msg'target_app, ($execution_info'payload'destination, $execution_info'payload'data), $execution_info'expiration);
     $self'nonce = $self'nonce + 1;
     ($self'owner, $self'relayer, $self'executors, $self'nonce)~$SkateGateway$_fun_validate_relayer_signature($msg_hash, $msg'relayer_signature);
     $global_send($SendParameters$_constructor_to_value_mode_body($msg'target_app, $execution_info'value, 1, $execution_info'payload'data));
@@ -240,10 +241,13 @@ _ %changeRelayerMsg() method_id(128639) {
     return res;
 }
 
-_ %payload_hash(tuple $$payload) method_id(111473) {
+_ %payload_hash(int $$query_id, slice $$target, tuple $$payload, int $$expiration) method_id(111473) {
+    int $query_id = $$query_id;
+    slice $target = __tact_verify_address($$target);
     (cell, cell) $payload = $Payload$_from_tuple($$payload);
+    int $expiration = $$expiration;
     var self = $SkateGateway$_contract_load();
-    var res = self~$SkateGateway$_fun_payload_hash($payload);
+    var res = self~$SkateGateway$_fun_payload_hash($query_id, $target, $payload, $expiration);
     return res;
 }
 
@@ -266,7 +270,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmeH68gRccRz4piRxRjn5x4EREiZhGYqvPRdJzV8FtNc97";
+    return "ipfs://Qmdoxaz5G1sc9xtAD1nbYLJVhjG83WMNdXb4mTtht1gAcs";
 }
 
 _ lazy_deployment_completed() method_id {

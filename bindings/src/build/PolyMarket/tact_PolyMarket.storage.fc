@@ -75,6 +75,18 @@ cell $DeployOk$_store_cell((int) v) inline {
 }
 
 ;;
+;; Type: JettonExcesses
+;; Header: 0xd53276db
+;; TLB: jetton_excesses#d53276db query_id:uint64 = JettonExcesses
+;;
+
+(slice, ((int))) $JettonExcesses$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 3576854235);
+    var v'query_id = sc_0~load_uint(64);
+    return (sc_0, (v'query_id));
+}
+
+;;
 ;; Type: Destination
 ;; TLB: _ chain_id:uint256 chain_type:uint256 address:uint256 = Destination
 ;;

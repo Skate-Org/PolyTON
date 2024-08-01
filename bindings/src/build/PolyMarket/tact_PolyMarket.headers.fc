@@ -42,6 +42,9 @@ cell $DeployOk$_store_cell((int) v) inline;
 ;; $JettonTransferNotification$_load
 (slice, ((int, int, slice, slice))) $JettonTransferNotification$_load(slice sc_0) inline;
 
+;; $JettonExcesses$_load
+(slice, ((int))) $JettonExcesses$_load(slice sc_0) inline;
+
 ;; $Destination$_store
 builder $Destination$_store(builder build_0, (int, int, int) v) inline;
 

@@ -57,6 +57,9 @@ cell $ChangeOwnerOk$_store_cell((int, slice) v) inline;
 ;; $Payload$_store
 builder $Payload$_store(builder build_0, (cell, cell) v) inline;
 
+;; $Payload$_store_cell
+cell $Payload$_store_cell((cell, cell) v) inline;
+
 ;; $Payload$_load
 (slice, ((cell, cell))) $Payload$_load(slice sc_0) inline;
 
@@ -138,6 +141,9 @@ _ $Context$_get_value((int, slice, int, slice) v) inline;
 ;; $global_emit
 () $global_emit(cell $body) impure inline;
 
+;; load_uint$not_mut
+int load_uint$not_mut(slice $self, int $l) impure inline_ref;
+
 ;; $Cell$_fun_asSlice
 slice $Cell$_fun_asSlice(cell $self) impure inline;
 
@@ -181,10 +187,10 @@ slice $Cell$_fun_asSlice(cell $self) impure inline;
 ((slice, int, cell, int), ()) $SkateGateway$_fun_set_relayer((slice, int, cell, int) $self, int $newRelayer, slice $currentSignature, slice $newSignature) impure inline;
 
 ;; $SkateGateway$_fun__encode_payload
-((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, (cell, cell) $execution_payload) impure inline;
+((slice, int, cell, int), int) $SkateGateway$_fun__encode_payload((slice, int, cell, int) $self, int $query_id, slice $target, (cell, cell) $payload, int $expiration) impure inline;
 
 ;; $SkateGateway$_fun_payload_hash
-((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, (cell, cell) $payload) impure inline_ref;
+((slice, int, cell, int), int) $SkateGateway$_fun_payload_hash((slice, int, cell, int) $self, int $query_id, slice $target, (cell, cell) $payload, int $expiration) impure inline_ref;
 
 ;; $SkateGateway$_fun_only_executor
 ((slice, int, cell, int), ()) $SkateGateway$_fun_only_executor((slice, int, cell, int) $self) impure inline;

@@ -17,6 +17,7 @@ PROGRAM{
   DECLPROC $ChangeOwnerOk$_store
   DECLPROC $ChangeOwnerOk$_store_cell
   DECLPROC $Payload$_store
+  DECLPROC $Payload$_store_cell
   DECLPROC $Payload$_load
   DECLPROC $ExecutionInfo$_store
   DECLPROC $ExecutionInfo$_load
@@ -44,6 +45,7 @@ PROGRAM{
   DECLPROC $SkateGateway$_contract_store
   DECLPROC $global_send
   DECLPROC $global_emit
+  DECLPROC load_uint$not_mut
   DECLPROC $Cell$_fun_asSlice
   DECLPROC $SkateGateway$_fun_currentNonce
   DECLPROC $SkateGateway$_fun_creationMsg
@@ -224,6 +226,12 @@ PROGRAM{
     s0 s2 XCHG
     STREF
     STREF
+  }>
+  $Payload$_store_cell PROCINLINE:<{
+    NEWC
+    -ROT
+    $Payload$_store INLINECALLDICT
+    ENDC
   }>
   $Payload$_load PROCINLINE:<{
     LDREF
@@ -570,6 +578,10 @@ PROGRAM{
     0 PUSHINT
     SENDRAWMSG
   }>
+  load_uint$not_mut PROCREF:<{
+    LDUX
+    DROP
+  }>
   $Cell$_fun_asSlice PROCINLINE:<{
     CTOS
   }>
@@ -663,32 +675,41 @@ PROGRAM{
     s3 s3 XCHG2
   }>
   $SkateGateway$_fun__encode_payload PROCINLINE:<{
+    s0 s4 XCHG
     NEWC
-    SWAP
+    64 STU
+    -ROT
+    $Payload$_store_cell INLINECALLDICT
     HASHCU
     SWAP
     256 STU
-    SWAP
-    HASHCU
-    SWAP
-    256 STU
-    s1 s(-1) PUXC
+    s1 s2 XCHG
+    32 STU
+    s2 s(-1) PUXC
     64 STI
+    SWAP
+    8 PUSHPOW2
+    load_uint$not_mut INLINECALLDICT
+    SWAP
+    256 STU
     ENDC
     $Cell$_fun_asSlice INLINECALLDICT
     SHA256U
   }>
   $SkateGateway$_fun_payload_hash PROCREF:<{
-    s5 s4 s3 PUSH3
-    s5 PUSH
-    s9 s4 XCHG2
-    s1 s5 XCHG
-    s4 s8 XCHG
-    s3 s7 XCHG
-    s2 s6 XCHG
+    s8 s7 s6 PUSH3
+    s8 PUSH
+    s8 s12 XCHG
+    s7 s11 XCHG
+    s6 s10 XCHG
+    s5 s9 XCHG
+    s4 s12 XCHG
+    s3 s11 XCHG
+    s10 s9 s12 XCHG3
     $SkateGateway$_fun__encode_payload INLINECALLDICT
     4 1 BLKDROP2
-    s4 s3 s0 XCHG3
+    s3 s4 XCHG
+    s1 s3 s0 XCHG3
   }>
   $SkateGateway$_fun_only_executor PROCINLINE:<{
     __tact_context_get_sender INLINECALLDICT
@@ -806,34 +827,35 @@ PROGRAM{
     $global_emit INLINECALLDICT
   }>
   $SkateGateway$_internal_binary_SkateExecuteTask PROCINLINE:<{
-    s6 POP
-    s3 s9 XCHG
-    s8 s7 s6 XCHG3
+    s3 s10 XCHG
+    s9 s8 s7 XCHG3
     $SkateGateway$_fun_only_executor INLINECALLDICT
     45396 PUSHINT
     NOW
-    s0 s10 XCHG2
+    s12 PUSH
     LEQ
-    s1 s9 XCHG
+    THROWANYIFNOT
+    34923 PUSHINT
+    s5 PUSH
+    8000000 PUSHINT
+    GEQ
     THROWANYIFNOT
     12859 PUSHINT
     __tact_context_get INLINECALLDICT
     $Context$_get_value INLINECALLDICT
-    s10 PUSH
+    s6 PUSH
     GREATER
     THROWANYIFNOT
-    s6 s5 XCPU
-    s3 s5 XCHG
-    s2 s4 XCHG
-    s3 s7 XCHG
-    s2 s8 XCHG
+    s3 s6 XCHG
+    s5 s1 s3 XCHG3
+    s2 s2 s4 PUXC2
+    s10 s9 s11 XCPUXC
     $SkateGateway$_fun__encode_payload INLINECALLDICT
     SWAP
     INC
     s4 s5 XCHG
     s3 s4 XCHG
     s0 s1 s3 XCHG3
-    s0 s6 XCHG
     $SkateGateway$_fun_validate_relayer_signature INLINECALLDICT
     s5 s6 s0 XCHG3
     1 PUSHINT
@@ -891,9 +913,16 @@ PROGRAM{
     4 1 BLKDROP2
   }>
   %payload_hash PROC:<{
+    s0 s2 XCHG
+    __tact_verify_address INLINECALLDICT
+    SWAP
     $Payload$_from_tuple INLINECALLDICT
     $SkateGateway$_contract_load INLINECALLDICT
-    2 4 BLKSWAP
+    s3 s8 XCHG
+    s7 s1 s5 XCHG3
+    s6 s2 XCHG2
+    s1 s3 XCHG
+    s1 s4 XCHG
     $SkateGateway$_fun_payload_hash INLINECALLDICT
     4 1 BLKDROP2
   }>
@@ -912,7 +941,7 @@ PROGRAM{
     86142586315491086060343270784266291122 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d6548363867526363527a3470695278526a6e357834455245695a68475971765052644a7a563846744e633937} PUSHSLICE
+    x{697066733a2f2f516d646f78617a35473173633978744144316e62594c4a56686a473833574d4e645862346d547468743167416373} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
