@@ -1,9 +1,9 @@
 import { toNano } from "@ton/core";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { PolyMarket } from "../wrappers/PolyMarket";
-import { TESTNET_USDT_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "./const";
-import { JettonMaster } from "../wrappers/JettonMaster";
+import { PolyMarket } from "../../wrappers/PolyMarket";
+import { TESTNET_USDT_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "../const";
+import { JettonMaster } from "../../wrappers/JettonMaster";
 
 export async function run(provider: NetworkProvider) {
   const owner = provider.sender().address;

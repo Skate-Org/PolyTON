@@ -318,7 +318,7 @@ describe("PolyMarket", () => {
     };
     const mockDestination = beginCell().store(storeDestination(polyMarketCTF_ID)).endCell();
     // NOTE: in production, this must match the request settle bet id
-    const settleId = BigInt(0xffffffff);
+    const settleId = BigInt(2n);
     const fillAmount = toNano("1");
     const mockData = beginCell()
       .store(
@@ -337,13 +337,14 @@ describe("PolyMarket", () => {
       destination: mockDestination,
       data: mockData,
     };
+    const expiration = BigInt(Math.round(new Date().getTime() / 1000));
     const execution_info: ExecutionInfo = {
       $$type: "ExecutionInfo",
       payload,
-      expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: toNano("0.006"),
+      expiration,
+      value: toNano("0.01"),
     };
-    const msg_hash = await skateGateway.getPayloadHash(payload);
+    const msg_hash = await skateGateway.getPayloadHash(settleId, polyMarket.address, payload, expiration);
     const signature = ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
 
     const mockExecuteTask: SkateExecuteTask = {
@@ -356,7 +357,7 @@ describe("PolyMarket", () => {
     const executeTaskTx = await skateGateway.send(
       executor.getSender(),
       {
-        value: toNano("0.009"),
+        value: toNano("0.02"),
       },
       mockExecuteTask,
     );

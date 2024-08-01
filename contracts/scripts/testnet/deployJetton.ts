@@ -1,5 +1,5 @@
 import { beginCell, Cell, Dictionary, toNano } from "@ton/core";
-import { JettonMaster, JettonMasterContent } from "../wrappers/JettonMaster";
+import { JettonMaster, JettonMasterContent } from "../../wrappers/JettonMaster";
 import { compile, NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
 

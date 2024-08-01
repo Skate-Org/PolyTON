@@ -2,7 +2,7 @@ import { toNano } from "@ton/core";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
 import { PolyMarket } from "../wrappers/PolyMarket";
-import { GATEWAY_ADDRESS, USDT_ADDRSES } from "./const";
+import { POLYMARKET_ADDRESS, USDT_ADDRSES } from "./const";
 import { JettonMaster } from "../wrappers/JettonMaster";
 
 export async function run(provider: NetworkProvider) {
@@ -10,17 +10,15 @@ export async function run(provider: NetworkProvider) {
   if (!owner) {
     throw "Missing deployer address or relayer key not specified";
   }
-  const polyMarket = provider.open(await PolyMarket.fromInit(owner, GATEWAY_ADDRESS));
-
-  await polyMarket.send(provider.sender(), { value: toNano("0.005") }, { $$type: "Deploy", queryId: 0n });
-
-  await provider.waitForDeploy(polyMarket.address);
+  const polyMarket = provider.open(PolyMarket.fromAddress(POLYMARKET_ADDRESS));
   const mockUSDT = provider.open(JettonMaster.createFromAddress(USDT_ADDRSES));
-  const marketUSDTWallet = await mockUSDT.getWalletAddress(polyMarket.address);
+  const marketUSDTWallet = await mockUSDT.getWalletAddress(POLYMARKET_ADDRESS);
 
   await polyMarket.send(
     provider.sender(),
-    { value: toNano("0.005") },
+    {
+      value: toNano("0.2"),
+    },
     {
       $$type: "SetJettonWallet",
       jetton_wallet: marketUSDTWallet,

@@ -47,7 +47,7 @@ message(0x77321783) SetJettonWallet {
 
 message(0x75a6e8ec) TopUpTON {}
 
-message WithdrawTON {}
+message(0x44807e69) WithdrawTON {}
 
 ///////////////////////////////////////////////
 
@@ -82,6 +82,12 @@ contract PolyMarket with Deployable, SkateAppBase, Ownable {
 
     receive(msg: TopUpTON) {
         // Do nothing, just accept TON.
+        // TODO: incentive to fund this
+    }
+
+    receive(msg: JettonExcesses) {
+        // NOTE: do nothing
+        // be explicit rather than implements an arbitrary receive()
     }
 
     receive(msg: WithdrawTON) {
