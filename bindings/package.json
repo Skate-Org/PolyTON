@@ -4,7 +4,7 @@
   "description": "Typescript bindings for Skate-TON Polymarket contracts",
   "scripts": {
     "build": "tsc",
-    "publish": "npx tsc && npm publish"
+    "package:publish": "npx tsc && npm publish"
   },
   "files": [
     "dist"

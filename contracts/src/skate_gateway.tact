@@ -18,7 +18,7 @@ message(0x471c2809) RevokeExecutor {
 
 message(0x75a6e8ec) TopUpTON {}
 
-message WithdrawTON {}
+message(0x44807e69) WithdrawTON {}
 
 contract SkateGateway with Deployable, OwnableTransferable  {
     const SKATE_FEE: Int = ton("0.00"); // Gas required to process intent.
@@ -137,21 +137,20 @@ contract SkateGateway with Deployable, OwnableTransferable  {
     inline fun _initiate_task_callback(ctx: Context, msg: SkateInitiateTaskNotification) {}
 
     // NOTE: Skate executor entry point.
+    const MIN_EXECUTION_VALUE: Int = ton("0.008"); // Adjust accordingly
     receive(msg: SkateExecuteTask) {
         self.only_executor();
         let execution_info: ExecutionInfo = msg.execution_info;
         require(now() <= execution_info.expiration, "SkateGateway::SkateExecuteTask::Task expired!");
+        require(execution_info.value >= self.MIN_EXECUTION_VALUE, "SkateGateway::SkateExecuteTask::Execution value is less than the minimum requirement!");
         require(context().value > execution_info.value + self.SKATE_FEE, "SkateGateway::SkateExecuteTask::Not enough processing fee!");
 
         // Construct the message hash = keccak256(encode(payload)).
-        let msg_hash: Int = self._encode_payload(execution_info.payload);
+        let msg_hash: Int = self._encode_payload(msg.query_id, msg.target_app, execution_info.payload, execution_info.expiration);
         self.nonce += 1;
 
         // validate signature
         self.validate_relayer_signature(msg_hash, msg.relayer_signature);
-
-        // TODO: what to do with Payload.destination?
-        // This information must be pushed on-chain so it can be verified later.
 
         send(SendParameters{
             to: msg.target_app,
@@ -161,18 +160,25 @@ contract SkateGateway with Deployable, OwnableTransferable  {
         })
     }
 
-    inline fun _encode_payload(execution_payload: Payload): Int {
+    inline fun _encode_payload(query_id: Int, target: Address, payload: Payload, expiration: Int): Int {
         let msg_slice = beginCell()
-            .storeUint(execution_payload.data.hash(), 256)
-            .storeUint(execution_payload.destination.hash(), 256)
+            .storeUint(query_id, 64)
+            .storeUint(payload.toCell().hash(), 256)
+            .storeUint(expiration, 32)
             .storeInt(self.nonce, 64)
+            // TODO: why does these approaches cause exit code 9
+            // .storeSlice(target.asSlice())
+            // .storeAddress(target)
+            // NOTE: probably because sha256 takes above as slice reference -> failed to hash
+            .storeUint(target.asSlice().loadUint(256), 256)
             .endCell()
             .asSlice();
         let hashed_msg = sha256(msg_slice);
         return hashed_msg;
     }
-    get fun payload_hash(payload: Payload): Int {
-        return self._encode_payload(payload);
+
+    get fun payload_hash(query_id: Int, target: Address, payload: Payload, expiration: Int): Int {
+        return self._encode_payload(query_id, target, payload, expiration);
     }
     /////////////////////////////////////////////////////////
     inline fun only_executor() {

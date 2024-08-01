@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract, SendMessageResult, TreasuryContract } from "@ton/sandbox";
-import { toNano, beginCell, Cell } from "@ton/core";
+import { toNano, beginCell, Cell, Address } from "@ton/core";
 import "@ton/test-utils";
 import { bigintToHash, ed25519Sign, sha256 } from "./helpers";
 import {
@@ -246,12 +246,18 @@ describe("SkateGateway", () => {
     forward_amount,
     destination,
     executor,
+    target_app,
+    expire,
+    query_id,
   }: {
     relayerSig?: Buffer;
     data?: Cell;
     forward_amount: bigint; // as coins < 10 ton
     destination?: Cell;
     executor?: SandboxContract<TreasuryContract>;
+    target_app?: Address;
+    expire?: bigint;
+    query_id?: bigint;
   }) {
     if (forward_amount >= toNano("1")) {
       throw new Error("callExecuteTask()::Forward amount too large, change this function");
@@ -267,7 +273,6 @@ describe("SkateGateway", () => {
         }),
       )
       .endCell();
-    // const mockDestination = beginCell().endCell();
     const mockDestination = beginCell()
       .store(
         storeDestination({
@@ -284,21 +289,21 @@ describe("SkateGateway", () => {
       destination: destination ?? mockDestination,
       data: data ?? mockData,
     };
+    const expiration = BigInt(Math.round(new Date().getTime() / 1000) + 120);
     const execution_info: ExecutionInfo = {
       $$type: "ExecutionInfo",
       payload,
-      expiration: BigInt(Math.round(new Date().getTime() / 1000)),
-      value: forward_amount, // NOTE: amount forward to
+      expiration: expire ?? expiration,
+      value: forward_amount,
     };
-    const msg_hash = await skateGateway.getPayloadHash(payload);
+    const settleId = 1n;
+    const msg_hash = await skateGateway.getPayloadHash(settleId, mockApp.address, payload, expiration);
     const signature = relayerSig ?? ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
-    // const hashedMsg = sha256("hello");
-    // const signature = ed25519Sign(hashedMsg, relayerPrivateKey);
 
     const mockExecuteTask: SkateExecuteTask = {
       $$type: "SkateExecuteTask",
-      query_id: 0n,
-      target_app: mockApp.address,
+      query_id: query_id ?? settleId,
+      target_app: target_app ?? mockApp.address,
       execution_info,
       relayer_signature: beginCell().storeBuffer(signature, 64).endCell(),
     };
@@ -339,18 +344,16 @@ describe("SkateGateway", () => {
   });
 
   it("should reject execution if not executor", async () => {
-    const relayerSig = ed25519Sign(sha256("Corrupted MSG"), relayerPrivateKey);
-    const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
+    const fakExecutor = await blockchain.treasury("EXECUTOR_0");
     const forward_amount = toNano("0.05");
-    const { tx: executeTaskTx } = await callExecuteTask({ relayerSig, executor: executor0, forward_amount });
+    const { tx: executeTaskTx } = await callExecuteTask({ executor: fakExecutor, forward_amount });
     expect(executeTaskTx.transactions).toHaveTransaction({
-      from: executor0.address,
+      from: fakExecutor.address,
       to: skateGateway.address,
       success: false,
       op: SkateGateway_Op.execute_task,
-      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+      exitCode: 132, // Not executor
     });
-
     expect(executeTaskTx.transactions).not.toHaveTransaction({
       from: skateGateway.address,
       to: mockApp.address,
@@ -362,20 +365,104 @@ describe("SkateGateway", () => {
 
   it("should reject execution without valid signature", async () => {
     const relayerSig = ed25519Sign(sha256("Corrupted MSG"), relayerPrivateKey);
-    const { executor: executor0 } = await registerExecutor("EXECUTOR_0");
+    const { executor } = await registerExecutor("EXECUTOR_0");
     const forward_amount = toNano("0.05");
-    const { tx: executeTaskTx } = await callExecuteTask({ relayerSig, executor: executor0, forward_amount });
+    const { tx: executeTaskTx } = await callExecuteTask({ relayerSig, executor, forward_amount });
     expect(executeTaskTx.transactions).toHaveTransaction({
-      from: executor0.address,
+      from: executor.address,
       to: skateGateway.address,
       success: false,
       op: SkateGateway_Op.execute_task,
       exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
     });
-
     expect(executeTaskTx.transactions).not.toHaveTransaction({
       from: skateGateway.address,
       to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
+  });
+
+  it("should reject execution if mismatch query_id", async () => {
+    const { executor } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({ query_id: 0n, executor, forward_amount });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+    });
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
+  });
+
+  it("should reject execution if task expired", async () => {
+    const { executor } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({ expire: 0n, executor, forward_amount });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.SkateExecuteTask_TaskExpired, // Invalid signature -> not allowed
+    });
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
+  });
+
+  it("should reject execution if expiration mismatch", async () => {
+    const { executor } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const { tx: executeTaskTx } = await callExecuteTask({
+      expire: BigInt(Math.round(new Date().getTime() / 1000) + 120000),
+      executor,
+      forward_amount,
+    });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+    });
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: mockApp.address,
+      value: forward_amount,
+      success: true,
+      exitCode: 0,
+    });
+  });
+
+  it("should reject execution if target app mismatch", async () => {
+    const { executor } = await registerExecutor("EXECUTOR_0");
+    const forward_amount = toNano("0.05");
+    const fakeApp = await blockchain.treasury("FakeApp");
+    const { tx: executeTaskTx } = await callExecuteTask({ target_app: fakeApp.address, executor, forward_amount });
+    expect(executeTaskTx.transactions).toHaveTransaction({
+      from: executor.address,
+      to: skateGateway.address,
+      success: false,
+      op: SkateGateway_Op.execute_task,
+      exitCode: SkateGateway_ExitCode.ValidateRelayerSignature_InvalidRelayerSignature, // Invalid signature -> not allowed
+    });
+    expect(executeTaskTx.transactions).not.toHaveTransaction({
+      from: skateGateway.address,
+      to: fakeApp.address,
       value: forward_amount,
       success: true,
       exitCode: 0,

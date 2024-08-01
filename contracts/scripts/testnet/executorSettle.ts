@@ -1,11 +1,10 @@
 import { beginCell, toNano } from "@ton/core";
-import { SkateGateway, storeDestination } from "../build/SkateGateway/tact_SkateGateway";
+import { Payload, SkateExecuteTask, SkateGateway, storeDestination } from "../../wrappers/SkateGateway";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { Destination, ExecutionInfo, storeSettleBet } from "../wrappers/PolyMarket";
-import { Payload, SkateExecuteTask } from "../wrappers/SkateGateway";
-import { TESTNET_GATEWAY_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "./const";
-import { bigintToHash, ed25519Sign } from "./helpers/crypto"
+import { Destination, ExecutionInfo, storeSettleBet } from "../../wrappers/PolyMarket";
+import { TESTNET_GATEWAY_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "../const";
+import { bigintToHash, ed25519Sign } from "../helpers/crypto";
 
 export async function run(provider: NetworkProvider) {
   const owner = provider.sender().address;
@@ -15,7 +14,6 @@ export async function run(provider: NetworkProvider) {
   }
   const skateGateway = provider.open(SkateGateway.fromAddress(TESTNET_GATEWAY_ADDRESS));
   const relayerPrivateKey = BigInt(`0x${process.env.RELAYER_PRIVATE_KEY!}`);
-
 
   const USER = owner;
   const EXECUTOR = owner;
@@ -29,16 +27,16 @@ export async function run(provider: NetworkProvider) {
   };
   const mockDestination = beginCell().store(storeDestination(polyMarketCTF_ID)).endCell();
 
-  const settleId = BigInt(5);
-  const fillAmount = toNano("100");
+  const settle_query_id = 5n;
+  const usd_amount = toNano("100"); // -> 20x in this test
   const mockData = beginCell()
     .store(
       storeSettleBet({
         $$type: "SettleBet",
-        settle_id: settleId,
+        settle_id: settle_query_id,
         user: USER,
         fee_receiver: EXECUTOR,
-        usd_amount: fillAmount, // 0.11 USDT
+        usd_amount,
       }),
     )
     .endCell();
@@ -49,18 +47,20 @@ export async function run(provider: NetworkProvider) {
     data: mockData,
   };
 
+  const expiration = BigInt(Math.round(new Date().getTime() / 1000 + 60));
+
   const execution_info: ExecutionInfo = {
     $$type: "ExecutionInfo",
     payload,
-    expiration: BigInt(Math.round(new Date().getTime() / 1000 + 60)),
+    expiration,
     value: toNano("0.01"),
   };
-  const msg_hash = await skateGateway.getPayloadHash(payload);
+  const msg_hash = await skateGateway.getPayloadHash(settle_query_id, TESTNET_POLYMARKET_ADDRESS, payload, expiration);
   const signature = await ed25519Sign(bigintToHash(msg_hash), relayerPrivateKey);
 
   const MsgExecuteTask: SkateExecuteTask = {
     $$type: "SkateExecuteTask",
-    query_id: settleId, // this must match settle_id for AVS to approve.
+    query_id: settle_query_id, // this must match settle_id for AVS to approve.
     target_app: TESTNET_POLYMARKET_ADDRESS,
     execution_info,
     relayer_signature: beginCell().storeBuffer(signature, 64).endCell(),
@@ -69,7 +69,7 @@ export async function run(provider: NetworkProvider) {
   await skateGateway.send(
     provider.sender(), // EXECUTOR ADDR
     {
-      value: toNano("0.0101"),
+      value: toNano("0.02"),
     },
     MsgExecuteTask,
   );

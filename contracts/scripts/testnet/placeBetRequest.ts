@@ -1,10 +1,10 @@
 import { Address, beginCell, toNano } from "@ton/core";
-import { JettonMaster } from "../wrappers/JettonMaster";
+import { JettonMaster } from "../../wrappers/JettonMaster";
 import { NetworkProvider } from "@ton/blueprint";
 import "dotenv/config";
-import { TESTNET_POLYMARKET_ADDRESS, TESTNET_USDT_ADDRESS } from "./const";
-import { BetConfig, storeBetConfig } from "../wrappers/PolyMarket";
-import { JettonWallet } from "../wrappers/JettonWallet";
+import { TESTNET_POLYMARKET_ADDRESS, TESTNET_USDT_ADDRESS } from "../const";
+import { BetConfig, storeBetConfig } from "../../wrappers/PolyMarket";
+import { JettonWallet } from "../../wrappers/JettonWallet";
 
 export async function run(provider: NetworkProvider) {
   const owner = provider.sender().address;
@@ -20,7 +20,7 @@ export async function run(provider: NetworkProvider) {
     provider.open(JettonWallet.createFromAddress(await mockUSDT.getWalletAddress(address)));
   const userUSDTWallet = await getUSDTWallet(owner);
 
-  const betAmount = toNano("0.0002"); // 0.2 USDT, since decimal is 6
+  const betAmount = toNano("5"); // 5000 USDT, since decimal is 6
   // const betCell = beginCell().storeUint(newBet.candidate_id, 8).storeBit(newBet.direction).endCell();
   const newBet: BetConfig = {
     $$type: "BetConfig",
