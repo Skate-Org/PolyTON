@@ -36,5 +36,3 @@ export function ed25519Sign(hashedMsg: string | Buffer, privateKey: BigInt) {
   const signature = ed.sign(hashedMsg, privKeyBytes);
   return Buffer.from(signature);
 }
-
-export * as ed from "@noble/ed25519";

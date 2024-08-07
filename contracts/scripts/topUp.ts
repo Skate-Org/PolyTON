@@ -10,10 +10,10 @@ export async function run(provider: NetworkProvider) {
   if (!owner || !relayerKey) {
     throw "Missing deployer address or relayer key not specified";
   }
-  const to = TESTNET_POLYMARKET_ADDRESS;
+  const to = POLYMARKET_ADDRESS;
 
   await provider.sender().send({
-    value: toNano("1"),
+    value: toNano("0.3"),
     to,
     sendMode: SendMode.PAY_GAS_SEPARATELY,
     body: beginCell().storeUint(PolymarketOp.top_up_TON, 32).storeUint(0, 64).endCell(),

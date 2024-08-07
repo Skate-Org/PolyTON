@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { PolyMarket } from "../wrappers/PolyMarket";
 import { GATEWAY_ADDRESS, POLYMARKET_ADDRESS, TESTNET_POLYMARKET_ADDRESS } from "../scripts/const";
-import { JettonMaster } from "../wrappers/JettonMaster";
 import { TonClient } from "@ton/ton";
 import "dotenv/config";
 
@@ -15,6 +14,7 @@ async function main() {
 
   console.log("Polymarket address", POLYMARKET_ADDRESS.toRawString());
   console.log("Gateway address", GATEWAY_ADDRESS.toRawString());
+  console.log("zptPIGO7SLd3H910DEsrsFju7iaNP71P5Juq5mZlw2I=");
 
   const gateway = await polyMarket.getGateway();
   console.log(gateway.toString());
